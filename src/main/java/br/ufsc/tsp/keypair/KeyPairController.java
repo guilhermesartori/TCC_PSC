@@ -15,9 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import br.ufsc.tsp.error.ErrorMessage;
 import br.ufsc.tsp.keypair.exception.KeyPairDeletionException;
 import br.ufsc.tsp.keypair.exception.KeyPairGenerationException;
+import br.ufsc.tsp.keypair.exception.SignatureException;
+import br.ufsc.tsp.keypair.requestdto.KeyPairGenerationRequest;
+import br.ufsc.tsp.keypair.requestdto.SignatureRequest;
+import br.ufsc.tsp.keypair.responsedto.SignatureResponse;
 
 @RestController
-@RequestMapping(path = "key-pair")
+@RequestMapping(path = "key")
 public class KeyPairController {
 
 	private KeyPairService keyPairService;
@@ -42,7 +46,7 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (Exception e) {
-			body = new ErrorMessage("Internal error");
+			body = new ErrorMessage(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
@@ -62,7 +66,7 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (KeyPairGenerationException e) {
-			body = new ErrorMessage("Invalid request parameters");
+			body = new ErrorMessage(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.BAD_REQUEST;
 		} catch (Exception e) {
@@ -94,7 +98,30 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
-		
+
+		return new ResponseEntity<Object>(body, headers, status);
+	}
+
+	@PostMapping(path = "sign")
+	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
+		Object body;
+		HttpHeaders headers;
+		HttpStatus status;
+
+		try {
+			var signature = keyPairService.sign(request);
+			body = new SignatureResponse(signature);
+			headers = new HttpHeaders();
+			status = HttpStatus.OK;
+		} catch (SignatureException e) {
+			body = new ErrorMessage(e.getMessage());
+			headers = new HttpHeaders();
+			status = HttpStatus.BAD_REQUEST;
+		} catch (Exception e) {
+			body = new ErrorMessage(e.getMessage());
+			headers = new HttpHeaders();
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
 		return new ResponseEntity<Object>(body, headers, status);
 	}
 

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair;
+package br.ufsc.tsp.keypair.requestdto;
 
 public class KeyPairGenerationRequest {
 
