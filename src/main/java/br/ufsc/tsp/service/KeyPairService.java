@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair;
+package br.ufsc.tsp.service;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -22,12 +22,14 @@ import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.ufsc.tsp.keypair.constant.KeyAlgorithmEnum;
-import br.ufsc.tsp.keypair.exception.KeyPairDeletionException;
-import br.ufsc.tsp.keypair.exception.KeyPairGenerationException;
-import br.ufsc.tsp.keypair.exception.SignatureException;
-import br.ufsc.tsp.keypair.requestdto.KeyPairGenerationRequest;
-import br.ufsc.tsp.keypair.requestdto.SignatureRequest;
+import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
+import br.ufsc.tsp.controller.request.SignatureRequest;
+import br.ufsc.tsp.domain.KeyPair;
+import br.ufsc.tsp.domain.enums.KeyAlgorithmEnum;
+import br.ufsc.tsp.exception.KeyPairDeletionException;
+import br.ufsc.tsp.exception.KeyPairGenerationException;
+import br.ufsc.tsp.exception.SignatureException;
+import br.ufsc.tsp.repository.KeyPairRepository;
 
 @Service
 public class KeyPairService {

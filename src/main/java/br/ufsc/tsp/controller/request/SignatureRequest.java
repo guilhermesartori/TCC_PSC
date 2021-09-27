@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair.requestdto;
+package br.ufsc.tsp.controller.request;
 
 public class SignatureRequest {
 

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair;
+package br.ufsc.tsp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.ufsc.tsp.error.ErrorMessage;
-import br.ufsc.tsp.keypair.exception.KeyPairDeletionException;
-import br.ufsc.tsp.keypair.exception.KeyPairGenerationException;
-import br.ufsc.tsp.keypair.exception.SignatureException;
-import br.ufsc.tsp.keypair.requestdto.KeyPairGenerationRequest;
-import br.ufsc.tsp.keypair.requestdto.SignatureRequest;
-import br.ufsc.tsp.keypair.responsedto.SignatureResponse;
+import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
+import br.ufsc.tsp.controller.request.SignatureRequest;
+import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.controller.response.SignatureResponse;
+import br.ufsc.tsp.exception.KeyPairDeletionException;
+import br.ufsc.tsp.exception.KeyPairGenerationException;
+import br.ufsc.tsp.exception.SignatureException;
+import br.ufsc.tsp.service.KeyPairService;
 
 @RestController
 @RequestMapping(path = "key")
@@ -46,7 +47,7 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (Exception e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
@@ -66,11 +67,11 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (KeyPairGenerationException e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.BAD_REQUEST;
 		} catch (Exception e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
@@ -89,12 +90,12 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (KeyPairDeletionException e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.BAD_REQUEST;
 		} catch (Exception e) {
 			e.printStackTrace();
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
@@ -114,11 +115,11 @@ public class KeyPairController {
 			headers = new HttpHeaders();
 			status = HttpStatus.OK;
 		} catch (SignatureException e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.BAD_REQUEST;
 		} catch (Exception e) {
-			body = new ErrorMessage(e.getMessage());
+			body = new ErrorMessageResponse(e.getMessage());
 			headers = new HttpHeaders();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}

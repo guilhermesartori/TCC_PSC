@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair.exception;
+package br.ufsc.tsp.exception;
 
 public class KeyPairDeletionException extends Exception {
 

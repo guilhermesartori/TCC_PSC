@@ -1,9 +1,11 @@
-package br.ufsc.tsp.keypair;
+package br.ufsc.tsp.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import br.ufsc.tsp.domain.KeyPair;
 
 @Repository
 public interface KeyPairRepository extends JpaRepository<KeyPair, Long> {

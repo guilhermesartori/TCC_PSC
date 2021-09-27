@@ -1,13 +1,13 @@
-package br.ufsc.tsp.error;
+package br.ufsc.tsp.controller.response;
 
-public class ErrorMessage {
+public class ErrorMessageResponse {
 
 	private String error;
 
 	/**
 	 * @param error
 	 */
-	public ErrorMessage(String error) {
+	public ErrorMessageResponse(String error) {
 		super();
 		this.error = error;
 	}

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair.responsedto;
+package br.ufsc.tsp.controller.response;
 
 public class SignatureResponse {
 

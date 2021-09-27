@@ -1,4 +1,4 @@
-package br.ufsc.tsp.keypair.constant;
+package br.ufsc.tsp.domain.enums;
 
 public enum KeyAlgorithmEnum {
 	EC, RSA, EDDSA;
