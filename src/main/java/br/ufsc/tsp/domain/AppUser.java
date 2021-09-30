@@ -1,9 +1,14 @@
 package br.ufsc.tsp.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class AppUser {
@@ -14,6 +19,8 @@ public class AppUser {
 	private String name;
 	private String username;
 	private String password;
+	@ManyToMany(fetch = FetchType.EAGER)
+	private Collection<Role> roles = new ArrayList<>();
 
 	/**
 	 * 
@@ -90,6 +97,20 @@ public class AppUser {
 	 */
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	/**
+	 * @return the roles
+	 */
+	public Collection<Role> getRoles() {
+		return roles;
+	}
+
+	/**
+	 * @param roles the roles to set
+	 */
+	public void setRoles(Collection<Role> roles) {
+		this.roles = roles;
 	}
 
 }
