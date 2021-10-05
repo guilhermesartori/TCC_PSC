@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.domain.AppUser;
+import br.ufsc.tsp.domain.Role;
 import br.ufsc.tsp.service.AppUserService;
 
 @RestController
@@ -39,4 +41,17 @@ public class AppUserController {
 		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user").toUriString());
 		return ResponseEntity.created(uri).body(appUserService.saveUser(user));
 	}
+
+	@PostMapping(path = "role")
+	public ResponseEntity<Object> saveRole(@RequestBody Role role) {
+		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/role").toUriString());
+		return ResponseEntity.created(uri).body(appUserService.saveRole(role));
+	}
+
+	@PostMapping(path = "add-role")
+	public ResponseEntity<Object> addRoleToUser(@RequestBody RoleToUserForm role) {
+		appUserService.addRoleToUser(role.getUsername(), role.getRoleName());
+		return ResponseEntity.ok().build();
+	}
+
 }

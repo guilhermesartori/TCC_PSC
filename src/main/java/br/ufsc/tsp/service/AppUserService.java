@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.tsp.domain.AppUser;
@@ -24,12 +25,15 @@ public class AppUserService implements UserDetailsService {
 
 	private final AppUserRepository appUserRepository;
 	private final RoleRepository roleRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public AppUserService(AppUserRepository appUserRepository, RoleRepository roleRepository) {
+	public AppUserService(AppUserRepository appUserRepository, RoleRepository roleRepository,
+			PasswordEncoder passwordEncoder) {
 		super();
 		this.appUserRepository = appUserRepository;
 		this.roleRepository = roleRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -41,10 +45,11 @@ public class AppUserService implements UserDetailsService {
 		appUser.getRoles().forEach(role -> {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		});
-		return new User(appUser.getUsername(), appUser.getName(), authorities);
+		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
 
 	public AppUser saveUser(AppUser user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}
 

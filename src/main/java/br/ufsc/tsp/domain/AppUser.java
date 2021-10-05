@@ -1,6 +1,5 @@
 package br.ufsc.tsp.domain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.Entity;
@@ -20,7 +19,7 @@ public class AppUser {
 	private String username;
 	private String password;
 	@ManyToMany(fetch = FetchType.EAGER)
-	private Collection<Role> roles = new ArrayList<>();
+	private Collection<Role> roles;
 
 	/**
 	 * 
@@ -35,12 +34,13 @@ public class AppUser {
 	 * @param username
 	 * @param password
 	 */
-	public AppUser(Long id, String name, String username, String password) {
+	public AppUser(Long id, String name, String username, String password, Collection<Role> roles) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.username = username;
 		this.password = password;
+		this.roles = roles;
 	}
 
 	/**
