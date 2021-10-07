@@ -41,7 +41,7 @@ public class AppUserService implements UserDetailsService {
 		AppUser appUser = appUserRepository.findByUsername(username);
 		if (appUser == null)
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
-		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+		var authorities = new ArrayList<SimpleGrantedAuthority>();
 		appUser.getRoles().forEach(role -> {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		});
@@ -66,8 +66,8 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public void addRoleToUser(String username, String roleName) {
-		AppUser appUser = appUserRepository.findByUsername(username);
-		Role role = roleRepository.findByName(roleName);
+		var appUser = appUserRepository.findByUsername(username);
+		var role = roleRepository.findByName(roleName);
 		appUser.getRoles().add(role);
 	}
 
