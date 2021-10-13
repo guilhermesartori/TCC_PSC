@@ -1,8 +1,6 @@
 package br.ufsc.tsp.security.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,15 +11,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.utility.JWTManager;
 
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
@@ -35,16 +31,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 				try {
 					var token = authorizationHeader.substring("Bearer ".length());
-					var algorithm = Algorithm.HMAC256("secret".getBytes());
-					var jwtVerifier = JWT.require(algorithm).build();
-					var decodedJWT = jwtVerifier.verify(token);
-					var username = decodedJWT.getSubject();
-					var roles = decodedJWT.getClaim("roles").asArray(String.class);
-					var authorities = new ArrayList<SimpleGrantedAuthority>();
-					Arrays.stream(roles).forEach(role -> {
-						authorities.add(new SimpleGrantedAuthority(role));
-					});
-					var authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+					var decodedJWTManager = new JWTManager().decode(token);
+					var principal = decodedJWTManager.getUsername();
+					var authorities = decodedJWTManager.getAuthorities();
+					var authenticationToken = new UsernamePasswordAuthenticationToken(principal, null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 					filterChain.doFilter(request, response);
 				} catch (Exception e) {

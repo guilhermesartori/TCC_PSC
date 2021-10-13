@@ -2,8 +2,6 @@ package br.ufsc.tsp.controller;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,17 +19,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.request.RoleToUserForm;
+import br.ufsc.tsp.controller.response.AuthenticationResponse;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.Role;
 import br.ufsc.tsp.service.AppUserService;
+import br.ufsc.tsp.utility.JWTManager;
 
 @RestController
 @RequestMapping(path = "user")
@@ -55,13 +53,13 @@ public class AppUserController {
 
 	@PostMapping
 	public ResponseEntity<Object> saveUser(@RequestBody AppUser user) {
-		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user").toUriString());
+		var uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user").toUriString());
 		return ResponseEntity.created(uri).body(appUserService.saveUser(user));
 	}
 
 	@PostMapping(path = "role")
 	public ResponseEntity<Object> saveRole(@RequestBody Role role) {
-		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/role").toUriString());
+		var uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/role").toUriString());
 		return ResponseEntity.created(uri).body(appUserService.saveRole(role));
 	}
 
@@ -78,21 +76,16 @@ public class AppUserController {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			try {
 				var refreshToken = authorizationHeader.substring("Bearer ".length());
-				var algorithm = Algorithm.HMAC256("secret".getBytes());
-				var jwtVerifier = JWT.require(algorithm).build();
-				var decodedJWT = jwtVerifier.verify(refreshToken);
-				var username = decodedJWT.getSubject();
+				var jwtManager = new JWTManager();
+				var decodedJwtManager = jwtManager.decode(refreshToken);
+				var username = decodedJwtManager.getUsername();
 				var user = appUserService.getUser(username);
-				var accessToken = JWT.create().withSubject(user.getUsername())
-						.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-						.withIssuer(request.getRequestURL().toString())
-						.withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
-						.sign(algorithm);
-				var tokens = new HashMap<String, String>();
-				tokens.put("access_token", accessToken);
-				tokens.put("refresh_token", refreshToken);
+				var issuer = request.getRequestURL().toString();
+				var roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+				var accessToken = jwtManager.createAccessToken(username, issuer, roles);
 				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-				new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+				var authenticationResponseBody = new AuthenticationResponse(accessToken, refreshToken);
+				new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponseBody);
 			} catch (Exception e) {
 				e.printStackTrace();
 				var errorMessageResponse = new ErrorMessageResponse(e.getMessage());

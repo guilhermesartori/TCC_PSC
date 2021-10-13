@@ -1,8 +1,6 @@
 package br.ufsc.tsp.security.filter;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -19,9 +17,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.ufsc.tsp.controller.response.AuthenticationResponse;
+import br.ufsc.tsp.utility.JWTManager;
 
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -40,7 +39,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			throws AuthenticationException {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		System.out.println(String.format("Username: {%s}, Password: {%s}", username, password));
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
 				password);
 		return authenticationManager.authenticate(authenticationToken);
@@ -49,22 +47,16 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
+		var jwtManager = new JWTManager();
 		var user = (User) authResult.getPrincipal();
-		var algorithm = Algorithm.HMAC256("secret".getBytes());
-		var accessToken = JWT.create().withSubject(user.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-				.withIssuer(request.getRequestURL().toString())
-				.withClaim("roles",
-						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-				.sign(algorithm);
-		var refreshToken = JWT.create().withSubject(user.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
-				.withIssuer(request.getRequestURL().toString()).sign(algorithm);
-		var tokens = new HashMap<String, String>();
-		tokens.put("access_token", accessToken);
-		tokens.put("refresh_token", refreshToken);
+		var username = user.getUsername();
+		var issuer = request.getRequestURL().toString();
+		var roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+		var accessToken = jwtManager.createAccessToken(username, issuer, roles);
+		var refreshToken = jwtManager.createRefreshToken(username, issuer);
+		var authenticationResponseBody = new AuthenticationResponse(accessToken, refreshToken);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+		new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponseBody);
 	}
 
 	@Override
