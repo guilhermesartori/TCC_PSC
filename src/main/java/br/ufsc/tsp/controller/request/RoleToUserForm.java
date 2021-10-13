@@ -2,7 +2,6 @@ package br.ufsc.tsp.controller.request;
 
 public class RoleToUserForm {
 
-	private String username;
 	private String roleName;
 
 	/**
@@ -16,24 +15,9 @@ public class RoleToUserForm {
 	 * @param username
 	 * @param roleName
 	 */
-	public RoleToUserForm(String username, String roleName) {
+	public RoleToUserForm(String roleName) {
 		super();
-		this.username = username;
 		this.roleName = roleName;
-	}
-
-	/**
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * @param username the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
 	}
 
 	/**

@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.Role;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.RoleRepository;
 
@@ -59,10 +58,6 @@ public class AppUserService implements UserDetailsService {
 
 	public Collection<AppUser> getUsers() {
 		return appUserRepository.findAll();
-	}
-
-	public Role saveRole(Role role) {
-		return roleRepository.save(role);
 	}
 
 	public void addRoleToUser(String username, String roleName) {
