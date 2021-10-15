@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.Role;
 import br.ufsc.tsp.service.AppUserService;
+import br.ufsc.tsp.service.RoleService;
 
 @SpringBootApplication
 public class TspApplication {
@@ -24,27 +25,26 @@ public class TspApplication {
 	public PasswordEncoder passwordEncoderBean() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
-	CommandLineRunner run(AppUserService userService) {
+	CommandLineRunner run(AppUserService userService, RoleService roleService) {
 		return args -> {
-			userService.saveRole(new Role(null, "ROLE_USER"));
-			userService.saveRole(new Role(null, "ROLE_MANAGER"));
-			userService.saveRole(new Role(null, "ROLE_ADMIN"));
-			userService.saveRole(new Role(null, "ROLE_SUPER_ADMIN"));
-			
+			roleService.saveRole(new Role(null, "ROLE_USER"));
+			roleService.saveRole(new Role(null, "ROLE_MANAGER"));
+			roleService.saveRole(new Role(null, "ROLE_ADMIN"));
+			roleService.saveRole(new Role(null, "ROLE_SUPER_ADMIN"));
+
 			userService.saveUser(new AppUser(null, "Guilherme Sartori", "guilherme", "1234", new ArrayList<>()));
 			userService.saveUser(new AppUser(null, "Fulano de Tal", "fulano", "fulano", new ArrayList<>()));
 			userService.saveUser(new AppUser(null, "Usuario Teste", "usuario", "passwordsenha", new ArrayList<>()));
-			
+
 			userService.addRoleToUser("guilherme", "ROLE_ADMIN");
 			userService.addRoleToUser("guilherme", "ROLE_USER");
 			userService.addRoleToUser("guilherme", "ROLE_MANAGER");
 			userService.addRoleToUser("guilherme", "ROLE_SUPER_ADMIN");
 			userService.addRoleToUser("fulano", "ROLE_MANAGER");
 			userService.addRoleToUser("usuario", "ROLE_USER");
-			
-			
+
 		};
 	}
 
