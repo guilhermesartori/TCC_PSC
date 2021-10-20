@@ -2,6 +2,7 @@ package br.ufsc.tsp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ import br.ufsc.tsp.service.KeyPairService;
 @RequestMapping(path = "key")
 public class KeyPairController {
 
-	private KeyPairService keyPairService;
+	private final KeyPairService keyPairService;
 
 	/**
 	 * @param keyPairService
@@ -49,7 +50,8 @@ public class KeyPairController {
 	@PostMapping
 	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {
-			keyPairService.createKeyPair(request);
+			var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			keyPairService.createKeyPair(username, request);
 			return ResponseEntity.created(null).build();
 		} catch (KeyPairGenerationException e) {
 			var body = new ErrorMessageResponse(e.getMessage());

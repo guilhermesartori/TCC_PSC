@@ -24,6 +24,8 @@ public class KeyPair {
 	private String keyAlgorithm;
 	@Column(nullable = false, unique = true)
 	private String uniqueIdentifier;
+	@Column(nullable = false)
+	private AppUser owner;
 
 	/**
 	 * 
@@ -37,13 +39,15 @@ public class KeyPair {
 	 * @param privateKey
 	 * @param keyAlgorithm
 	 * @param uniqueIdentifier
+	 * @param owner
 	 */
-	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String uniqueIdentifier) {
+	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String uniqueIdentifier, AppUser owner) {
 		super();
 		this.publicKey = publicKey;
 		this.privateKey = privateKey;
 		this.keyAlgorithm = keyAlgorithm;
 		this.uniqueIdentifier = uniqueIdentifier;
+		this.owner = owner;
 	}
 
 	/**
@@ -54,10 +58,10 @@ public class KeyPair {
 	}
 
 	/**
-	 * @param publicKey the publicKey to set
+	 * @return the owner
 	 */
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
+	public AppUser getOwner() {
+		return owner;
 	}
 
 	/**
@@ -68,24 +72,10 @@ public class KeyPair {
 	}
 
 	/**
-	 * @param privateKey the privateKey to set
-	 */
-	public void setPrivateKey(String privateKey) {
-		this.privateKey = privateKey;
-	}
-
-	/**
 	 * @return the keyAlgorithm
 	 */
 	public String getKeyAlgorithm() {
 		return keyAlgorithm;
-	}
-
-	/**
-	 * @param keyAlgorithm the keyAlgorithm to set
-	 */
-	public void setKeyAlgorithm(String keyAlgorithm) {
-		this.keyAlgorithm = keyAlgorithm;
 	}
 
 	/**

@@ -38,8 +38,12 @@ public class AppUserController {
 
 	@PostMapping
 	public ResponseEntity<Object> saveUser(@RequestBody AppUser user) {
-		var uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user").toUriString());
-		return ResponseEntity.created(uri).body(appUserService.saveUser(user));
+		var createdUser = appUserService.saveUser(user);
+		var createdUserId = createdUser.getId();
+		var pathToCreatedUser = String.format("/user/%d", createdUserId);
+		var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
+		var uri = URI.create(uriString);
+		return ResponseEntity.created(uri).body(createdUser);
 	}
 
 	@PostMapping(path = "{username}/role")

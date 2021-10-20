@@ -29,28 +29,36 @@ import br.ufsc.tsp.domain.enums.KeyAlgorithmEnum;
 import br.ufsc.tsp.exception.KeyPairDeletionException;
 import br.ufsc.tsp.exception.KeyPairGenerationException;
 import br.ufsc.tsp.exception.SignatureException;
+import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
 
 @Service
+@Transactional
 public class KeyPairService {
 
+	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
 
 	/**
+	 * 
 	 * @param keyPairRepository
+	 * @param appUserRepository
 	 */
 	@Autowired
-	public KeyPairService(KeyPairRepository keyPairRepository) {
+	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository) {
 		super();
 		this.keyPairRepository = keyPairRepository;
+		this.appUserRepository = appUserRepository;
 	}
 
 	public List<KeyPair> getKeyPairs() {
 		return keyPairRepository.findAll();
 	}
 
-	public void createKeyPair(KeyPairGenerationRequest request) throws KeyPairGenerationException {
+	public void createKeyPair(String username, KeyPairGenerationRequest request) throws KeyPairGenerationException {
 		try {
+			var appUser = appUserRepository.findByUsername(username);
+
 			var provider = new BouncyCastleProvider();
 			var generator = KeyPairGenerator.getInstance(request.getKeyAlgorithm(), provider);
 			var digest = MessageDigest.getInstance("SHA-256", provider);
@@ -89,7 +97,7 @@ public class KeyPairService {
 			var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
 
 			var keyPairEntity = new KeyPair(base64EncodedPrivateKey, base64EncodedPublicKey, keyAlgorithm,
-					uniqueIdentifier);
+					uniqueIdentifier, appUser);
 
 			keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException e) {
