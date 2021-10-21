@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
+import br.ufsc.tsp.domain.enums.Authority;
+
 @Entity
 public class AppUser {
 
@@ -19,7 +21,7 @@ public class AppUser {
 	private String username;
 	private String password;
 	@ManyToMany(fetch = FetchType.EAGER)
-	private Collection<Role> roles;
+	private Collection<Authority> authorities;
 
 	/**
 	 * 
@@ -29,18 +31,20 @@ public class AppUser {
 	}
 
 	/**
+	 * 
 	 * @param id
 	 * @param name
 	 * @param username
 	 * @param password
+	 * @param authorities
 	 */
-	public AppUser(Long id, String name, String username, String password, Collection<Role> roles) {
+	public AppUser(Long id, String name, String username, String password, Collection<Authority> authorities) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.username = username;
 		this.password = password;
-		this.roles = roles;
+		this.authorities = authorities;
 	}
 
 	/**
@@ -100,17 +104,17 @@ public class AppUser {
 	}
 
 	/**
-	 * @return the roles
+	 * @return the authorities
 	 */
-	public Collection<Role> getRoles() {
-		return roles;
+	public Collection<Authority> getAuthorities() {
+		return authorities;
 	}
 
 	/**
-	 * @param roles the roles to set
+	 * @param authorities the authorities to set
 	 */
-	public void setRoles(Collection<Role> roles) {
-		this.roles = roles;
+	public void setAuthorities(Collection<Authority> authorities) {
+		this.authorities = authorities;
 	}
 
 }

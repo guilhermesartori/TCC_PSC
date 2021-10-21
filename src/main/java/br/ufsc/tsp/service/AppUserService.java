@@ -15,23 +15,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.tsp.domain.AppUser;
+import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.repository.AppUserRepository;
-import br.ufsc.tsp.repository.RoleRepository;
 
 @Service
 @Transactional
 public class AppUserService implements UserDetailsService {
 
 	private final AppUserRepository appUserRepository;
-	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public AppUserService(AppUserRepository appUserRepository, RoleRepository roleRepository,
-			PasswordEncoder passwordEncoder) {
+	public AppUserService(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
 		super();
 		this.appUserRepository = appUserRepository;
-		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -41,8 +38,8 @@ public class AppUserService implements UserDetailsService {
 		if (appUser == null)
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
 		var authorities = new ArrayList<SimpleGrantedAuthority>();
-		appUser.getRoles().forEach(role -> {
-			authorities.add(new SimpleGrantedAuthority(role.getName()));
+		appUser.getAuthorities().forEach(authority -> {
+			authorities.add(new SimpleGrantedAuthority(authority.toString()));
 		});
 		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
@@ -60,10 +57,14 @@ public class AppUserService implements UserDetailsService {
 		return appUserRepository.findAll();
 	}
 
-	public void addRoleToUser(String username, String roleName) {
+	public void addRoleToUser(String username, Authority authority) {
 		var appUser = appUserRepository.findByUsername(username);
-		var role = roleRepository.findByName(roleName);
-		appUser.getRoles().add(role);
+		appUser.getAuthorities().add(authority);
+	}
+
+	public void addRoleToUser(String username, String authorityName) {
+		var authority = Authority.valueOf(authorityName);
+		addRoleToUser(username, authority);
 	}
 
 }

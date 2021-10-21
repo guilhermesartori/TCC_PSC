@@ -7,7 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.ufsc.tsp.domain.Role;
+import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.utility.JWTManager;
 
@@ -31,7 +31,7 @@ public class AuthenticationService {
 		var decodedJwtManager = jwtManager.decode(refreshToken);
 		var username = decodedJwtManager.getUsername();
 		var user = appUserRepository.findByUsername(username);
-		var roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+		var roles = user.getAuthorities().stream().map(Authority::toString).collect(Collectors.toList());
 		var accessToken = jwtManager.createAccessToken(username, issuer, roles);
 		return accessToken;
 	}
