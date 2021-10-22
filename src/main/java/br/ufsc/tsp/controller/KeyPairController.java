@@ -65,7 +65,8 @@ public class KeyPairController {
 	@DeleteMapping
 	public ResponseEntity<Object> deleteKeyPair(@RequestParam String uniqueIdentifier) {
 		try {
-			keyPairService.deleteKeyPair(uniqueIdentifier);
+			var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			keyPairService.deleteKeyPair(username, uniqueIdentifier);
 			return ResponseEntity.noContent().build();
 		} catch (KeyPairDeletionException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
@@ -79,7 +80,8 @@ public class KeyPairController {
 	@PostMapping(path = "sign")
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
 		try {
-			var signature = keyPairService.sign(request);
+			var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			var signature = keyPairService.sign(username, request);
 			var body = new SignatureResponse(signature);
 			return ResponseEntity.ok().body(body);
 		} catch (SignatureException e) {

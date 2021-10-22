@@ -36,6 +36,10 @@ import br.ufsc.tsp.repository.KeyPairRepository;
 @Transactional
 public class KeyPairService {
 
+	private static final String KEY_NOT_FOUND_ERROR = "Key doesn't exist or doesn't belong to user.";
+	private static final String INVALID_KEY_PARAMETER_ERROR = "Invalid algorithm.";
+	private static final String INVALID_KEY_ALGORITHM_ERROR = "Invalid parameter.";
+
 	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
 
@@ -80,7 +84,7 @@ public class KeyPairService {
 				generator.initialize(keySpec);
 				break;
 			default:
-				throw new KeyPairGenerationException("Invalid algorithm.");
+				throw new KeyPairGenerationException(INVALID_KEY_ALGORITHM_ERROR);
 			}
 			var keyPair = generator.generateKeyPair();
 
@@ -101,27 +105,30 @@ public class KeyPairService {
 
 			keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException e) {
-			throw new KeyPairGenerationException("Invalid algorithm.");
+			throw new KeyPairGenerationException(INVALID_KEY_ALGORITHM_ERROR);
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new KeyPairGenerationException("Invalid parameter.");
+			throw new KeyPairGenerationException(INVALID_KEY_PARAMETER_ERROR);
 		} catch (NumberFormatException e) {
-			throw new KeyPairGenerationException("Invalid parameter.");
+			throw new KeyPairGenerationException(INVALID_KEY_PARAMETER_ERROR);
 		}
 	}
 
 	@Transactional
-	public void deleteKeyPair(String uniqueIdentifier) throws KeyPairDeletionException {
-		if (!keyPairRepository.existsKeyPairByUniqueIdentifier(uniqueIdentifier))
-			throw new KeyPairDeletionException("Key doesn't exist");
+	public void deleteKeyPair(String username, String uniqueIdentifier) throws KeyPairDeletionException {
+		var user = appUserRepository.findByUsername(username);
+		if (!keyPairRepository.existsKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier))
+			throw new KeyPairDeletionException(KEY_NOT_FOUND_ERROR);
 		else
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
 	}
 
-	public String sign(SignatureRequest request) throws SignatureException, NoSuchAlgorithmException,
+	public String sign(String username, SignatureRequest request) throws SignatureException, NoSuchAlgorithmException,
 			InvalidKeySpecException, InvalidKeyException, java.security.SignatureException {
-		var optionalkeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(request.getKeyUniqueIdentifier());
+		var user = appUserRepository.findByUsername(username);
+		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user,
+				request.getKeyUniqueIdentifier());
 		if (optionalkeyPair.isEmpty())
-			throw new SignatureException("Key doesn't exist.");
+			throw new SignatureException(KEY_NOT_FOUND_ERROR);
 		var provider = new BouncyCastleProvider();
 		var keyPair = optionalkeyPair.get();
 		var keyAlgorithm = keyPair.getKeyAlgorithm();
