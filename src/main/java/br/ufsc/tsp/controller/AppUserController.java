@@ -46,7 +46,7 @@ public class AppUserController {
 		return ResponseEntity.created(uri).body(createdUser);
 	}
 
-	@PostMapping(path = "{username}/role")
+	@PostMapping(path = "{username}/authority")
 	public ResponseEntity<Object> addRoleToUser(@PathVariable("username") String username,
 			@RequestBody RoleToUserForm role) {
 		appUserService.addRoleToUser(username, role.getRoleName());

@@ -1,14 +1,10 @@
 package br.ufsc.tsp.service;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -16,7 +12,6 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
-import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,20 +20,18 @@ import org.springframework.stereotype.Service;
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.domain.KeyPair;
-import br.ufsc.tsp.domain.enums.KeyAlgorithmEnum;
 import br.ufsc.tsp.exception.KeyPairDeletionException;
 import br.ufsc.tsp.exception.KeyPairGenerationException;
 import br.ufsc.tsp.exception.SignatureException;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
+import br.ufsc.tsp.service.utility.KeyGenerator;
 
 @Service
 @Transactional
 public class KeyPairService {
 
 	private static final String KEY_NOT_FOUND_ERROR = "Key doesn't exist or doesn't belong to user.";
-	private static final String INVALID_KEY_PARAMETER_ERROR = "Invalid algorithm.";
-	private static final String INVALID_KEY_ALGORITHM_ERROR = "Invalid parameter.";
 
 	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
@@ -61,55 +54,31 @@ public class KeyPairService {
 
 	public void createKeyPair(String username, KeyPairGenerationRequest request) throws KeyPairGenerationException {
 		try {
-			var appUser = appUserRepository.findByUsername(username);
-
-			var provider = new BouncyCastleProvider();
-			var generator = KeyPairGenerator.getInstance(request.getKeyAlgorithm(), provider);
-			var digest = MessageDigest.getInstance("SHA-256", provider);
-			var base64Encoder = Base64.getEncoder();
-
 			var keyAlgorithm = request.getKeyAlgorithm();
-
-			AlgorithmParameterSpec keySpec;
-			switch (KeyAlgorithmEnum.valueOf(keyAlgorithm)) {
-			case EC:
-				keySpec = new ECGenParameterSpec(request.getKeyParameter());
-				generator.initialize(keySpec);
-				break;
-			case RSA:
-				generator.initialize(Integer.parseInt(request.getKeyParameter()));
-				break;
-			case EDDSA:
-				keySpec = new EdDSAParameterSpec(request.getKeyParameter());
-				generator.initialize(keySpec);
-				break;
-			default:
-				throw new KeyPairGenerationException(INVALID_KEY_ALGORITHM_ERROR);
-			}
-			var keyPair = generator.generateKeyPair();
+			var keyParameter = request.getKeyParameter();
+			var keyGenerator = new KeyGenerator(keyAlgorithm, keyParameter);
+			var keyPair = keyGenerator.generate();
 
 			var encodedPrivateKey = keyPair.getPrivate().getEncoded();
+			var base64Encoder = Base64.getEncoder();
 			var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
-
 			var encodedPublicKey = keyPair.getPublic().getEncoded();
 			var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
 
+			var provider = new BouncyCastleProvider();
+			var digest = MessageDigest.getInstance("SHA-256", provider);
 			var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
-
 			var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
 			var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
 			var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
 
+			var appUser = appUserRepository.findByUsername(username);
 			var keyPairEntity = new KeyPair(base64EncodedPrivateKey, base64EncodedPublicKey, keyAlgorithm,
 					uniqueIdentifier, appUser);
 
 			keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException e) {
-			throw new KeyPairGenerationException(INVALID_KEY_ALGORITHM_ERROR);
-		} catch (InvalidAlgorithmParameterException e) {
-			throw new KeyPairGenerationException(INVALID_KEY_PARAMETER_ERROR);
-		} catch (NumberFormatException e) {
-			throw new KeyPairGenerationException(INVALID_KEY_PARAMETER_ERROR);
+			throw new KeyPairGenerationException();
 		}
 	}
 

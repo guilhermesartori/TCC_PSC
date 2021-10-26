@@ -1,6 +1,8 @@
 package br.ufsc.tsp.security.filter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,24 +21,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.utility.JWTManager;
 
-public class GenericAuthorizationFilter extends OncePerRequestFilter {
+public class AppUserAuthorizationFilter extends OncePerRequestFilter {
+
+	private static final Collection<String> unfilteredPaths;
+	private static final String AUTH_HEADER_START = "Bearer ";
+
+	static {
+		unfilteredPaths = new HashSet<>();
+		unfilteredPaths.add("/login");
+		unfilteredPaths.add("/refresh-token");
+		unfilteredPaths.add("/user");
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (request.getServletPath().equals("/login") || request.getServletPath().equals("/refresh-token"))
-			filterChain.doFilter(request, response);
-		else {
+		if (!unfilteredPaths.contains(request.getServletPath())) {
 			var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+			if (authorizationHeader != null && authorizationHeader.startsWith(AUTH_HEADER_START)) {
 				try {
-					var token = authorizationHeader.substring("Bearer ".length());
+					var token = authorizationHeader.substring(AUTH_HEADER_START.length());
 					var decodedJWTManager = new JWTManager().decode(token);
 					var principal = decodedJWTManager.getUsername();
 					var authorities = decodedJWTManager.getAuthorities();
 					var authenticationToken = new UsernamePasswordAuthenticationToken(principal, null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 					filterChain.doFilter(request, response);
+					return;
 				} catch (Exception e) {
 					e.printStackTrace();
 					var errorMessageResponse = new ErrorMessageResponse(e.getMessage());
@@ -44,10 +55,9 @@ public class GenericAuthorizationFilter extends OncePerRequestFilter {
 					response.setStatus(HttpStatus.FORBIDDEN.value());
 					new ObjectMapper().writeValue(response.getOutputStream(), errorMessageResponse);
 				}
-			} else {
-				filterChain.doFilter(request, response);
 			}
 		}
+		filterChain.doFilter(request, response);
 	}
 
 }

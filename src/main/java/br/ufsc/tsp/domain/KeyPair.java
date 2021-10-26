@@ -2,9 +2,12 @@ package br.ufsc.tsp.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -24,7 +27,8 @@ public class KeyPair {
 	private String keyAlgorithm;
 	@Column(nullable = false, unique = true)
 	private String uniqueIdentifier;
-	@Column(nullable = false)
+	@PrimaryKeyJoinColumn
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private AppUser owner;
 
 	/**

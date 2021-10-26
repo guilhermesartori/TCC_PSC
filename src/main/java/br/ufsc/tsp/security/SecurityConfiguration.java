@@ -14,8 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import br.ufsc.tsp.security.filter.CustomAuthenticationFilter;
-import br.ufsc.tsp.security.filter.GenericAuthorizationFilter;
+import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.security.filter.AppUserAuthenticationFilter;
+import br.ufsc.tsp.security.filter.AppUserAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -42,17 +43,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		var authenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+		var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean());
 		authenticationFilter.setFilterProcessesUrl("/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token").permitAll();
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority("ROLE_ADMIN");
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/add-role").hasAnyAuthority("ROLE_ADMIN");
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key-pair").hasAnyAuthority("ROLE_USER");
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token", "/user").permitAll();
+		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.GET_USERS.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/authority")
+				.hasAnyAuthority(Authority.CHANGE_AUTHORITY.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key")
+				.hasAnyAuthority(Authority.DELETE_KEY.toString());
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(authenticationFilter);
-		http.addFilterBefore(new GenericAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
 	@Bean

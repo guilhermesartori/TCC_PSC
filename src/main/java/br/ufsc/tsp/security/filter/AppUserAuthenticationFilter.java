@@ -22,14 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufsc.tsp.controller.response.AuthenticationResponse;
 import br.ufsc.tsp.utility.JWTManager;
 
-public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
 
 	/**
 	 * @param authenticationManager
 	 */
-	public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
+	public AppUserAuthenticationFilter(AuthenticationManager authenticationManager) {
 		super();
 		this.authenticationManager = authenticationManager;
 	}
