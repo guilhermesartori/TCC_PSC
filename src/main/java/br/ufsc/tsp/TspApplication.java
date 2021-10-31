@@ -1,5 +1,6 @@
 package br.ufsc.tsp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.springframework.boot.CommandLineRunner;
@@ -16,7 +17,7 @@ import br.ufsc.tsp.service.AppUserService;
 @SpringBootApplication
 public class TspApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		SpringApplication.run(TspApplication.class, args);
 	}
 

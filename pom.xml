@@ -13,7 +13,7 @@
 	<artifactId>tsp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tsp</name>
-	<description>Open source Trusted Service Provider server software</description>
+	<description>Trusted Service Provider server software</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
@@ -57,6 +57,25 @@
 			<artifactId>java-jwt</artifactId>
 			<version>3.18.2</version>
 		</dependency>
+		<dependency>
+			<groupId>br.com.kryptus</groupId>
+			<artifactId>jca-knet</artifactId>
+			<version>1.25</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.com.kryptus</groupId>
+			<artifactId>kkmip-knet</artifactId>
+			<version>1.25</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.com.kryptus</groupId>
+			<artifactId>kryptus</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
