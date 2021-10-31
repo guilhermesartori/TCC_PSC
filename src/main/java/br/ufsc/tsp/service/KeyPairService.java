@@ -1,12 +1,9 @@
 package br.ufsc.tsp.service;
 
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.List;
 
@@ -17,6 +14,7 @@ import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.domain.KeyPair;
@@ -25,7 +23,7 @@ import br.ufsc.tsp.exception.KeyPairGenerationException;
 import br.ufsc.tsp.exception.SignatureException;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
-import br.ufsc.tsp.service.utility.KeyGenerator;
+import br.ufsc.tsp.service.utility.KeyManager;
 
 @Service
 @Transactional
@@ -35,6 +33,7 @@ public class KeyPairService {
 
 	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
+	private final KeyManager keyManager;
 
 	/**
 	 * 
@@ -42,10 +41,12 @@ public class KeyPairService {
 	 * @param appUserRepository
 	 */
 	@Autowired
-	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository) {
+	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository,
+			KeyManager keyManager) {
 		super();
 		this.keyPairRepository = keyPairRepository;
 		this.appUserRepository = appUserRepository;
+		this.keyManager = keyManager;
 	}
 
 	public List<KeyPair> getKeyPairs() {
@@ -56,13 +57,13 @@ public class KeyPairService {
 		try {
 			var keyAlgorithm = request.getKeyAlgorithm();
 			var keyParameter = request.getKeyParameter();
-			var keyGenerator = new KeyGenerator(keyAlgorithm, keyParameter);
-			var keyPair = keyGenerator.generate();
 
-			var encodedPrivateKey = keyPair.getPrivate().getEncoded();
+			var identifiers = keyManager.createKeyPair(keyAlgorithm, keyParameter);
+
+			var encodedPrivateKey = identifiers.getPrivateKeyIdentifier().getBytes();
 			var base64Encoder = Base64.getEncoder();
 			var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
-			var encodedPublicKey = keyPair.getPublic().getEncoded();
+			var encodedPublicKey = identifiers.getPublicKeyIdentifier().getBytes();
 			var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
 
 			var provider = new BouncyCastleProvider();
@@ -77,44 +78,41 @@ public class KeyPairService {
 					uniqueIdentifier, appUser);
 
 			keyPairRepository.save(keyPairEntity);
-		} catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException | KNetException e) {
 			throw new KeyPairGenerationException();
 		}
 	}
 
 	@Transactional
-	public void deleteKeyPair(String username, String uniqueIdentifier) throws KeyPairDeletionException {
+	public void deleteKeyPair(String username, String uniqueIdentifier) throws KeyPairDeletionException, KNetException {
 		var user = appUserRepository.findByUsername(username);
-		if (!keyPairRepository.existsKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier))
+		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
+		if (optionalkeyPair.isEmpty())
 			throw new KeyPairDeletionException(KEY_NOT_FOUND_ERROR);
-		else
+		else {
+			var keyPair = optionalkeyPair.get();
+			keyManager.deleteKeyPair(keyPair.getPrivateKey(), keyPair.getPublicKey());
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
+		}
 	}
 
 	public String sign(String username, SignatureRequest request) throws SignatureException, NoSuchAlgorithmException,
-			InvalidKeySpecException, InvalidKeyException, java.security.SignatureException {
+			InvalidKeySpecException, InvalidKeyException, java.security.SignatureException, KNetException {
 		var user = appUserRepository.findByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user,
 				request.getKeyUniqueIdentifier());
 		if (optionalkeyPair.isEmpty())
 			throw new SignatureException(KEY_NOT_FOUND_ERROR);
-		var provider = new BouncyCastleProvider();
-		var keyPair = optionalkeyPair.get();
-		var keyAlgorithm = keyPair.getKeyAlgorithm();
-		var base64EncodedPrivateKey = keyPair.getPrivateKey();
+
 		var base64Decoder = Base64.getDecoder();
-		var encodedPrivateKey = base64Decoder.decode(base64EncodedPrivateKey);
-		var privateKeySpec = new X509EncodedKeySpec(encodedPrivateKey);
-		var keyFactory = KeyFactory.getInstance(keyAlgorithm, provider);
-		var privateKey = keyFactory.generatePrivate(privateKeySpec);
-		var signatureGenerator = Signature.getInstance(keyAlgorithm, provider);
 		var base64Data = request.getBase64EncodedData();
 		var data = base64Decoder.decode(base64Data);
-		signatureGenerator.update(data);
-		signatureGenerator.initSign(privateKey);
-		var signature = signatureGenerator.sign();
+
+		var keyPair = optionalkeyPair.get();
+		var signature = keyManager.sign(keyPair.getPrivateKey(), data);
 		var base64Encoder = Base64.getEncoder();
 		var base64Signature = base64Encoder.encodeToString(signature);
+
 		return base64Signature;
 	}
 
