@@ -1,9 +1,6 @@
 package br.ufsc.tsp.service.utility;
 
 import java.util.HashMap;
-import java.util.Properties;
-
-import org.springframework.context.annotation.Bean;
 
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
