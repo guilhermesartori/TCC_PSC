@@ -1,5 +1,7 @@
 package br.ufsc.tsp.controller;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,10 +51,12 @@ public class KeyPairController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
+	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request,
+			@RequestHeader HttpHeaders headers) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			keyPairService.createKeyPair(username, request);
+			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			keyPairService.createKeyPair(username, encodingKey, request);
 			return ResponseEntity.created(null).build();
 		} catch (KeyPairGenerationException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
@@ -81,7 +86,8 @@ public class KeyPairController {
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var signature = keyPairService.sign(username, request);
+			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			var signature = keyPairService.sign(username, encodingKey, request);
 			var body = new SignatureResponse(signature);
 			return ResponseEntity.ok().body(body);
 		} catch (SignatureException e) {

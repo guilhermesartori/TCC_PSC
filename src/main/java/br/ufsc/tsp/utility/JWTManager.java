@@ -40,6 +40,11 @@ public class JWTManager {
 			return authorities;
 		}
 
+		public String getAccessKey() {
+			// TODO Auto-generated method stub
+			return "";
+		}
+
 	}
 
 	public String createAccessToken(String username, String issuer, List<String> roles) {

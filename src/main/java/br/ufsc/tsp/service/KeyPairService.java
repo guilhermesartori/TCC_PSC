@@ -53,29 +53,21 @@ public class KeyPairService {
 		return keyPairRepository.findAll();
 	}
 
-	public void createKeyPair(String username, KeyPairGenerationRequest request) throws KeyPairGenerationException {
+	public void createKeyPair(String username, String encodingKey, KeyPairGenerationRequest request)
+			throws KeyPairGenerationException {
 		try {
 			var keyAlgorithm = request.getKeyAlgorithm();
 			var keyParameter = request.getKeyParameter();
 
 			var identifiers = keyManager.createKeyPair(keyAlgorithm, keyParameter);
 
-			var encodedPrivateKey = identifiers.getPrivateKeyIdentifier().getBytes();
-			var base64Encoder = Base64.getEncoder();
-			var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
-			var encodedPublicKey = identifiers.getPublicKeyIdentifier().getBytes();
-			var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
-
-			var provider = new BouncyCastleProvider();
-			var digest = MessageDigest.getInstance("SHA-256", provider);
-			var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
-			var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
-			var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
-			var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
-
+			var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
+			var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
+			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
 			var appUser = appUserRepository.findByUsername(username);
-			var keyPairEntity = new KeyPair(base64EncodedPrivateKey, base64EncodedPublicKey, keyAlgorithm,
-					uniqueIdentifier, appUser);
+
+			var keyPairEntity = new KeyPair(privateKeyIdentifier, publicKeyIdentifier, keyAlgorithm, uniqueIdentifier,
+					appUser);
 
 			keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException e) {
@@ -96,8 +88,8 @@ public class KeyPairService {
 		}
 	}
 
-	public String sign(String username, SignatureRequest request) throws SignatureException, NoSuchAlgorithmException,
-			InvalidKeySpecException, InvalidKeyException, java.security.SignatureException, KNetException {
+	public String sign(String username, String encodingKey, SignatureRequest request) throws SignatureException,
+			NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException, KNetException {
 		var user = appUserRepository.findByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user,
 				request.getKeyUniqueIdentifier());
@@ -114,6 +106,26 @@ public class KeyPairService {
 		var base64Signature = base64Encoder.encodeToString(signature);
 
 		return base64Signature;
+	}
+
+	private String generateUniqueIdentifier(String privateKeyIdentifier, String publicKeyIdentifier)
+			throws NoSuchAlgorithmException {
+		var provider = new BouncyCastleProvider();
+		var base64Encoder = Base64.getEncoder();
+		var digest = MessageDigest.getInstance("SHA-256", provider);
+
+		var encodedPrivateKey = privateKeyIdentifier.getBytes();
+		var encodedPublicKey = publicKeyIdentifier.getBytes();
+
+		var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
+		var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
+
+		var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
+		var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
+		var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
+		var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
+
+		return uniqueIdentifier;
 	}
 
 }
