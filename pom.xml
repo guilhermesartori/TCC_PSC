@@ -57,10 +57,22 @@
 			<artifactId>java-jwt</artifactId>
 			<version>3.18.2</version>
 		</dependency>
+				<dependency>
+			<groupId>br.com.kryptus</groupId>
+			<artifactId>jca-knet</artifactId>
+			<version>1.25</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>br.com.kryptus</groupId>
 			<artifactId>kkmip-knet</artifactId>
 			<version>1.25</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.com.kryptus</groupId>
+			<artifactId>kryptus</artifactId>
+			<version>2.4</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

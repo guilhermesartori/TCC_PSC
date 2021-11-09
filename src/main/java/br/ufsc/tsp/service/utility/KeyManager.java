@@ -1,6 +1,9 @@
 package br.ufsc.tsp.service.utility;
 
 import java.util.HashMap;
+import java.util.Properties;
+
+import org.springframework.context.annotation.Bean;
 
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
@@ -20,13 +23,23 @@ public class KeyManager {
 		this.kNetRequester = new KNetRequester(KkmipClientBuilder.build(null, null, new HashMap<>()), null, null);
 	}
 
+	/**
+	 * @throws KNetException
+	 * 
+	 */
+	public KeyManager(KNetRequester kNetRequester) throws KNetException {
+		super();
+		this.kNetRequester = kNetRequester;
+	}
+
 	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter) throws KNetException {
-		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, null, null);
+		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, "private-key-test",
+				"public-key-test");
 		return keyIdentifierPair;
 	}
 
-	public byte[] sign(String privateKeyUniqueIdentifier, byte[] data) throws KNetException {
-		var signature = kNetRequester.sign(privateKeyUniqueIdentifier, null, data);
+	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data) throws KNetException {
+		var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
 		return signature;
 	}
 

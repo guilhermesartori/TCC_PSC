@@ -109,7 +109,7 @@ public class KeyPairService {
 		var data = base64Decoder.decode(base64Data);
 
 		var keyPair = optionalkeyPair.get();
-		var signature = keyManager.sign(keyPair.getPrivateKey(), data);
+		var signature = keyManager.sign(keyPair.getPrivateKey(), keyPair.getKeyAlgorithm(), data);
 		var base64Encoder = Base64.getEncoder();
 		var base64Signature = base64Encoder.encodeToString(signature);
 
