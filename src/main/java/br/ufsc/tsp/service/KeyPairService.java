@@ -76,7 +76,7 @@ public class KeyPairService {
 	}
 
 	@Transactional
-	public void deleteKeyPair(String username, String uniqueIdentifier) throws KeyPairDeletionException, KNetException {
+	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier) throws KeyPairDeletionException, KNetException {
 		var user = appUserRepository.findByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())

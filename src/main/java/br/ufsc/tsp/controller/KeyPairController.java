@@ -71,7 +71,8 @@ public class KeyPairController {
 	public ResponseEntity<Object> deleteKeyPair(@RequestParam String uniqueIdentifier) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			keyPairService.deleteKeyPair(username, uniqueIdentifier);
+			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			keyPairService.deleteKeyPair(username, encodingKey, uniqueIdentifier);
 			return ResponseEntity.noContent().build();
 		} catch (KeyPairDeletionException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
