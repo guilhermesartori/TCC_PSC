@@ -53,7 +53,7 @@ public class KeyPairService {
 		return keyPairRepository.findAll();
 	}
 
-	public void createKeyPair(String username, String encodingKey, KeyPairGenerationRequest request)
+	public KeyPair createKeyPair(String username, String encodingKey, KeyPairGenerationRequest request)
 			throws KeyPairGenerationException {
 		try {
 			var keyAlgorithm = request.getKeyAlgorithm();
@@ -69,14 +69,15 @@ public class KeyPairService {
 			var keyPairEntity = new KeyPair(privateKeyIdentifier, publicKeyIdentifier, keyAlgorithm, uniqueIdentifier,
 					appUser);
 
-			keyPairRepository.save(keyPairEntity);
+			return keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException e) {
 			throw new KeyPairGenerationException();
 		}
 	}
 
 	@Transactional
-	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier) throws KeyPairDeletionException, KNetException {
+	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
+			throws KeyPairDeletionException, KNetException {
 		var user = appUserRepository.findByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())

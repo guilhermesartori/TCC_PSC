@@ -12,6 +12,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.Arrays;
 
 public class KeyParameterEncryptor {
 
@@ -30,7 +31,8 @@ public class KeyParameterEncryptor {
 	public String encrypt(String parameter, String encryptedKey) {
 		try {
 			var decryptedKey = decryptKey(encryptedKey);
-			var secretKey = new SecretKeySpec(decryptedKey.getBytes(), "AES");
+			var key = adjustKeySize(decryptedKey);
+			var secretKey = new SecretKeySpec(key, "AES");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			var encryptedBytes = cipher.doFinal(parameter.getBytes());
 			var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
@@ -38,6 +40,20 @@ public class KeyParameterEncryptor {
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private byte[] adjustKeySize(String decryptedKey) {
+		var bytes = decryptedKey.getBytes();
+		byte[] newKey;
+		if (bytes.length < 16)
+			newKey = new byte[16];
+		else if (bytes.length < 24)
+			newKey = new byte[24];
+		else
+			newKey = new byte[32];
+		Arrays.fill(newKey, Byte.valueOf("0"));
+		System.arraycopy(bytes, 0, newKey, 0, bytes.length);
+		return newKey;
 	}
 
 	private String decryptKey(String encryptedKey) {
@@ -48,7 +64,8 @@ public class KeyParameterEncryptor {
 	public String decrypt(String base64Encoding, String encryptedKey) {
 		try {
 			var decryptedKey = decryptKey(encryptedKey);
-			var secretKey = new SecretKeySpec(decryptedKey.getBytes(), "AES");
+			var key = adjustKeySize(decryptedKey);
+			var secretKey = new SecretKeySpec(key, "AES");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			var encryptedBytes = Base64.getDecoder().decode(base64Encoding);
 			var decryptedBytes = cipher.doFinal(encryptedBytes);
