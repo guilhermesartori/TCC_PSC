@@ -67,8 +67,8 @@ public class AppUserService implements UserDetailsService {
 		addRoleToUser(username, authority);
 	}
 
-	public void deleteUserByUsername(String string) {
-		appUserRepository.deleteByUsername("test");
+	public void deleteUserByUsername(String username) {
+		appUserRepository.deleteByUsername(username);
 	}
 
 }
