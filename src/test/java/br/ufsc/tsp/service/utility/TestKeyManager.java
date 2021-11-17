@@ -39,7 +39,7 @@ public class TestKeyManager {
 
 	@Test
 	public void test_createKeyPair() throws KNetException {
-		var identifiers = keyManager.createKeyPair("RSA", "1024");
+		var identifiers = keyManager.createKeyPair("RSA", "1024", "test_createKeyPair");
 
 		keyManager.deleteKeyPair(identifiers.getPrivateKeyIdentifier(), identifiers.getPublicKeyIdentifier());
 		assertNotNull(identifiers.getPrivateKeyIdentifier());
@@ -51,7 +51,7 @@ public class TestKeyManager {
 	public void test_sign() throws KNetException, NoSuchAlgorithmException {
 		KeyIdentifierPair identifiers = null;
 		try {
-			identifiers = keyManager.createKeyPair("RSA", "1024");
+			identifiers = keyManager.createKeyPair("RSA", "1024", "test_sign");
 			var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
 			var signature = keyManager.sign(identifiers.getPrivateKeyIdentifier(), "RSA", data);

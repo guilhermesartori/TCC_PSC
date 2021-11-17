@@ -1,24 +1,12 @@
 package br.ufsc.tsp.service.utility;
 
-import java.util.HashMap;
-
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
-import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 
 public class KeyManager {
 
 	private final KNetRequester kNetRequester;
-
-	/**
-	 * @throws KNetException
-	 * 
-	 */
-	public KeyManager() throws KNetException {
-		super();
-		this.kNetRequester = new KNetRequester(KkmipClientBuilder.build(null, null, new HashMap<>()), null, null);
-	}
 
 	/**
 	 * @throws KNetException
@@ -29,9 +17,10 @@ public class KeyManager {
 		this.kNetRequester = kNetRequester;
 	}
 
-	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter) throws KNetException {
-		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, "private-key-test",
-				"public-key-test");
+	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter, String keyName)
+			throws KNetException {
+		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
+				keyName + "-public");
 		return keyIdentifierPair;
 	}
 

@@ -27,6 +27,8 @@ public class KeyPair {
 	private String keyAlgorithm;
 	@Column(nullable = false, unique = true)
 	private String uniqueIdentifier;
+	@Column(nullable = false, unique = true)
+	private String keyName;
 	@PrimaryKeyJoinColumn
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private AppUser owner;
@@ -43,14 +45,17 @@ public class KeyPair {
 	 * @param privateKey
 	 * @param keyAlgorithm
 	 * @param uniqueIdentifier
+	 * @param keyName
 	 * @param owner
 	 */
-	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String uniqueIdentifier, AppUser owner) {
+	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String uniqueIdentifier, String keyName,
+			AppUser owner) {
 		super();
 		this.publicKey = publicKey;
 		this.privateKey = privateKey;
 		this.keyAlgorithm = keyAlgorithm;
 		this.uniqueIdentifier = uniqueIdentifier;
+		this.keyName = keyName;
 		this.owner = owner;
 	}
 

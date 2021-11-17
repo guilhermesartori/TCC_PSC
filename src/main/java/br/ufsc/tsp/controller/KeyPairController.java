@@ -18,9 +18,7 @@ import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.controller.response.SignatureResponse;
-import br.ufsc.tsp.exception.KeyPairDeletionException;
-import br.ufsc.tsp.exception.KeyPairGenerationException;
-import br.ufsc.tsp.exception.SignatureException;
+import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.KeyPairService;
 
 @RestController
@@ -56,9 +54,10 @@ public class KeyPairController {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			keyPairService.createKeyPair(username, encodingKey, request);
+			keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(), request.getKeyParameter(),
+					request.getKeyName());
 			return ResponseEntity.created(null).build();
-		} catch (KeyPairGenerationException e) {
+		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {
@@ -74,7 +73,7 @@ public class KeyPairController {
 			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			keyPairService.deleteKeyPair(username, encodingKey, uniqueIdentifier);
 			return ResponseEntity.noContent().build();
-		} catch (KeyPairDeletionException e) {
+		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {
@@ -91,7 +90,7 @@ public class KeyPairController {
 			var signature = keyPairService.sign(username, encodingKey, request);
 			var body = new SignatureResponse(signature);
 			return ResponseEntity.ok().body(body);
-		} catch (SignatureException e) {
+		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {

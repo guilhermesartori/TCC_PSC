@@ -4,15 +4,18 @@ public class KeyPairGenerationRequest {
 
 	private String keyAlgorithm;
 	private String keyParameter;
+	private String keyName;
 
 	/**
 	 * @param keyAlgorithm
 	 * @param keyParameter
+	 * @param keyName
 	 */
-	public KeyPairGenerationRequest(String keyAlgorithm, String keyParameter) {
+	public KeyPairGenerationRequest(String keyAlgorithm, String keyParameter, String keyName) {
 		super();
 		this.keyAlgorithm = keyAlgorithm;
 		this.keyParameter = keyParameter;
+		this.keyName = keyName;
 	}
 
 	/**
@@ -27,6 +30,13 @@ public class KeyPairGenerationRequest {
 	 */
 	public String getKeyParameter() {
 		return keyParameter;
+	}
+
+	/**
+	 * @return the keyName
+	 */
+	public String getKeyName() {
+		return keyName;
 	}
 
 }

@@ -32,7 +32,7 @@ public class TspApplication {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
+//	@Bean
 	CommandLineRunner run(AppUserService userService) {
 		return args -> {
 			userService.saveUser(new AppUser(null, "Guilherme Sartori", "guilherme", "1234", new ArrayList<>()));
@@ -58,9 +58,10 @@ public class TspApplication {
 		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
 		parameters.put("MAX_CONNECTIONS", "1");
 
-		KNetRequester kNetRequester = new KNetRequester(KkmipClientBuilder.build(null, null, parameters),
+		var kNetRequester = new KNetRequester(KkmipClientBuilder.build(null, null, parameters),
 				parameters.get("USERNAME"), parameters.get("PW"));
 
 		return new KeyManager(kNetRequester);
 	}
+
 }

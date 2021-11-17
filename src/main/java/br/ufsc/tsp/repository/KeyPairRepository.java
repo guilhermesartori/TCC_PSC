@@ -22,6 +22,8 @@ public interface KeyPairRepository extends JpaRepository<KeyPair, Long> {
 
 	public boolean existsKeyPairByOwnerAndUniqueIdentifier(AppUser owner, String uniqueIdentifier);
 
+	public boolean existsKeyPairByKeyName(String keyName);
+
 	public boolean existsKeyPairByUniqueIdentifier(String uniqueIdentifier);
 
 }
