@@ -6,18 +6,25 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
+
 public class JWTManager {
 
-	private static final Algorithm ALGORITHM = Algorithm.HMAC256("secret".getBytes());;
+	@Autowired
+	private KeyParameterEncryptor keyParameterEncryptor;
+
+	private static final Algorithm ALGORITHM = Algorithm.HMAC256("secret".getBytes());
 	private static final long ACCESS_TOKEN_VALIDITY_MS = 10 * 60 * 1000;
 	private static final long REFRESH_TOKEN_VALIDITY_MS = 30 * 60 * 1000;
 	private static final String ROLES_CLAIM = "roles";
+	private static final String ACCESS_KEY_CLAIM = "accessKey";
 
 	public static class DecodedJWTManager {
 
@@ -41,16 +48,16 @@ public class JWTManager {
 		}
 
 		public String getAccessKey() {
-			// TODO Auto-generated method stub
-			return "";
+			return decodedJWT.getClaim(ACCESS_KEY_CLAIM).asString();
 		}
 
 	}
 
-	public String createAccessToken(String username, String issuer, List<String> roles) {
+	public String createAccessToken(String username, String password, String issuer, List<String> roles) {
+		var encodedAccessKey = keyParameterEncryptor.encryptKey(password);
 		var accessToken = JWT.create().withSubject(username)
 				.withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
-				.withClaim(ROLES_CLAIM, roles).sign(ALGORITHM);
+				.withClaim(ROLES_CLAIM, roles).withClaim(ACCESS_KEY_CLAIM, encodedAccessKey).sign(ALGORITHM);
 		return accessToken;
 	}
 

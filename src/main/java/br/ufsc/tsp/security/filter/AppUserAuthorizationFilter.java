@@ -45,7 +45,8 @@ public class AppUserAuthorizationFilter extends OncePerRequestFilter {
 					var principal = decodedJWTManager.getUsername();
 					var authorities = decodedJWTManager.getAuthorities();
 					var encodedAccessKey = decodedJWTManager.getAccessKey();
-					var authenticationToken = new UsernamePasswordAuthenticationToken(principal, encodedAccessKey, authorities);
+					var authenticationToken = new UsernamePasswordAuthenticationToken(principal, encodedAccessKey,
+							authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 					filterChain.doFilter(request, response);
 					return;

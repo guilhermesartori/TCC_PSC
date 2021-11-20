@@ -22,6 +22,7 @@ import br.ufsc.tsp.exception.KeyPairServiceException.ExceptionType;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.utility.KeyManager;
+import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @Service
 @Transactional
@@ -31,6 +32,7 @@ public class KeyPairService {
 	private final KeyPairRepository keyPairRepository;
 	private final KeyManager keyManager;
 	private final MessageDigest digest;
+	private final KeyParameterEncryptor keyParameterEncryptor;
 
 	/**
 	 * 
@@ -39,11 +41,12 @@ public class KeyPairService {
 	 */
 	@Autowired
 	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository,
-			KeyManager keyManager) {
+			KeyManager keyManager, KeyParameterEncryptor keyParameterEncryptor) {
 		super();
 		this.keyPairRepository = keyPairRepository;
 		this.appUserRepository = appUserRepository;
 		this.keyManager = keyManager;
+		this.keyParameterEncryptor = keyParameterEncryptor;
 		try {
 			this.digest = MessageDigest.getInstance("SHA-256", new BouncyCastleProvider());
 		} catch (NoSuchAlgorithmException e) {
@@ -55,7 +58,7 @@ public class KeyPairService {
 		return keyPairRepository.findAll();
 	}
 
-	public KeyPair createKeyPair(String username, String encodingKey, String keyAlgorithm, String keyParameter,
+	public KeyPair createKeyPair(String username, String accessKey, String keyAlgorithm, String keyParameter,
 			String keyName) throws KeyPairServiceException {
 		try {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
@@ -68,8 +71,10 @@ public class KeyPairService {
 			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
 			var appUser = appUserRepository.findByUsername(username);
 
-			var keyPairEntity = new KeyPair(privateKeyIdentifier, publicKeyIdentifier, keyAlgorithm, uniqueIdentifier,
-					keyName, appUser);
+			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
+
+			var keyPairEntity = new KeyPair(encryptedPrivateKeyIdentifier, publicKeyIdentifier, keyAlgorithm,
+					uniqueIdentifier, keyName, appUser);
 
 			return keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException e) {
@@ -90,7 +95,7 @@ public class KeyPairService {
 		}
 	}
 
-	public String sign(String username, String encodingKey, SignatureRequest request) throws NoSuchAlgorithmException,
+	public String sign(String username, String accessKey, SignatureRequest request) throws NoSuchAlgorithmException,
 			InvalidKeySpecException, InvalidKeyException, KNetException, KeyPairServiceException {
 		var user = appUserRepository.findByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user,
@@ -103,7 +108,8 @@ public class KeyPairService {
 		var data = base64Decoder.decode(base64Data);
 
 		var keyPair = optionalkeyPair.get();
-		var signature = keyManager.sign(keyPair.getPrivateKey(), keyPair.getKeyAlgorithm(), data);
+		var privateKeyIdentifier = keyParameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
+		var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), data);
 		var base64Encoder = Base64.getEncoder();
 		var base64Signature = base64Encoder.encodeToString(signature);
 

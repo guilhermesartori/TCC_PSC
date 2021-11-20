@@ -10,10 +10,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import br.ufsc.tsp.domain.enums.Authority;
 
 @Entity
+@Table
 public class AppUser {
 
 	@Id

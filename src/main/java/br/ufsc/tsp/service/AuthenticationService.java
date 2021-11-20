@@ -32,7 +32,7 @@ public class AuthenticationService {
 		var username = decodedJwtManager.getUsername();
 		var user = appUserRepository.findByUsername(username);
 		var roles = user.getAuthorities().stream().map(Authority::toString).collect(Collectors.toList());
-		var accessToken = jwtManager.createAccessToken(username, issuer, roles);
+		var accessToken = jwtManager.createAccessToken(username, null, issuer, roles);
 		return accessToken;
 	}
 

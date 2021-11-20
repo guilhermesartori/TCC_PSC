@@ -13,7 +13,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
+import org.springframework.stereotype.Service;
 
+@Service
 public class KeyParameterEncryptor {
 
 	private static final Provider PROVIDER = new BouncyCastleProvider();
@@ -54,6 +56,11 @@ public class KeyParameterEncryptor {
 		Arrays.fill(newKey, Byte.valueOf("0"));
 		System.arraycopy(bytes, 0, newKey, 0, bytes.length);
 		return newKey;
+	}
+
+	public String encryptKey(String key) {
+		// TODO Auto-generated method stub
+		return key;
 	}
 
 	private String decryptKey(String encryptedKey) {

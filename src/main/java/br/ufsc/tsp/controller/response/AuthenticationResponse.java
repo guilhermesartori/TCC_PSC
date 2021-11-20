@@ -3,7 +3,6 @@ package br.ufsc.tsp.controller.response;
 public class AuthenticationResponse {
 
 	private String accessToken;
-	private String refreshToken;
 
 	/**
 	 * 
@@ -14,12 +13,10 @@ public class AuthenticationResponse {
 
 	/**
 	 * @param accessToken
-	 * @param refreshToken
 	 */
-	public AuthenticationResponse(String accessToken, String refreshToken) {
+	public AuthenticationResponse(String accessToken) {
 		super();
 		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
 	}
 
 	/**
@@ -34,20 +31,6 @@ public class AuthenticationResponse {
 	 */
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
-	}
-
-	/**
-	 * @return the refreshToken
-	 */
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	/**
-	 * @param refreshToken the refreshToken to set
-	 */
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
 	}
 
 }

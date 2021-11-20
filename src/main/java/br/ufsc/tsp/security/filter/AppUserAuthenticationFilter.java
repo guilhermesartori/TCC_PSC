@@ -37,10 +37,9 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-				password);
+		var username = request.getParameter("username");
+		var password = request.getParameter("password");
+		var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 		return authenticationManager.authenticate(authenticationToken);
 	}
 
@@ -50,11 +49,11 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
 		var jwtManager = new JWTManager();
 		var user = (User) authResult.getPrincipal();
 		var username = user.getUsername();
+		var password = user.getPassword();
 		var issuer = request.getRequestURL().toString();
 		var roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-		var accessToken = jwtManager.createAccessToken(username, issuer, roles);
-		var refreshToken = jwtManager.createRefreshToken(username, issuer);
-		var authenticationResponseBody = new AuthenticationResponse(accessToken, refreshToken);
+		var accessToken = jwtManager.createAccessToken(username, password, issuer, roles);
+		var authenticationResponseBody = new AuthenticationResponse(accessToken);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponseBody);
 	}
