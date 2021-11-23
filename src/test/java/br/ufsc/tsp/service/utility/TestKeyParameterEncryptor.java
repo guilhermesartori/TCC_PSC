@@ -15,7 +15,7 @@ public class TestKeyParameterEncryptor {
 	@BeforeEach
 	public void initialize() {
 		keyParameterEncryptor = new KeyParameterEncryptor();
-		encryptedKey = "password";
+		encryptedKey = keyParameterEncryptor.encryptKey("password");
 		valueToBeEncrypted = "test";
 	}
 

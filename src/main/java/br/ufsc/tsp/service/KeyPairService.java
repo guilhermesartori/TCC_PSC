@@ -73,7 +73,7 @@ public class KeyPairService {
 
 			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
-			var keyPairEntity = new KeyPair(encryptedPrivateKeyIdentifier, publicKeyIdentifier, keyAlgorithm,
+			var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
 					uniqueIdentifier, keyName, appUser);
 
 			return keyPairRepository.save(keyPairEntity);
@@ -90,7 +90,8 @@ public class KeyPairService {
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		else {
 			var keyPair = optionalkeyPair.get();
-			keyManager.deleteKeyPair(keyPair.getPrivateKey(), keyPair.getPublicKey());
+			var privateKeyIdentifier = keyParameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
+			keyManager.deleteKeyPair(privateKeyIdentifier, keyPair.getPublicKey());
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
 		}
 	}

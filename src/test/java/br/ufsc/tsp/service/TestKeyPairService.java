@@ -10,6 +10,7 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.exception.KeyPairServiceException;
+import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @SpringBootTest
 public class TestKeyPairService {
@@ -20,16 +21,20 @@ public class TestKeyPairService {
 	@Autowired
 	private AppUserService appUserService;
 
+	@Autowired
+	private KeyParameterEncryptor keyParameterEncryptor;
+
 	@Test
 	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.CREATE_KEY);
 		var user = new AppUser(1L, "test", "test", "test", authorities);
 		appUserService.saveUser(user);
+		var accessKey = keyParameterEncryptor.encryptKey("password");
 
-		var keyPair = keyPairService.createKeyPair("test", null, "RSA", "2048", "test_createKeyPair_RSA_2048");
+		var keyPair = keyPairService.createKeyPair("test", accessKey, "RSA", "2048", "test_createKeyPair_RSA_2048");
 
-		keyPairService.deleteKeyPair("test", null, keyPair.getUniqueIdentifier());
+		keyPairService.deleteKeyPair("test", accessKey, keyPair.getUniqueIdentifier());
 		appUserService.deleteUserByUsername("test");
 	}
 
