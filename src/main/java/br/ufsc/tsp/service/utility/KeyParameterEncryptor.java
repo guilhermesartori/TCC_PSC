@@ -8,7 +8,9 @@ import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -19,12 +21,24 @@ import org.springframework.stereotype.Service;
 public class KeyParameterEncryptor {
 
 	private static final Provider PROVIDER = new BouncyCastleProvider();
+	private static KeyGenerator keyGenerator;
 
-	private Cipher cipher;
+	static {
+		try {
+			keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(256);
+		} catch (NoSuchAlgorithmException e) {
+			// should never happen
+		}
+	}
+
+	private final Cipher cipher;
+	private SecretKey secretKey;
 
 	public KeyParameterEncryptor() {
 		try {
 			this.cipher = Cipher.getInstance("AES/ECB/PKCS5Padding", PROVIDER);
+			secretKey = keyGenerator.generateKey();
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			throw new RuntimeException(e);
 		}
@@ -39,6 +53,21 @@ public class KeyParameterEncryptor {
 			var encryptedBytes = cipher.doFinal(parameter.getBytes());
 			var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
 			return base64Encryption;
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String decrypt(String base64Encoding, String encryptedKey) {
+		try {
+			var decryptedKey = decryptKey(encryptedKey);
+			var key = adjustKeySize(decryptedKey);
+			var secretKey = new SecretKeySpec(key, "AES");
+			cipher.init(Cipher.DECRYPT_MODE, secretKey);
+			var encryptedBytes = Base64.getDecoder().decode(base64Encoding);
+			var decryptedBytes = cipher.doFinal(encryptedBytes);
+			var decryptedString = new String(decryptedBytes);
+			return decryptedString;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
@@ -59,28 +88,30 @@ public class KeyParameterEncryptor {
 	}
 
 	public String encryptKey(String key) {
-		// TODO Auto-generated method stub
-		return key;
-	}
-
-	private String decryptKey(String encryptedKey) {
-		// TODO Auto-generated method stub
-		return encryptedKey;
-	}
-
-	public String decrypt(String base64Encoding, String encryptedKey) {
 		try {
-			var decryptedKey = decryptKey(encryptedKey);
-			var key = adjustKeySize(decryptedKey);
-			var secretKey = new SecretKeySpec(key, "AES");
-			cipher.init(Cipher.DECRYPT_MODE, secretKey);
-			var encryptedBytes = Base64.getDecoder().decode(base64Encoding);
-			var decryptedBytes = cipher.doFinal(encryptedBytes);
-			var decryptedString = new String(decryptedBytes);
-			return decryptedString;
+			cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
+			var encryptedBytes = cipher.doFinal(key.getBytes());
+			var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
+			return base64Encryption;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private String decryptKey(String encryptedKey) {
+		try {
+			cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
+			var encryptedBytes = Base64.getDecoder().decode(encryptedKey);
+			var decryptedBytes = cipher.doFinal(encryptedBytes);
+			var decryptedKey = new String(decryptedBytes);
+			return decryptedKey;
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void refreshKey() {
+		this.secretKey = keyGenerator.generateKey();
 	}
 
 }
