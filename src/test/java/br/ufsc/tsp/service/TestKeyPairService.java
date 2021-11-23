@@ -1,7 +1,17 @@
 package br.ufsc.tsp.service;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Base64;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,10 +20,15 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.exception.KeyPairServiceException;
+import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @SpringBootTest
 public class TestKeyPairService {
+
+	private static final String USER_NAME = "test";
+	private static final String USER_USERNAME = "test";
+	private static final String USER_PASSWORD = "test";
 
 	@Autowired
 	private KeyPairService keyPairService;
@@ -24,18 +39,71 @@ public class TestKeyPairService {
 	@Autowired
 	private KeyParameterEncryptor keyParameterEncryptor;
 
-	@Test
-	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException {
+	@Autowired
+	private KeyPairRepository keyPairRepository;
+
+	private String accessKey;
+
+	@BeforeEach
+	public void runBeforeEach() {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.CREATE_KEY);
-		var user = new AppUser(1L, "test", "test", "test", authorities);
+		var user = new AppUser(1L, USER_NAME, USER_USERNAME, USER_PASSWORD, authorities);
 		appUserService.saveUser(user);
-		var accessKey = keyParameterEncryptor.encryptKey("password");
+		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
+	}
 
-		var keyPair = keyPairService.createKeyPair("test", accessKey, "RSA", "2048", "test_createKeyPair_RSA_2048");
+	@AfterEach
+	public void runAfterEach() {
+		appUserService.deleteUserByUsername(USER_USERNAME);
+	}
 
-		keyPairService.deleteKeyPair("test", accessKey, keyPair.getUniqueIdentifier());
-		appUserService.deleteUserByUsername("test");
+	@Test
+	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyName = "test_createKeyPair_RSA_2048";
+
+		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+
+		assertEquals(keyPair.getKeyAlgorithm(), algorithm);
+		assertEquals(keyPair.getOwner().getUsername(), USER_USERNAME);
+		assertNotNull(keyPair.getPrivateKey());
+		assertNotNull(keyPair.getPublicKey());
+		assertNotNull(keyPair.getUniqueIdentifier());
+		assertNotNull(keyPair.getId());
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+	}
+
+	@Test
+	public void test_sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
+			NoSuchAlgorithmException, InvalidKeySpecException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyName = "test_createKeyPair_RSA_2048";
+		final var hashingAlgorithm = "SHA256";
+		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString("test".getBytes());
+
+		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+
+		var signature = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign, keyPair.getUniqueIdentifier(),
+				hashingAlgorithm);
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+	}
+
+	@Test
+	public void deleteKeyPair_RSA_2048() throws KeyPairServiceException, KNetException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyName = "test_createKeyPair_RSA_2048";
+		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertFalse(keyPairRepository.existsKeyPairByUniqueIdentifier(keyPair.getUniqueIdentifier()));
+
 	}
 
 }

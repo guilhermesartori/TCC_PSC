@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.labsec.valueobject.exception.KNetException;
-import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.domain.KeyPair;
 import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.exception.KeyPairServiceException.ExceptionType;
@@ -69,12 +68,12 @@ public class KeyPairService {
 			var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
 			var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
 			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
-			var appUser = appUserRepository.findByUsername(username);
+			var keyOwner = appUserRepository.findByUsername(username);
 
 			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
 			var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
-					uniqueIdentifier, keyName, appUser);
+					uniqueIdentifier, keyName, keyOwner);
 
 			return keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException e) {
@@ -96,21 +95,22 @@ public class KeyPairService {
 		}
 	}
 
-	public String sign(String username, String accessKey, SignatureRequest request) throws NoSuchAlgorithmException,
-			InvalidKeySpecException, InvalidKeyException, KNetException, KeyPairServiceException {
+	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
+			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
+			KNetException, KeyPairServiceException {
 		var user = appUserRepository.findByUsername(username);
-		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user,
-				request.getKeyUniqueIdentifier());
+		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 
 		var base64Decoder = Base64.getDecoder();
-		var base64Data = request.getBase64EncodedData();
-		var data = base64Decoder.decode(base64Data);
+		var data = base64Decoder.decode(base64EncodedData);
+
+		var hashedData = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider()).digest(data);
 
 		var keyPair = optionalkeyPair.get();
 		var privateKeyIdentifier = keyParameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
-		var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), data);
+		var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), hashedData);
 		var base64Encoder = Base64.getEncoder();
 		var base64Signature = base64Encoder.encodeToString(signature);
 

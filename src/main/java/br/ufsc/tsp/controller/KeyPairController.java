@@ -86,8 +86,9 @@ public class KeyPairController {
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			var signature = keyPairService.sign(username, encodingKey, request);
+			var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			var signature = keyPairService.sign(username, accessKey, request.getBase64EncodedData(),
+					request.getKeyUniqueIdentifier(), request.getHashingAlgorithm());
 			var body = new SignatureResponse(signature);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
