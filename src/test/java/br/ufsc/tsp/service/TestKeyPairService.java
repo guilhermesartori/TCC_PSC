@@ -3,13 +3,17 @@ package br.ufsc.tsp.service;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +25,7 @@ import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.repository.KeyPairRepository;
+import br.ufsc.tsp.service.utility.KeyManager;
 import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @SpringBootTest
@@ -41,6 +46,9 @@ public class TestKeyPairService {
 
 	@Autowired
 	private KeyPairRepository keyPairRepository;
+
+	@Autowired
+	private KeyManager keyManager;
 
 	private String accessKey;
 
@@ -66,31 +74,37 @@ public class TestKeyPairService {
 
 		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
 
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
 		assertEquals(keyPair.getKeyAlgorithm(), algorithm);
 		assertEquals(keyPair.getOwner().getUsername(), USER_USERNAME);
 		assertNotNull(keyPair.getPrivateKey());
 		assertNotNull(keyPair.getPublicKey());
 		assertNotNull(keyPair.getUniqueIdentifier());
 		assertNotNull(keyPair.getId());
-
-		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
 	}
 
 	@Test
 	public void test_sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
-			NoSuchAlgorithmException, InvalidKeySpecException {
+			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyName = "test_createKeyPair_RSA_2048";
 		final var hashingAlgorithm = "SHA256";
-		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString("test".getBytes());
+		final var dataToSign = "test".getBytes();
+		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+		final var publicKey = keyManager.getPublicKey(keyPair.getPublicKey(), algorithm);
+		final var signature = Signature.getInstance("SHA256WithRSA", new BouncyCastleProvider());
+		signature.initVerify(publicKey);
+		signature.update(dataToSign);
 
-		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
-
-		var signature = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign, keyPair.getUniqueIdentifier(),
-				hashingAlgorithm);
+		var signedData = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign,
+				keyPair.getUniqueIdentifier(), hashingAlgorithm);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertTrue(signature.verify(Base64.getDecoder().decode(signedData)));
 	}
 
 	@Test

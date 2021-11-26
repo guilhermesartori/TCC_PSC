@@ -1,5 +1,7 @@
 package br.ufsc.tsp.service.utility;
 
+import java.security.PublicKey;
+
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
@@ -31,6 +33,11 @@ public class KeyManager {
 
 	public void deleteKeyPair(String privateKey, String publicKey) throws KNetException {
 		kNetRequester.revokeAndDestroy(new String[] { privateKey, publicKey });
+	}
+
+	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm) throws KNetException {
+		return kNetRequester.getPublicKey(keyIdentifier, keyAlgorithm);
+
 	}
 
 }
