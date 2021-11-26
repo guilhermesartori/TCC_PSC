@@ -89,7 +89,7 @@ public class TestKeyPairService {
 			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		final var keyName = "test_createKeyPair_RSA_2048";
+		final var keyName = "test_sign_RSA_2048_SHA256";
 		final var hashingAlgorithm = "SHA256";
 		final var dataToSign = "test".getBytes();
 		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
@@ -111,7 +111,7 @@ public class TestKeyPairService {
 	public void deleteKeyPair_RSA_2048() throws KeyPairServiceException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		final var keyName = "test_createKeyPair_RSA_2048";
+		final var keyName = "deleteKeyPair_RSA_2048";
 		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
