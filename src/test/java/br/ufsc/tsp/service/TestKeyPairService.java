@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.exception.AppUserServiceException;
 import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.utility.KeyManager;
@@ -56,13 +57,13 @@ public class TestKeyPairService {
 	public void runBeforeEach() {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.CREATE_KEY);
-		var user = new AppUser(1L, USER_NAME, USER_USERNAME, USER_PASSWORD, authorities);
+		var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, authorities);
 		appUserService.saveUser(user);
 		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
 	}
 
 	@AfterEach
-	public void runAfterEach() {
+	public void runAfterEach() throws AppUserServiceException {
 		appUserService.deleteUserByUsername(USER_USERNAME);
 	}
 

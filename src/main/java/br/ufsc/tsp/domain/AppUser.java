@@ -7,6 +7,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,11 +24,11 @@ public class AppUser {
 	private Long id;
 	@Column(nullable = false)
 	private String name;
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String username;
 	@Column(nullable = false)
 	private String password;
-	@ElementCollection(targetClass = Authority.class)
+	@ElementCollection(targetClass = Authority.class, fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)
 	private Collection<Authority> authorities;
 
@@ -40,15 +41,13 @@ public class AppUser {
 
 	/**
 	 * 
-	 * @param id
 	 * @param name
 	 * @param username
 	 * @param password
 	 * @param authorities
 	 */
-	public AppUser(Long id, String name, String username, String password, Collection<Authority> authorities) {
+	public AppUser(String name, String username, String password, Collection<Authority> authorities) {
 		super();
-		this.id = id;
 		this.name = name;
 		this.username = username;
 		this.password = password;
@@ -123,6 +122,16 @@ public class AppUser {
 	 */
 	public void setAuthorities(Collection<Authority> authorities) {
 		this.authorities = authorities;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof AppUser))
+			return false;
+		var other = (AppUser) obj;
+		return other.username.equals(username) && other.password.equals(password) && other.name.equals(name)
+				&& other.id.equals(id) && other.authorities.containsAll(authorities)
+				&& authorities.containsAll(other.authorities);
 	}
 
 }

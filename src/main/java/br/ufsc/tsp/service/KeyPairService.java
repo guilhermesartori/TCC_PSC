@@ -68,7 +68,7 @@ public class KeyPairService {
 			var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
 			var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
 			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
-			var keyOwner = appUserRepository.findByUsername(username);
+			var keyOwner = appUserRepository.findAppUserByUsername(username);
 
 			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
@@ -83,7 +83,7 @@ public class KeyPairService {
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
 			throws KNetException, KeyPairServiceException {
-		var user = appUserRepository.findByUsername(username);
+		var user = appUserRepository.findAppUserByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -98,7 +98,7 @@ public class KeyPairService {
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
 			KNetException, KeyPairServiceException {
-		var user = appUserRepository.findByUsername(username);
+		var user = appUserRepository.findAppUserByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);

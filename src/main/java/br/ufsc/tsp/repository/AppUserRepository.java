@@ -6,8 +6,8 @@ import br.ufsc.tsp.domain.AppUser;
 
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
-	public AppUser findByUsername(String username);
+	public AppUser findAppUserByUsername(String username);
 
-	public void deleteByUsername(String username);
+	public Integer deleteAppUserByUsername(String username);
 	
 }

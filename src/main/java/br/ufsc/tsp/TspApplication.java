@@ -1,7 +1,6 @@
 package br.ufsc.tsp;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -15,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
-import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.utility.KeyManager;
 
@@ -34,17 +31,18 @@ public class TspApplication {
 
 //	@Bean
 	CommandLineRunner run(AppUserService userService) {
-		return args -> {
-			userService.saveUser(new AppUser(null, "Guilherme Sartori", "guilherme", "1234", new ArrayList<>()));
-			userService.saveUser(new AppUser(null, "Fulano de Tal", "fulano", "fulano", new ArrayList<>()));
-			userService.saveUser(new AppUser(null, "Usuario Teste", "usuario", "passwordsenha", new ArrayList<>()));
-
-			userService.addRoleToUser("guilherme", Authority.CREATE_KEY);
-			userService.addRoleToUser("guilherme", Authority.DELETE_KEY);
-			userService.addRoleToUser("usuario", Authority.CREATE_KEY);
-			userService.addRoleToUser("usuario", Authority.DELETE_KEY);
-			userService.addRoleToUser("fulano", Authority.CHANGE_AUTHORITY);
-		};
+		return null;
+//		return args -> {
+//			userService.saveUser(new AppUser("Guilherme Sartori", "guilherme", "1234", new ArrayList<>()));
+//			userService.saveUser(new AppUser("Fulano de Tal", "fulano", "fulano", new ArrayList<>()));
+//			userService.saveUser(new AppUser("Usuario Teste", "usuario", "passwordsenha", new ArrayList<>()));
+//
+//			userService.addRoleToUser("guilherme", Authority.CREATE_KEY);
+//			userService.addRoleToUser("guilherme", Authority.DELETE_KEY);
+//			userService.addRoleToUser("usuario", Authority.CREATE_KEY);
+//			userService.addRoleToUser("usuario", Authority.DELETE_KEY);
+//			userService.addRoleToUser("fulano", Authority.CHANGE_AUTHORITY);
+//		};
 	}
 
 	@Bean

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.exception.AppUserServiceException;
+import br.ufsc.tsp.exception.AppUserServiceException.ExceptionType;
 import br.ufsc.tsp.repository.AppUserRepository;
 
 @Service
@@ -34,7 +36,7 @@ public class AppUserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		AppUser appUser = appUserRepository.findByUsername(username);
+		AppUser appUser = appUserRepository.findAppUserByUsername(username);
 		if (appUser == null)
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
 		var authorities = new ArrayList<SimpleGrantedAuthority>();
@@ -50,7 +52,7 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public AppUser getUser(String username) {
-		return appUserRepository.findByUsername(username);
+		return appUserRepository.findAppUserByUsername(username);
 	}
 
 	public Collection<AppUser> getUsers() {
@@ -58,7 +60,7 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public void addRoleToUser(String username, Authority authority) {
-		var appUser = appUserRepository.findByUsername(username);
+		var appUser = appUserRepository.findAppUserByUsername(username);
 		appUser.getAuthorities().add(authority);
 	}
 
@@ -67,8 +69,10 @@ public class AppUserService implements UserDetailsService {
 		addRoleToUser(username, authority);
 	}
 
-	public void deleteUserByUsername(String username) {
-		appUserRepository.deleteByUsername(username);
+	public void deleteUserByUsername(String username) throws AppUserServiceException {
+		var success = appUserRepository.deleteAppUserByUsername(username);
+		if (success == 0)
+			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
 	}
 
 }
