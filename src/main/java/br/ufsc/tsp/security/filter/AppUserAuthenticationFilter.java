@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,10 +21,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.response.AuthenticationResponse;
-import br.ufsc.tsp.utility.JWTManager;
+import br.ufsc.tsp.service.utility.JWTManager;
 
 public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+	@Autowired
+	private JWTManager jwtManager;
+	
 	private final AuthenticationManager authenticationManager;
 
 	/**
@@ -46,7 +50,6 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-		var jwtManager = new JWTManager();
 		var user = (User) authResult.getPrincipal();
 		var username = user.getUsername();
 		var password = user.getPassword();

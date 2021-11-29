@@ -1,4 +1,4 @@
-package br.ufsc.tsp.utility;
+package br.ufsc.tsp.service.utility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,13 +8,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
-
+@Service
 public class JWTManager {
 
 	@Autowired
@@ -22,9 +22,8 @@ public class JWTManager {
 
 	private static final Algorithm ALGORITHM = Algorithm.HMAC256("secret".getBytes());
 	private static final long ACCESS_TOKEN_VALIDITY_MS = 10 * 60 * 1000;
-	private static final long REFRESH_TOKEN_VALIDITY_MS = 30 * 60 * 1000;
-	private static final String ROLES_CLAIM = "roles";
-	private static final String ACCESS_KEY_CLAIM = "accessKey";
+	public static final String ROLES_CLAIM = "roles";
+	public static final String ACCESS_KEY_CLAIM = "accessKey";
 
 	public static class DecodedJWTManager {
 
@@ -59,13 +58,6 @@ public class JWTManager {
 				.withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
 				.withClaim(ROLES_CLAIM, roles).withClaim(ACCESS_KEY_CLAIM, encodedAccessKey).sign(ALGORITHM);
 		return accessToken;
-	}
-
-	public String createRefreshToken(String username, String issuer) {
-		var refreshToken = JWT.create().withSubject(username)
-				.withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_MS)).withIssuer(issuer)
-				.sign(ALGORITHM);
-		return refreshToken;
 	}
 
 	public DecodedJWTManager decode(String token) {
