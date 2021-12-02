@@ -40,7 +40,7 @@ public class AppUserAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (!unfilteredPaths.contains(request.getServletPath())) {
+		if (!unfilteredPaths.contains(request.getPathInfo())) {
 			var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 			if (authorizationHeader != null && authorizationHeader.startsWith(AUTH_HEADER_START)) {
 				try {
@@ -62,8 +62,12 @@ public class AppUserAuthorizationFilter extends OncePerRequestFilter {
 					new ObjectMapper().writeValue(response.getOutputStream(), errorMessageResponse);
 				}
 			}
-		}
-		filterChain.doFilter(request, response);
+			var errorMessageResponse = new ErrorMessageResponse("");
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			new ObjectMapper().writeValue(response.getOutputStream(), errorMessageResponse);
+		} else
+			filterChain.doFilter(request, response);
 	}
 
 }
