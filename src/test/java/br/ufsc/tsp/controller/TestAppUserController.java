@@ -1,13 +1,16 @@
 package br.ufsc.tsp.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
@@ -25,9 +29,12 @@ import br.ufsc.tsp.service.AppUserService;
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {
 
-	private static final String USER_NAME = "test";
-	private static final String USER_USERNAME = "test";
-	private static final String USER_PASSWORD = "test";
+	private static final String USER_NAME_1 = "test";
+	private static final String USER_NAME_2 = "test2";
+	private static final String USER_USERNAME_1 = "test";
+	private static final String USER_USERNAME_2 = "test";
+	private static final String USER_PASSWORD_1 = "test";
+	private static final String USER_PASSWORD_2 = "test";
 	private static final Authority ROLE = Authority.CREATE_KEY;
 	private static final List<Authority> ROLES = new ArrayList<>();
 
@@ -41,16 +48,41 @@ public class TestAppUserController {
 	@MockBean
 	private AppUserService appUserService;
 
-	@WithMockUser(username = "test", password = "test", roles = { "CREATE_KEY" })
 	@Test
 	public void test_saveUser() throws Exception {
-		var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, ROLES);
-		var savedUser = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, ROLES);
+		var user = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var savedUser = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		savedUser.setId(1L);
-		Mockito.when(appUserService.saveUser(Mockito.any())).thenReturn(savedUser);
+		when(appUserService.saveUser(any())).thenReturn(savedUser);
+
 		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(user))).andReturn();
+
 		assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "GET_USERS" })
+	@Test
+	public void test_getUsers() throws Exception {
+		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
+		Collection<AppUser> users = List.of(user1, user2);
+		when(appUserService.getUsers()).thenReturn(users);
+
+		var mvcResult = mockMvc.perform(get("/user")).andReturn();
+
+		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "CHANGE_AUTHORITY" })
+	@Test
+	public void test_addRoleToUser() throws Exception {
+		var roleToUserForm = new RoleToUserForm("CREATE_KEY");
+
+		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
+				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();
+
+		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
 	}
 
 }

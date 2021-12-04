@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token", "/user").permitAll();
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.GET_USERS.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/authority")
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**/authority")
 				.hasAnyAuthority(Authority.CHANGE_AUTHORITY.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key")
