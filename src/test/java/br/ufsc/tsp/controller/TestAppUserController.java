@@ -49,21 +49,27 @@ public class TestAppUserController {
 	private AppUserService appUserService;
 
 	@Test
-	public void test_saveUser() throws Exception {
+	public void saveUser_success() throws Exception {
+		var objectMapper = new ObjectMapper();
 		var user = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var content = objectMapper.writeValueAsString(user);
 		var savedUser = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		savedUser.setId(1L);
 		when(appUserService.saveUser(any())).thenReturn(savedUser);
 
-		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON)
-				.content(new ObjectMapper().writeValueAsString(user))).andReturn();
+		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+				.andReturn();
 
-		assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus());
+		var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+		// TODO check body
 	}
+
+	// TODO saveUser_fail
 
 	@WithMockUser(username = "test", password = "test", authorities = { "GET_USERS" })
 	@Test
-	public void test_getUsers() throws Exception {
+	public void getUsers_success() throws Exception {
 		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
 		Collection<AppUser> users = List.of(user1, user2);
@@ -72,17 +78,31 @@ public class TestAppUserController {
 		var mvcResult = mockMvc.perform(get("/user")).andReturn();
 
 		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+		// TODO check body
 	}
+
+	// TODO getUsers_fail
 
 	@WithMockUser(username = "test", password = "test", authorities = { "CHANGE_AUTHORITY" })
 	@Test
-	public void test_addRoleToUser() throws Exception {
+	public void addRoleToUser_success() throws Exception {
 		var roleToUserForm = new RoleToUserForm("CREATE_KEY");
 
 		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();
 
 		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = {})
+	@Test
+	public void addRoleToUser_fail_403() throws Exception {
+		var roleToUserForm = new RoleToUserForm("CREATE_KEY");
+
+		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
+				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();
+
+		assertEquals(HttpStatus.FORBIDDEN.value(), mvcResult.getResponse().getStatus());
 	}
 
 }

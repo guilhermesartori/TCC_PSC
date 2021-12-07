@@ -1,15 +1,11 @@
 package br.ufsc.tsp.controller;
 
-import javax.ws.rs.core.HttpHeaders;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,21 +32,8 @@ public class KeyPairController {
 		this.keyPairService = keyPairService;
 	}
 
-	@GetMapping
-	public ResponseEntity<Object> getKeyPairs() {
-		try {
-			var body = keyPairService.getKeyPairs();
-			return ResponseEntity.ok().body(body);
-		} catch (Exception e) {
-			var errorMessageResponse = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.internalServerError().body(errorMessageResponse);
-		}
-
-	}
-
 	@PostMapping
-	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request,
-			@RequestHeader HttpHeaders headers) {
+	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();

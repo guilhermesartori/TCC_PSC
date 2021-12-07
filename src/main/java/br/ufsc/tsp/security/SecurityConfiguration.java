@@ -54,6 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key")
 				.hasAnyAuthority(Authority.DELETE_KEY.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.SIGN.toString());
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(authenticationFilter);
 		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
