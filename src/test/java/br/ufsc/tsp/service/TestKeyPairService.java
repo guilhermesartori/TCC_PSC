@@ -12,6 +12,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -54,12 +55,19 @@ public class TestKeyPairService {
 	private String accessKey;
 
 	@BeforeEach
-	public void runBeforeEach() {
+	public void runBeforeEach() throws KNetException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.CREATE_KEY);
 		var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, authorities);
 		appUserService.saveUser(user);
 		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
+		var parameters = new HashMap<String, String>();
+		parameters.put("ADDRESS_CONN", "192.168.66.20");
+		parameters.put("PORT_CONN", "60055");
+		parameters.put("USERNAME", "test_user");
+		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
+		parameters.put("MAX_CONNECTIONS", "1");
+		keyManager.setKnetConfiguration(parameters);
 	}
 
 	@AfterEach

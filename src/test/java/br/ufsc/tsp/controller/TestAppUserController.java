@@ -1,6 +1,8 @@
 package br.ufsc.tsp.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +64,12 @@ public class TestAppUserController {
 				.andReturn();
 
 		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, AppUser.class);
+
 		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-		// TODO check body
+		assertEquals(savedUser, responseBody);
+		assertNotNull(response.getHeader("Location"));
 	}
 
 	// TODO saveUser_fail
@@ -70,6 +77,7 @@ public class TestAppUserController {
 	@WithMockUser(username = "test", password = "test", authorities = { "GET_USERS" })
 	@Test
 	public void getUsers_success() throws Exception {
+		var objectMapper = new ObjectMapper();
 		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
 		Collection<AppUser> users = List.of(user1, user2);
@@ -77,11 +85,29 @@ public class TestAppUserController {
 
 		var mvcResult = mockMvc.perform(get("/user")).andReturn();
 
-		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-		// TODO check body
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, AppUser[].class);
+		var appUserSet = Set.of(responseBody);
+		assertEquals(HttpStatus.OK.value(), response.getStatus());
+		assertEquals(2, responseBody.length);
+		assertTrue(appUserSet.contains(user1));
+		assertTrue(appUserSet.contains(user1));
 	}
 
-	// TODO getUsers_fail
+	@WithMockUser(username = "test", password = "test", authorities = {})
+	@Test
+	public void getUsers_fail_403() throws Exception {
+		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
+		Collection<AppUser> users = List.of(user1, user2);
+		when(appUserService.getUsers()).thenReturn(users);
+
+		var mvcResult = mockMvc.perform(get("/user")).andReturn();
+
+		var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "CHANGE_AUTHORITY" })
 	@Test

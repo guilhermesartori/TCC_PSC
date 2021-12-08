@@ -130,8 +130,7 @@ public class AppUser {
 			return false;
 		var other = (AppUser) obj;
 		return other.username.equals(username) && other.password.equals(password) && other.name.equals(name)
-				&& other.id.equals(id) && other.authorities.containsAll(authorities)
-				&& authorities.containsAll(other.authorities);
+				&& other.authorities.containsAll(authorities) && authorities.containsAll(other.authorities);
 	}
 
 }

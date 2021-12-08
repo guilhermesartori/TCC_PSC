@@ -5,7 +5,9 @@ import static org.junit.Assert.fail;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +20,17 @@ public class TestKeyManager {
 
 	@Autowired
 	private KeyManager keyManager;
+
+	@BeforeEach
+	private void createKnetConfiguration() throws KNetException {
+		var parameters = new HashMap<String, String>();
+		parameters.put("ADDRESS_CONN", "192.168.66.20");
+		parameters.put("PORT_CONN", "60055");
+		parameters.put("USERNAME", "test_user");
+		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
+		parameters.put("MAX_CONNECTIONS", "1");
+		keyManager.setKnetConfiguration(parameters);
+	}
 
 	@Test
 	public void test_createKeyPair() throws KNetException {
