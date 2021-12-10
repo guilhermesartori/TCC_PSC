@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
-import br.ufsc.tsp.exception.AppUserServiceException;
+import br.ufsc.tsp.service.exception.AppUserServiceException;
 
 @SpringBootTest
 public class TestAppUserService {

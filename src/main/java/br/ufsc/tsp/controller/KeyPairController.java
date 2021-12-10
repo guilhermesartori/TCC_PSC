@@ -14,8 +14,8 @@ import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.controller.response.SignatureResponse;
-import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.KeyPairService;
+import br.ufsc.tsp.service.exception.KeyPairServiceException;
 
 @RestController
 @RequestMapping(path = "key")

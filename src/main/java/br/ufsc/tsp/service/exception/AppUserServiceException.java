@@ -1,4 +1,4 @@
-package br.ufsc.tsp.exception;
+package br.ufsc.tsp.service.exception;
 
 public class AppUserServiceException extends Exception {
 

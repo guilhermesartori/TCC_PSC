@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.labsec.valueobject.exception.KNetException;
-import br.ufsc.tsp.exception.SystemServiceException;
+import br.ufsc.tsp.service.exception.SystemServiceException;
 import br.ufsc.tsp.service.utility.KeyManager;
 
 @Service

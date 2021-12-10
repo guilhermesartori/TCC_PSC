@@ -24,9 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
-import br.ufsc.tsp.exception.AppUserServiceException;
-import br.ufsc.tsp.exception.KeyPairServiceException;
 import br.ufsc.tsp.repository.KeyPairRepository;
+import br.ufsc.tsp.service.exception.AppUserServiceException;
+import br.ufsc.tsp.service.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.utility.KeyManager;
 import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 

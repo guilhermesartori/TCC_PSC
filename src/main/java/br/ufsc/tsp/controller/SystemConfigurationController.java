@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ufsc.tsp.controller.request.KNetConfigurationRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
-import br.ufsc.tsp.exception.SystemServiceException;
 import br.ufsc.tsp.service.SystemService;
+import br.ufsc.tsp.service.exception.SystemServiceException;
 
 @RestController
 @RequestMapping(path = "system")

@@ -1,9 +1,10 @@
-package br.ufsc.tsp.exception;
+package br.ufsc.tsp.service.exception;
 
-public class SystemServiceException extends Exception {
+public class KeyPairServiceException extends Exception {
 
 	public enum ExceptionType {
-		DEFAULT("Error submitting KNet configuration.");
+		DEFAULT("Error during key generation."), KEY_NAME_IN_USE("Key name already in use."),
+		KEY_NOT_FOUND("Key doesn't exist or doesn't belong to user.");
 
 		private String message;
 
@@ -24,12 +25,11 @@ public class SystemServiceException extends Exception {
 	/**
 	 * 
 	 */
-	public SystemServiceException() {
+	public KeyPairServiceException() {
 		super(ExceptionType.DEFAULT.message);
 	}
 
-	public SystemServiceException(ExceptionType exceptionType) {
+	public KeyPairServiceException(ExceptionType exceptionType) {
 		super(exceptionType.message);
 	}
-
 }

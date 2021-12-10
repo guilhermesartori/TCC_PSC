@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.KeyPair;
-import br.ufsc.tsp.exception.KeyPairServiceException;
-import br.ufsc.tsp.exception.KeyPairServiceException.ExceptionType;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
+import br.ufsc.tsp.service.exception.KeyPairServiceException;
+import br.ufsc.tsp.service.exception.KeyPairServiceException.ExceptionType;
 import br.ufsc.tsp.service.utility.KeyManager;
 import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
