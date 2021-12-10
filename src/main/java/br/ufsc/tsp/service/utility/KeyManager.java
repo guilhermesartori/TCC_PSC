@@ -9,8 +9,8 @@ import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
+import br.ufsc.tsp.service.exception.KeyManagerException;
 
-// TODO handle nullpointers
 @Service
 public class KeyManager {
 
@@ -23,24 +23,32 @@ public class KeyManager {
 	}
 
 	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter, String keyName)
-			throws KNetException {
+			throws KNetException, KeyManagerException {
+		if (kNetRequester == null)
+			throw new KeyManagerException();
 		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
 				keyName + "-public");
 		return keyIdentifierPair;
 	}
 
-	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data) throws KNetException {
+	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data)
+			throws KNetException, KeyManagerException {
+		if (kNetRequester == null)
+			throw new KeyManagerException();
 		var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
 		return signature;
 	}
 
-	public void deleteKeyPair(String privateKey, String publicKey) throws KNetException {
+	public void deleteKeyPair(String privateKey, String publicKey) throws KNetException, KeyManagerException {
+		if (kNetRequester == null)
+			throw new KeyManagerException();
 		kNetRequester.revokeAndDestroy(new String[] { privateKey, publicKey });
 	}
 
-	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm) throws KNetException {
+	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm) throws KNetException, KeyManagerException {
+		if (kNetRequester == null)
+			throw new KeyManagerException();
 		return kNetRequester.getPublicKey(keyIdentifier, keyAlgorithm);
-
 	}
 
 	public void setKnetConfiguration(Map<String, String> parameters) throws KNetException {

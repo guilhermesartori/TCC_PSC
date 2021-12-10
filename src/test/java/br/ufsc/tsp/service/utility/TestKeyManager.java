@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
+import br.ufsc.tsp.service.exception.KeyManagerException;
 
 @SpringBootTest
 public class TestKeyManager {
@@ -33,7 +34,7 @@ public class TestKeyManager {
 	}
 
 	@Test
-	public void test_createKeyPair() throws KNetException {
+	public void test_createKeyPair() throws KNetException, KeyManagerException {
 		var identifiers = keyManager.createKeyPair("RSA", "1024", "test_createKeyPair");
 
 		keyManager.deleteKeyPair(identifiers.getPrivateKeyIdentifier(), identifiers.getPublicKeyIdentifier());
@@ -43,7 +44,7 @@ public class TestKeyManager {
 	}
 
 	@Test
-	public void test_sign() throws KNetException, NoSuchAlgorithmException {
+	public void test_sign() throws KNetException, NoSuchAlgorithmException, KeyManagerException {
 		KeyIdentifierPair identifiers = null;
 		try {
 			identifiers = keyManager.createKeyPair("RSA", "1024", "test_sign");

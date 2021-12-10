@@ -18,6 +18,7 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.domain.KeyPair;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
+import br.ufsc.tsp.service.exception.KeyManagerException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException.ExceptionType;
 import br.ufsc.tsp.service.utility.KeyManager;
@@ -58,7 +59,7 @@ public class KeyPairService {
 	}
 
 	public KeyPair createKeyPair(String username, String accessKey, String keyAlgorithm, String keyParameter,
-			String keyName) throws KeyPairServiceException {
+			String keyName) throws KeyPairServiceException, KeyManagerException {
 		try {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
@@ -82,7 +83,7 @@ public class KeyPairService {
 	}
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
-			throws KNetException, KeyPairServiceException {
+			throws KNetException, KeyPairServiceException, KeyManagerException {
 		var user = appUserRepository.findAppUserByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
@@ -97,7 +98,7 @@ public class KeyPairService {
 
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
-			KNetException, KeyPairServiceException {
+			KNetException, KeyPairServiceException, KeyManagerException {
 		var user = appUserRepository.findAppUserByUsername(username);
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
