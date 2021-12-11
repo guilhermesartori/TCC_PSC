@@ -16,6 +16,8 @@ import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.service.AppUserService;
 
+// TODO get user
+// TODO change create user request body
 @RestController
 @RequestMapping(path = "user")
 public class AppUserController {

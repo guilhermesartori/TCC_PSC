@@ -12,6 +12,11 @@ import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.SystemService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
+// TODO knet admin creation
+// TODO sys admin
+// TODO custom DB?
+// TODO custom DB admin?
+// TODO system key refresh
 @RestController
 @RequestMapping(path = "system")
 public class SystemConfigurationController {

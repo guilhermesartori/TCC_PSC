@@ -47,14 +47,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		authenticationFilter.setFilterProcessesUrl("/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		
+		// login
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token", "/user").permitAll();
+		
+		// /user
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.GET_USERS.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**/authority")
 				.hasAnyAuthority(Authority.CHANGE_AUTHORITY.toString());
+		
+		// /key
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key")
 				.hasAnyAuthority(Authority.DELETE_KEY.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.SIGN.toString());
+		
+		// /system
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet").hasAnyAuthority(Authority.KNET.toString());
+	
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(authenticationFilter);
 		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

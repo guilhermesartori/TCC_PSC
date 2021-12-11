@@ -17,6 +17,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
 import org.springframework.stereotype.Service;
 
+// TODO put key somewhere else
 @Service
 public class KeyParameterEncryptor {
 

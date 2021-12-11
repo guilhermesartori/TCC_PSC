@@ -17,6 +17,8 @@ import br.ufsc.tsp.controller.response.SignatureResponse;
 import br.ufsc.tsp.service.KeyPairService;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 
+// TODO signature verify
+// TODO get key
 @RestController
 @RequestMapping(path = "key")
 public class KeyPairController {
