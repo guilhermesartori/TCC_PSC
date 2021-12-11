@@ -7,13 +7,12 @@ import org.springframework.stereotype.Service;
 
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.service.exception.SystemServiceException;
-import br.ufsc.tsp.service.utility.KeyManager;
 
 @Service
 public class SystemService {
 
 	@Autowired
-	private KeyManager keyManager;
+	private KNetCommunicationService keyManager;
 
 	public void createKnetConfiguration(Map<String, String> knetParameters) throws SystemServiceException {
 		try {

@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
-import br.ufsc.tsp.service.utility.KeyManager;
+import br.ufsc.tsp.service.KNetCommunicationService;
 
 @SpringBootApplication
 public class TspApplication {
@@ -27,7 +27,7 @@ public class TspApplication {
 	}
 
 	// TODO remove this
-	public KeyManager keyManagerBean() throws KNetException {
+	public KNetCommunicationService keyManagerBean() throws KNetException {
 		final var props = System.getProperties();
 		props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
 		var parameters = new HashMap<String, String>();
@@ -40,7 +40,7 @@ public class TspApplication {
 		new KNetRequester(KkmipClientBuilder.build(null, null, parameters), parameters.get("USERNAME"),
 				parameters.get("PW"));
 
-		return new KeyManager();
+		return new KNetCommunicationService();
 	}
 
 }

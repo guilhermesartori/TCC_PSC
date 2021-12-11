@@ -1,4 +1,4 @@
-package br.ufsc.tsp.service.utility;
+package br.ufsc.tsp.service;
 
 import java.security.PublicKey;
 import java.util.Map;
@@ -12,11 +12,11 @@ import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 
 @Service
-public class KeyManager {
+public class KNetCommunicationService {
 
 	private KNetRequester kNetRequester;
 
-	public KeyManager() {
+	public KNetCommunicationService() {
 		super();
 		final var props = System.getProperties();
 		props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());

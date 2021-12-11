@@ -39,7 +39,7 @@ public class TestJWTManager {
 
 	@Test
 	public void test_createAccessToken() {
-		final var verifier = JWT.require(Algorithm.HMAC256("secret".getBytes())).build();
+		final var verifier = JWT.require(Algorithm.HMAC256(SystemKey.getKey())).build();
 
 		final var token = jwtManager.createAccessToken(USERNAME, PASSWORD, ISSUER, ROLES);
 

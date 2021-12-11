@@ -21,7 +21,6 @@ import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException.ExceptionType;
-import br.ufsc.tsp.service.utility.KeyManager;
 import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @Service
@@ -30,7 +29,7 @@ public class KeyPairService {
 
 	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
-	private final KeyManager keyManager;
+	private final KNetCommunicationService keyManager;
 	private final MessageDigest digest;
 	private final KeyParameterEncryptor keyParameterEncryptor;
 
@@ -41,7 +40,7 @@ public class KeyPairService {
 	 */
 	@Autowired
 	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository,
-			KeyManager keyManager, KeyParameterEncryptor keyParameterEncryptor) {
+			KNetCommunicationService keyManager, KeyParameterEncryptor keyParameterEncryptor) {
 		super();
 		this.keyPairRepository = keyPairRepository;
 		this.appUserRepository = appUserRepository;

@@ -8,7 +8,6 @@ import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -17,61 +16,55 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
 import org.springframework.stereotype.Service;
 
-// TODO put key somewhere else
 @Service
 public class KeyParameterEncryptor {
 
 	private static final Provider PROVIDER = new BouncyCastleProvider();
-	private static KeyGenerator keyGenerator;
-
-	static {
-		try {
-			keyGenerator = KeyGenerator.getInstance("AES");
-			keyGenerator.init(256);
-		} catch (NoSuchAlgorithmException e) {
-			// should never happen
-		}
-	}
+	private static final String ACCESS_KEY_ALGORITHM = "AES";
+	private static final String CIPHER_TRANSFORMATION = "AES/ECB/PKCS5Padding";
 
 	private final Cipher cipher;
 	private SecretKey secretKey;
 
 	public KeyParameterEncryptor() {
 		try {
-			this.cipher = Cipher.getInstance("AES/ECB/PKCS5Padding", PROVIDER);
-			secretKey = keyGenerator.generateKey();
+			this.cipher = Cipher.getInstance(CIPHER_TRANSFORMATION, PROVIDER);
+			secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public String encrypt(String parameter, String encryptedKey) {
+	public String encrypt(String dataToEncrypt, String encryptedAccessKey) {
 		try {
-			var decryptedKey = decryptKey(encryptedKey);
-			var key = adjustKeySize(decryptedKey);
-			var secretKey = new SecretKeySpec(key, "AES");
-			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			var encryptedBytes = cipher.doFinal(parameter.getBytes());
-			var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
-			return base64Encryption;
+			var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
+			cipher.init(Cipher.ENCRYPT_MODE, accessKeySpec);
+			var encryptedData = cipher.doFinal(dataToEncrypt.getBytes());
+			var base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
+			return base64EncodedEncryptedData;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public String decrypt(String base64Encoding, String encryptedKey) {
+	public String decrypt(String base64EncodedEncryptedData, String encryptedAccessKey) {
 		try {
-			var decryptedKey = decryptKey(encryptedKey);
-			var key = adjustKeySize(decryptedKey);
-			var secretKey = new SecretKeySpec(key, "AES");
-			cipher.init(Cipher.DECRYPT_MODE, secretKey);
-			var encryptedBytes = Base64.getDecoder().decode(base64Encoding);
-			var decryptedBytes = cipher.doFinal(encryptedBytes);
-			var decryptedString = new String(decryptedBytes);
+			var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
+			cipher.init(Cipher.DECRYPT_MODE, accessKeySpec);
+			var encryptedData = Base64.getDecoder().decode(base64EncodedEncryptedData);
+			var decryptedDataBytes = cipher.doFinal(encryptedData);
+			var decryptedString = new String(decryptedDataBytes);
 			return decryptedString;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private SecretKeySpec encryptedAccessKeyToSecretKeySpec(String encryptedAccessKey) {
+		var accessKey = decryptKey(encryptedAccessKey);
+		var adjustedAccessKey = adjustKeySize(accessKey);
+		var accessKeySpec = new SecretKeySpec(adjustedAccessKey, ACCESS_KEY_ALGORITHM);
+		return accessKeySpec;
 	}
 
 	private byte[] adjustKeySize(String decryptedKey) {
@@ -109,10 +102,6 @@ public class KeyParameterEncryptor {
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public void refreshKey() {
-		this.secretKey = keyGenerator.generateKey();
 	}
 
 }

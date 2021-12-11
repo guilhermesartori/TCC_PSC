@@ -14,13 +14,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
+import br.ufsc.tsp.service.KNetCommunicationService;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 
 @SpringBootTest
 public class TestKeyManager {
 
 	@Autowired
-	private KeyManager keyManager;
+	private KNetCommunicationService keyManager;
 
 	@BeforeEach
 	private void createKnetConfiguration() throws KNetException {
