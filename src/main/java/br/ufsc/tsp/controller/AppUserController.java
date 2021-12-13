@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.request.RoleToUserForm;
-import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.service.AppUserService;
 
 // TODO get user
@@ -39,8 +39,11 @@ public class AppUserController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> saveUser(@RequestBody AppUser user) {
-		var createdUser = appUserService.saveUser(user);
+	public ResponseEntity<Object> saveUser(@RequestBody RegisterUserRequest registerUserRequest) {
+		var name = registerUserRequest.getName();
+		var username = registerUserRequest.getUsername();
+		var password = registerUserRequest.getPassword();
+		var createdUser = appUserService.saveUser(name, username, password);
 		var createdUserId = createdUser.getId();
 		var pathToCreatedUser = String.format("/user/%d", createdUserId);
 		var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();

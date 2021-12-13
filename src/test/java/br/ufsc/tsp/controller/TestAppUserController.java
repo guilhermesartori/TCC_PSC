@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
@@ -54,11 +55,11 @@ public class TestAppUserController {
 	@Test
 	public void saveUser_success() throws Exception {
 		var objectMapper = new ObjectMapper();
-		var user = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var user = new RegisterUserRequest(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1);
 		var content = objectMapper.writeValueAsString(user);
 		var savedUser = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		savedUser.setId(1L);
-		when(appUserService.saveUser(any())).thenReturn(savedUser);
+		when(appUserService.saveUser(any(), any(), any())).thenReturn(savedUser);
 
 		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();

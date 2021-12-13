@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import br.ufsc.labsec.valueobject.exception.KNetException;
-import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.enums.Authority;
 import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
@@ -58,8 +57,7 @@ public class TestKeyPairService {
 	public void runBeforeEach() throws KNetException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.CREATE_KEY);
-		var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, authorities);
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
 		var parameters = new HashMap<String, String>();
 		parameters.put("ADDRESS_CONN", "192.168.66.20");

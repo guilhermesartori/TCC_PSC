@@ -40,8 +40,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_loadUserByUsername_success() throws AppUserServiceException {
-		var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
 			var userDetails = appUserService.loadUserByUsername(USER_USERNAME);
@@ -57,13 +56,11 @@ public class TestAppUserService {
 
 	@Test
 	public void test_saveUser_fail() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		final var user2 = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
 			assertThrows(DataIntegrityViolationException.class, () -> {
-				appUserService.saveUser(user2);
+				appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 			});
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -72,11 +69,9 @@ public class TestAppUserService {
 
 	@Test
 	public void test_saveUser_success() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-
 		AppUser savedUser = null;
 		try {
-			savedUser = appUserService.saveUser(user);
+			savedUser = appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 			assertEquals(USER_NAME, savedUser.getName());
 			assertEquals(USER_USERNAME, savedUser.getUsername());
@@ -97,8 +92,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_getUser_success() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		final var savedUser = appUserService.saveUser(user);
+		final var savedUser = appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
 			final var gottenUser = appUserService.getUser(USER_USERNAME);
@@ -115,8 +109,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_addRoleToUserByAuthorityEnum() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
 			appUserService.addRoleToUser(USER_USERNAME, Authority.CREATE_KEY);
@@ -131,8 +124,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_addRoleToUserByString() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
 			appUserService.addRoleToUser(USER_USERNAME, "CREATE_KEY");
@@ -154,8 +146,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_deleteUserByUsername_success() {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		appUserService.saveUser(user);
+		appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		assertDoesNotThrow(() -> {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -167,10 +158,8 @@ public class TestAppUserService {
 
 	@Test
 	public void test_getUsers() throws AppUserServiceException {
-		final var user = new AppUser(USER_NAME, USER_USERNAME, USER_PASSWORD, new ArrayList<>());
-		final var user2 = new AppUser(USER_NAME, USER_USERNAME + "2", USER_PASSWORD, new ArrayList<>());
-		final var savedUser = appUserService.saveUser(user);
-		final var savedUser2 = appUserService.saveUser(user2);
+		final var savedUser = appUserService.saveUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		final var savedUser2 = appUserService.saveUser(USER_NAME, USER_USERNAME + "2", USER_PASSWORD);
 		
 		try {
 			final var users = appUserService.getUsers();

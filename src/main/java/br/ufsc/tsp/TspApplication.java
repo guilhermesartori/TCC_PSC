@@ -14,6 +14,7 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 import br.ufsc.tsp.service.KNetCommunicationService;
 
+// TODO converter coisas pra lombok
 @SpringBootApplication
 public class TspApplication {
 
