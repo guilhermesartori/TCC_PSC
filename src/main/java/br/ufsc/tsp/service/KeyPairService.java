@@ -3,6 +3,8 @@ package br.ufsc.tsp.service;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
@@ -133,6 +135,35 @@ public class KeyPairService {
 		var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
 
 		return uniqueIdentifier;
+	}
+
+	public KeyPair getKeyPair(String username, String keyUniqueIdentifier) throws KeyPairServiceException {
+		var user = appUserRepository.findAppUserByUsername(username);
+		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
+		if (optionalKeyPair.isEmpty())
+			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
+		return optionalKeyPair.get();
+	}
+
+	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature)
+			throws KeyPairServiceException, KNetException, KeyManagerException, InvalidKeyException,
+			NoSuchAlgorithmException, SignatureException {
+		var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
+		if (optionalKeyPair.isEmpty())
+			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
+
+		var keyPair = optionalKeyPair.get();
+		var algorithm = keyPair.getKeyAlgorithm();
+		var publicKeyIdentifier = keyPair.getPublicKey();
+		var publicKey = keyManager.getPublicKey(publicKeyIdentifier, algorithm);
+
+		var data = Base64.getDecoder().decode(base64EncodedData);
+		var signature = Base64.getDecoder().decode(base64EncodedSignature);
+
+		var signatureVerifier = Signature.getInstance(algorithm, new BouncyCastleProvider());
+		signatureVerifier.initVerify(publicKey);
+		signatureVerifier.update(data);
+		return signatureVerifier.verify(Base64.getDecoder().decode(signature));
 	}
 
 }

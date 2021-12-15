@@ -1,5 +1,7 @@
 package br.ufsc.tsp.controller;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,13 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
+import br.ufsc.tsp.controller.request.SignatureVerificationRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.controller.response.SignatureResponse;
+import br.ufsc.tsp.controller.response.SignatureVerificationResponse;
 import br.ufsc.tsp.service.KeyPairService;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 
 // TODO signature verify
 // TODO get key
+// TODO ver como funciona chaves no unix
 @RestController
 @RequestMapping(path = "key")
 public class KeyPairController {
@@ -74,7 +79,25 @@ public class KeyPairController {
 			var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			var signature = keyPairService.sign(username, accessKey, request.getBase64EncodedData(),
 					request.getKeyUniqueIdentifier(), request.getHashingAlgorithm());
-			var body = new SignatureResponse(signature);
+			var keyPair = keyPairService.getKeyPair(username, request.getKeyUniqueIdentifier());
+			var body = new SignatureResponse(signature, keyPair.getUniqueIdentifier(), keyPair.getPublicKey());
+			return ResponseEntity.ok().body(body);
+		} catch (KeyPairServiceException e) {
+			var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.badRequest().body(body);
+		} catch (Exception e) {
+			var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.internalServerError().body(body);
+		}
+	}
+
+	@PostMapping(path = "{keyUniqueIdentifier}/verify-signature")
+	public ResponseEntity<Object> verify(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier,
+			@RequestBody SignatureVerificationRequest request) {
+		try {
+			var validSignature = keyPairService.verifySignature(keyUniqueIdentifier, request.getBase64EncodedData(),
+					request.getBase64EncodedSignature());
+			var body = new SignatureVerificationResponse(validSignature);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());

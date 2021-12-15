@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import br.ufsc.tsp.domain.AppUser;
 import br.ufsc.tsp.domain.KeyPair;
 
+// TODO make find by username and identifier
 @Repository
 public interface KeyPairRepository extends JpaRepository<KeyPair, Long> {
 

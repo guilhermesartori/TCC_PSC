@@ -17,7 +17,6 @@ import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.service.AppUserService;
 
 // TODO get user
-// TODO change create user request body
 @RestController
 @RequestMapping(path = "user")
 public class AppUserController {
@@ -39,7 +38,7 @@ public class AppUserController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> saveUser(@RequestBody RegisterUserRequest registerUserRequest) {
+	public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
 		var name = registerUserRequest.getName();
 		var username = registerUserRequest.getUsername();
 		var password = registerUserRequest.getPassword();

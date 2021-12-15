@@ -93,7 +93,7 @@ public class TestKeyPairController {
 		var responseBodyAsString = response.getContentAsString();
 		var responseBody = objectMapper.readValue(responseBodyAsString, SignatureResponse.class);
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
-		assertEquals(signature, responseBody.getBase64Signature());
+		assertEquals(signature, responseBody.getBase64EncodedSignature());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = {})
