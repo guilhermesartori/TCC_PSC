@@ -166,4 +166,15 @@ public class KeyPairService {
 		return signatureVerifier.verify(Base64.getDecoder().decode(signature));
 	}
 
+	public String getPublicKey(String keyIdentifier, String keyAlgorithm) throws KeyPairServiceException {
+		try {
+			var publicKey = keyManager.getPublicKey(keyIdentifier, keyAlgorithm);
+			var encodedPublicKey = publicKey.getEncoded();
+			var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
+			return base64Encoding;
+		} catch (KNetException | KeyManagerException e) {
+			throw new KeyPairServiceException();
+		}
+	}
+
 }

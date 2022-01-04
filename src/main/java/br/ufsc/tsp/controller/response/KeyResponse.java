@@ -5,10 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SignatureResponse {
+public class KeyResponse {
 
-	private String base64EncodedSignature;
 	private String keyPairUniqueIdentifier;
-	private String base64EncodedPublicKey;
-
+	private String keyAlgorithm;
+	private String publicKey;
+	
 }

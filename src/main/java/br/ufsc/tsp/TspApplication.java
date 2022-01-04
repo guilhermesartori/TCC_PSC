@@ -15,6 +15,7 @@ import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 import br.ufsc.tsp.service.KNetCommunicationService;
 
 // TODO converter coisas pra lombok
+// TODO alterar a accessKey para nao ser apenas a senha
 @SpringBootApplication
 public class TspApplication {
 
