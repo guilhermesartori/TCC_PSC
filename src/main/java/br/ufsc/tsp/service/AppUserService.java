@@ -46,12 +46,17 @@ public class AppUserService implements UserDetailsService {
 		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
 
-	public AppUser saveUser(String name, String username, String password) {
+	public AppUser registerNewUser(String name, String username, String password) {
 		var user = new AppUser(name, username, password, new ArrayList<>());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}
 
+	public AppUser saveUser(AppUser user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		return appUserRepository.save(user);
+	}
+	
 	public AppUser getUser(String username) {
 		return appUserRepository.findAppUserByUsername(username);
 	}

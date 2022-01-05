@@ -42,7 +42,7 @@ public class AppUserController {
 		var name = registerUserRequest.getName();
 		var username = registerUserRequest.getUsername();
 		var password = registerUserRequest.getPassword();
-		var createdUser = appUserService.saveUser(name, username, password);
+		var createdUser = appUserService.registerNewUser(name, username, password);
 		var createdUserId = createdUser.getId();
 		var pathToCreatedUser = String.format("/user/%d", createdUserId);
 		var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();

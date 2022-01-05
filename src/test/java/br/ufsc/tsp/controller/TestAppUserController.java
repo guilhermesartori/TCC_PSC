@@ -59,7 +59,7 @@ public class TestAppUserController {
 		var content = objectMapper.writeValueAsString(user);
 		var savedUser = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
 		savedUser.setId(1L);
-		when(appUserService.saveUser(any(), any(), any())).thenReturn(savedUser);
+		when(appUserService.registerNewUser(any(), any(), any())).thenReturn(savedUser);
 
 		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();

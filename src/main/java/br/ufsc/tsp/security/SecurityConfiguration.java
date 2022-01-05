@@ -54,7 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// /user
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.GET_USERS.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**/authority")
-				.hasAnyAuthority(Authority.CHANGE_AUTHORITY.toString());
+				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		
 		// /key
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
