@@ -88,6 +88,7 @@ public class KeyPairController {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {
+			e.printStackTrace();
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}

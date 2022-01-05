@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.controller.response.SignatureResponse;
+import br.ufsc.tsp.domain.KeyPair;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.KeyPairService;
 
@@ -77,14 +78,18 @@ public class TestKeyPairController {
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
+	// fix check things better
 	@WithMockUser(username = "test", password = "test", authorities = { "SIGN" })
 	@Test
 	public void sign_success() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new SignatureRequest("test", "SHA512", "test");
-		var content = objectMapper.writeValueAsString(requestBody);
-		var signature = "test";
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var content = objectMapper.writeValueAsString(requestBody);
+		final var signature = new String("test");
+		final var keyPair = new KeyPair(null, null, null, "test", null, null);
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenReturn(signature);
+		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
+		when(keyPairService.getPublicKey(null, null)).thenReturn("test");
 
 		var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
