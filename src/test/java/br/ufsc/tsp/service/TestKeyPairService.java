@@ -56,7 +56,7 @@ public class TestKeyPairService {
 	@BeforeEach
 	public void runBeforeEach() throws KNetException {
 		var authorities = new ArrayList<Authority>();
-		authorities.add(Authority.CREATE_KEY);
+		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
 		var parameters = new HashMap<String, String>();

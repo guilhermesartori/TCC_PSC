@@ -112,10 +112,10 @@ public class TestAppUserService {
 		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
-			appUserService.addRoleToUser(USER_USERNAME, Authority.CREATE_KEY);
+			appUserService.addRoleToUser(USER_USERNAME, Authority.USER);
 
 			final var gottenUser = appUserService.getUser(USER_USERNAME);
-			assertTrue(gottenUser.getAuthorities().contains(Authority.CREATE_KEY));
+			assertTrue(gottenUser.getAuthorities().contains(Authority.USER));
 
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -127,10 +127,10 @@ public class TestAppUserService {
 		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
 
 		try {
-			appUserService.addRoleToUser(USER_USERNAME, "CREATE_KEY");
+			appUserService.addRoleToUser(USER_USERNAME, "ADMINISTRATOR");
 
 			final var gottenUser = appUserService.getUser(USER_USERNAME);
-			assertTrue(gottenUser.getAuthorities().contains(Authority.CREATE_KEY));
+			assertTrue(gottenUser.getAuthorities().contains(Authority.ADMINISTRATOR));
 
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);

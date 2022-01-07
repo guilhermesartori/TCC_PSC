@@ -39,7 +39,7 @@ public class TestAppUserController {
 	private static final String USER_USERNAME_2 = "test";
 	private static final String USER_PASSWORD_1 = "test";
 	private static final String USER_PASSWORD_2 = "test";
-	private static final Authority ROLE = Authority.CREATE_KEY;
+	private static final Authority ROLE = Authority.USER;
 	private static final List<Authority> ROLES = new ArrayList<>();
 
 	static {
@@ -75,7 +75,7 @@ public class TestAppUserController {
 
 	// TODO saveUser_fail
 
-	@WithMockUser(username = "test", password = "test", authorities = { "GET_USERS" })
+	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void getUsers_success() throws Exception {
 		var objectMapper = new ObjectMapper();
@@ -110,10 +110,10 @@ public class TestAppUserController {
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
-	@WithMockUser(username = "test", password = "test", authorities = { "CHANGE_AUTHORITY" })
+	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void addRoleToUser_success() throws Exception {
-		var roleToUserForm = new RoleToUserForm("CREATE_KEY");
+		var roleToUserForm = new RoleToUserForm("ADMINISTRATOR");
 
 		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();

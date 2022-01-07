@@ -29,7 +29,7 @@ public class TestJWTManager {
 	private static final String USERNAME = "test";
 	private static final String PASSWORD = "test";
 	private static final String ISSUER = "test";
-	private static final String ROLE = Authority.CREATE_KEY.name();
+	private static final String ROLE = Authority.USER.name();
 	private static final List<String> ROLES = new ArrayList<>();
 
 	@BeforeAll

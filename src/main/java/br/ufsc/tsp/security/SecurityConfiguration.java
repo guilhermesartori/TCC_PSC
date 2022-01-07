@@ -52,19 +52,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token", "/user").permitAll();
 		
 		// /user
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.GET_USERS.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**/authority")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		
 		// /key
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.CREATE_KEY.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key")
-				.hasAnyAuthority(Authority.DELETE_KEY.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.SIGN.toString());
+				.hasAnyAuthority(Authority.USER.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.USER.toString());
 		
 		// /system
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet").hasAnyAuthority(Authority.KNET.toString());
-	
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet").hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
+		
+		//
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(authenticationFilter);
 		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -36,7 +36,7 @@ public class TestKeyPairController {
 	@MockBean
 	private AppUserService appUserService;
 
-	@WithMockUser(username = "test", password = "test", authorities = { "CREATE_KEY" })
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void createKeyPair_success() throws Exception {
 		var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
@@ -60,7 +60,7 @@ public class TestKeyPairController {
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
-	@WithMockUser(username = "test", password = "test", authorities = { "DELETE_KEY" })
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void deleteKeyPair_success() throws Exception {
 		var mvcResult = mockMvc.perform(delete("/key").queryParam("uniqueIdentifier", "test")).andReturn();
@@ -79,7 +79,7 @@ public class TestKeyPairController {
 	}
 
 	// fix check things better
-	@WithMockUser(username = "test", password = "test", authorities = { "SIGN" })
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void sign_success() throws Exception {
 		final var objectMapper = new ObjectMapper();
