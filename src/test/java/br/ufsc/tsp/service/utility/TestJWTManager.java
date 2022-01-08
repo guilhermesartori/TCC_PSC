@@ -19,6 +19,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.service.JWTManager;
+import br.ufsc.tsp.service.SystemKey;
 
 @SpringBootTest
 public class TestJWTManager {

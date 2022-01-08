@@ -1,4 +1,4 @@
-package br.ufsc.tsp.service.utility;
+package br.ufsc.tsp.service;
 
 import java.security.NoSuchAlgorithmException;
 

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.security;
+package br.ufsc.tsp.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import br.ufsc.tsp.domain.enums.Authority;
-import br.ufsc.tsp.security.filter.AppUserAuthenticationFilter;
-import br.ufsc.tsp.security.filter.AppUserAuthorizationFilter;
+import br.ufsc.tsp.filter.AppUserAuthenticationFilter;
+import br.ufsc.tsp.filter.AppUserAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity

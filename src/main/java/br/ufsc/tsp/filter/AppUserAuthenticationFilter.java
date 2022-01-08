@@ -1,4 +1,4 @@
-package br.ufsc.tsp.security.filter;
+package br.ufsc.tsp.filter;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.response.AuthenticationResponse;
-import br.ufsc.tsp.service.utility.JWTManager;
+import br.ufsc.tsp.service.JWTManager;
 
 public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 

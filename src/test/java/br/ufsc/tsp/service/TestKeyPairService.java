@@ -27,7 +27,6 @@ import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
-import br.ufsc.tsp.service.utility.KeyParameterEncryptor;
 
 @SpringBootTest
 public class TestKeyPairService {
