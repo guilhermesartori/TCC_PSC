@@ -3,7 +3,6 @@ package br.ufsc.tsp.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +18,6 @@ import br.ufsc.tsp.service.exception.SystemServiceException;
 
 // TODO custom DB?
 // TODO custom DB admin?
-// TODO system key refresh
 @RestController
 @RequestMapping(path = "system")
 public class SystemConfigurationController {
@@ -57,7 +55,8 @@ public class SystemConfigurationController {
 
 	@PostMapping("refresh-key")
 	public ResponseEntity<Object> refreshSystemKey() {
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+		systemService.refreshSystemKey();
+		return ResponseEntity.ok().build();
 	}
 
 }

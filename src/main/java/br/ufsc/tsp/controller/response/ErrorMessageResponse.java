@@ -1,22 +1,14 @@
 package br.ufsc.tsp.controller.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ErrorMessageResponse {
 
 	private String error;
-
-	/**
-	 * @param error
-	 */
-	public ErrorMessageResponse(String error) {
-		super();
-		this.error = error;
-	}
-
-	/**
-	 * @return the error
-	 */
-	public String getError() {
-		return error;
-	}
 
 }

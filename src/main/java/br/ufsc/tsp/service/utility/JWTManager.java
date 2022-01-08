@@ -53,9 +53,10 @@ public class JWTManager {
 	}
 
 	public String createAccessToken(String username, String password, String issuer, List<String> roles) {
-		var encodedAccessKey = keyParameterEncryptor.encryptKey(password);
+		var currTime = System.currentTimeMillis();
+		var encodedAccessKey = keyParameterEncryptor.encryptKey(username + password + currTime);
 		var accessToken = JWT.create().withSubject(username)
-				.withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
+				.withExpiresAt(new Date(currTime + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
 				.withClaim(ROLES_CLAIM, roles).withClaim(ACCESS_KEY_CLAIM, encodedAccessKey).sign(ALGORITHM);
 		return accessToken;
 	}

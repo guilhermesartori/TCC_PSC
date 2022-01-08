@@ -3,6 +3,7 @@ package br.ufsc.tsp.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +49,11 @@ public class AppUserController {
 		var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
 		var uri = URI.create(uriString);
 		return ResponseEntity.created(uri).body(createdUser);
+	}
+
+	@PostMapping(path = "{username}")
+	public ResponseEntity<Object> getUser(@PathVariable("username") String username, @RequestBody RoleToUserForm role) {
+		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
 	}
 
 	@PostMapping(path = "{username}/authority")

@@ -2,9 +2,11 @@ package br.ufsc.tsp.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterUserRequest {
 
 	private String name;
