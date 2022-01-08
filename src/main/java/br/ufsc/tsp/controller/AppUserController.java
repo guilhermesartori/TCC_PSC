@@ -3,7 +3,6 @@ package br.ufsc.tsp.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +14,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.request.RoleToUserForm;
+import br.ufsc.tsp.controller.response.UserResponse;
 import br.ufsc.tsp.service.AppUserService;
 
-// TODO get user
 @RestController
 @RequestMapping(path = "user")
 public class AppUserController {
@@ -51,9 +50,12 @@ public class AppUserController {
 		return ResponseEntity.created(uri).body(createdUser);
 	}
 
-	@PostMapping(path = "{username}")
-	public ResponseEntity<Object> getUser(@PathVariable("username") String username, @RequestBody RoleToUserForm role) {
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+	@GetMapping(path = "{username}")
+	public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
+		var user = appUserService.getUser(username);
+		var userResponseBody = new UserResponse();
+		userResponseBody.setUsername(user.getUsername());
+		return ResponseEntity.ok().body(userResponseBody);
 	}
 
 	@PostMapping(path = "{username}/authority")

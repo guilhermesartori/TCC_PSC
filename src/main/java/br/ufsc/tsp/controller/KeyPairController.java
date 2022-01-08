@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
@@ -55,22 +54,6 @@ public class KeyPairController {
 		}
 	}
 
-	@DeleteMapping
-	public ResponseEntity<Object> deleteKeyPair(@RequestParam String uniqueIdentifier) {
-		try {
-			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			keyPairService.deleteKeyPair(username, encodingKey, uniqueIdentifier);
-			return ResponseEntity.noContent().build();
-		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.badRequest().body(body);
-		} catch (Exception e) {
-			var body = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.internalServerError().body(body);
-		}
-	}
-
 	@PostMapping(path = "sign")
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
 		try {
@@ -89,6 +72,22 @@ public class KeyPairController {
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {
 			e.printStackTrace();
+			var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.internalServerError().body(body);
+		}
+	}
+
+	@DeleteMapping(path = "{keyUniqueIdentifier}")
+	public ResponseEntity<Object> deleteKeyPair(@PathParam("keyUniqueIdentifier") String uniqueIdentifier) {
+		try {
+			var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			keyPairService.deleteKeyPair(username, encodingKey, uniqueIdentifier);
+			return ResponseEntity.noContent().build();
+		} catch (KeyPairServiceException e) {
+			var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.badRequest().body(body);
+		} catch (Exception e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
