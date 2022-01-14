@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
 import br.ufsc.tsp.controller.response.SignatureResponse;
-import br.ufsc.tsp.domain.KeyPair;
+import br.ufsc.tsp.entity.KeyPair;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.KeyPairService;
 
@@ -75,7 +75,7 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void deleteKeyPair_success() throws Exception {
-		var mvcResult = mockMvc.perform(delete("/key").queryParam("uniqueIdentifier", "test")).andReturn();
+		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
 		var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -84,7 +84,7 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void deleteKeyPair_fail_403() throws Exception {
-		var mvcResult = mockMvc.perform(delete("/key").queryParam("uniqueIdentifier", "test")).andReturn();
+		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
 		var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());

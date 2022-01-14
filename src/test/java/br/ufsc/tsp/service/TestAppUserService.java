@@ -15,8 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.AppUser;
+import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
 
 @SpringBootTest

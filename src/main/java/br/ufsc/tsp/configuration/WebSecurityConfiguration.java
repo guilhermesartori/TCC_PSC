@@ -14,13 +14,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.filter.AppUserAuthenticationFilter;
 import br.ufsc.tsp.filter.AppUserAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final UserDetailsService userDetailsService;
 	private final PasswordEncoder passwordEncoder;
@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	 * @param passwordEncoder
 	 */
 	@Autowired
-	public SecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	public WebSecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
 		super();
 		this.userDetailsService = userDetailsService;
 		this.passwordEncoder = passwordEncoder;

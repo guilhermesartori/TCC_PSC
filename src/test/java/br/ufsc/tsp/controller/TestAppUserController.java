@@ -30,8 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.request.RoleToUserForm;
-import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.AppUser;
+import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
 
 @WebMvcTest(AppUserController.class)

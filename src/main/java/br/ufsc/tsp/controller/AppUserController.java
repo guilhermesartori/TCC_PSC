@@ -55,6 +55,7 @@ public class AppUserController {
 		var user = appUserService.getUser(username);
 		var userResponseBody = new UserResponse();
 		userResponseBody.setUsername(user.getUsername());
+		userResponseBody.setAuthority(user.getAuthorities().iterator().next().toString());
 		return ResponseEntity.ok().body(userResponseBody);
 	}
 

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.domain;
+package br.ufsc.tsp.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

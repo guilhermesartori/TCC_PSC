@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-
-	private String username;
-	private String authority;
+public class NoticeResponse {
+	private String message;
 }

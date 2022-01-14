@@ -1,4 +1,4 @@
-package br.ufsc.tsp.service.utility;
+package br.ufsc.tsp.service;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
-import br.ufsc.tsp.service.KNetCommunicationService;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 
 @SpringBootTest

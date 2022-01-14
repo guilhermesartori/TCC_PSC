@@ -14,8 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.AppUser;
+import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
 import br.ufsc.tsp.service.exception.AppUserServiceException.ExceptionType;

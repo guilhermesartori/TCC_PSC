@@ -1,4 +1,4 @@
-package br.ufsc.tsp.domain;
+package br.ufsc.tsp.entity;
 
 import java.util.Collection;
 
@@ -13,8 +13,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.enums.Authority;
 
+
+// TODO alterar colecao de autorities para uma unica authority
 @Entity
 @Table
 public class AppUser {

@@ -1,4 +1,4 @@
-package br.ufsc.tsp.service.utility;
+package br.ufsc.tsp.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,9 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import br.ufsc.tsp.domain.enums.Authority;
-import br.ufsc.tsp.service.JWTManager;
-import br.ufsc.tsp.service.SystemKey;
+import br.ufsc.tsp.entity.enums.Authority;
 
 @SpringBootTest
 public class TestJWTManager {

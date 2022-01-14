@@ -3,6 +3,7 @@ package br.ufsc.tsp.service;
 import java.security.PublicKey;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
@@ -14,6 +15,7 @@ import br.ufsc.tsp.service.exception.KeyManagerException;
 @Service
 public class KNetCommunicationService {
 
+	@Autowired
 	private KNetRequester kNetRequester;
 
 	public KNetCommunicationService() {

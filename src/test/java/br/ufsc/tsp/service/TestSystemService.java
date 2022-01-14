@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import br.ufsc.tsp.domain.AppUser;
-import br.ufsc.tsp.domain.enums.Authority;
+import br.ufsc.tsp.entity.AppUser;
+import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
@@ -23,7 +23,7 @@ public class TestSystemService {
 	private static final String USER_PASSWORD = "test";
 
 	@Autowired
-	private SystemService systemService;
+	private SystemConfigurationService systemService;
 
 	@Autowired
 	private AppUserService appUserService;
