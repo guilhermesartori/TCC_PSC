@@ -19,8 +19,8 @@ import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
-// TODO custom DB?
-// TODO custom DB admin?
+// TODO custom DB
+// TODO custom DB admin
 @RestController
 @RequestMapping(path = "system")
 public class SystemConfigurationController {

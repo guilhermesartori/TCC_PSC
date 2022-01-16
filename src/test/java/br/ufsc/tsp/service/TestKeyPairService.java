@@ -27,6 +27,7 @@ import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
 import br.ufsc.tsp.service.exception.KeyManagerException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
+import br.ufsc.tsp.service.exception.SystemServiceException;
 
 @SpringBootTest
 public class TestKeyPairService {
@@ -50,10 +51,13 @@ public class TestKeyPairService {
 	@Autowired
 	private KNetCommunicationService keyManager;
 
+	@Autowired
+	private SystemConfigurationService systemConfigurationService;
+
 	private String accessKey;
 
 	@BeforeEach
-	public void runBeforeEach() throws KNetException {
+	public void runBeforeEach() throws KNetException, SystemServiceException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
@@ -64,7 +68,7 @@ public class TestKeyPairService {
 		parameters.put("USERNAME", "test_user");
 		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
 		parameters.put("MAX_CONNECTIONS", "1");
-		keyManager.setKnetConfiguration(parameters);
+		systemConfigurationService.setKnetConfiguration(parameters, accessKey);
 	}
 
 	@AfterEach

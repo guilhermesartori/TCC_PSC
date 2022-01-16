@@ -4,6 +4,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -16,6 +18,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
 import org.springframework.stereotype.Service;
 
+// TODO rename class and related attributes and classes
 @Service
 public class KeyParameterEncryptor {
 
@@ -102,6 +105,24 @@ public class KeyParameterEncryptor {
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Map<String, String> decryptKnetParameters(Map<String, String> encryptedParameters, String accessKey) {
+		var decryptedParameters = new HashMap<String, String>();
+		for (var entry : encryptedParameters.entrySet()) {
+			var decryptedPramater = decrypt(entry.getValue(), accessKey);
+			decryptedParameters.put(entry.getKey(), decryptedPramater);
+		}
+		return decryptedParameters;
+	}
+
+	public Map<String, String> encryptKnetParameters(Map<String, String> parameters, String accessKey) {
+		var encryptedParameters = new HashMap<String, String>();
+		for (var entry : parameters.entrySet()) {
+			var encryptedPramater = encrypt(entry.getValue(), accessKey);
+			encryptedParameters.put(entry.getKey(), encryptedPramater);
+		}
+		return encryptedParameters;
 	}
 
 }

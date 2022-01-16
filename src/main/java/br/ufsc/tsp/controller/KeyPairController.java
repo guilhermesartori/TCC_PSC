@@ -22,6 +22,7 @@ import br.ufsc.tsp.controller.response.SignatureVerificationResponse;
 import br.ufsc.tsp.service.KeyPairService;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 
+// ADD SYSTEM START ENDPOINTS
 @RestController
 @RequestMapping(path = "key")
 public class KeyPairController {
