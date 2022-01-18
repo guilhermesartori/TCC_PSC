@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,6 +28,7 @@ import br.ufsc.tsp.controller.response.SignatureResponse;
 import br.ufsc.tsp.entity.KeyPair;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.KeyPairService;
+import br.ufsc.tsp.service.SystemConfigurationService;
 
 @WebMvcTest(KeyPairController.class)
 public class TestKeyPairController {
@@ -40,12 +42,20 @@ public class TestKeyPairController {
 	@MockBean
 	private AppUserService appUserService;
 
+	@MockBean
+	private SystemConfigurationService systemConfigurationService;
+
 	@TestConfiguration
 	static class TestConfig {
 		@Bean
 		public PasswordEncoder passwordEncoderBean() {
 			return new BCryptPasswordEncoder();
 		}
+	}
+
+	@BeforeEach
+	public void setupConfiguration() {
+		when(systemConfigurationService.isSystemConfigured()).thenReturn(true);
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })

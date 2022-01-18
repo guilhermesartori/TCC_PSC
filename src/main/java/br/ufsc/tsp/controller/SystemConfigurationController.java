@@ -28,23 +28,6 @@ public class SystemConfigurationController {
 	@Autowired
 	private SystemConfigurationService systemConfigurationService;
 
-	@PostMapping("db-user")
-	public ResponseEntity<Object> createDbAdmin(@RequestBody RegisterUserRequest registerUserRequest) {
-		try {
-			var name = registerUserRequest.getName();
-			var username = registerUserRequest.getUsername();
-			var password = registerUserRequest.getPassword();
-			var createdUser = systemConfigurationService.createAdministratorUser(name, username, password);
-			var createdUserId = createdUser.getId();
-			var pathToCreatedUser = String.format("/user/%d", createdUserId);
-			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
-			var uri = URI.create(uriString);
-			return ResponseEntity.created(uri).body(createdUser);
-		} catch (SystemServiceException e) {
-			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-		}
-	}
-
 	@PostMapping("admin-user")
 	public ResponseEntity<Object> createSystemAdmin(@RequestBody RegisterUserRequest registerUserRequest) {
 		try {
@@ -74,10 +57,22 @@ public class SystemConfigurationController {
 		}
 	}
 
+	@PostMapping("knet-config/load")
+	public ResponseEntity<Object> loadKnetConfiguration() {
+		try {
+			var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			systemConfigurationService.loadKnetConfiguration(encryptedAccessKey);
+			return ResponseEntity.ok().build();
+		} catch (SystemServiceException e) {
+			var errorResponse = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.internalServerError().body(errorResponse);
+		}
+	}
+
 	@PutMapping("db-config")
 	public ResponseEntity<Object> editDatabaseConfiguration(@RequestBody DatabaseConfigurationRequest request) {
 		try {
-			systemConfigurationService.createDatabaseConfiguration(request.getUrl(), request.getUsername(),
+			systemConfigurationService.setDatabaseConfiguration(request.getUrl(), request.getUsername(),
 					request.getPassword());
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e) {

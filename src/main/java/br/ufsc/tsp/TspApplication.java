@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// TODO System should start without being configured
+// TODO System should not start without being configured
 @SpringBootApplication
 public class TspApplication {
 

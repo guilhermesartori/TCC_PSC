@@ -49,17 +49,6 @@ public class SystemConfigurationService {
 		return savedUser;
 	}
 
-	public AppUser createDatabaseAdministratorUser(String name, String username, String password)
-			throws SystemServiceException {
-		if (appUserRepository.findAppUserByAuthorities(Authority.DB_ADMIN).isPresent()) {
-			throw new SystemServiceException();
-		}
-		var user = new AppUser(name, username, password, List.of(Authority.DB_ADMIN));
-		var savedUser = appUserService.saveUser(user);
-		updateSystemConfiguredState();
-		return savedUser;
-	}
-
 	public void setKnetConfiguration(Map<String, String> knetParameters, String encryptedAccessKey)
 			throws SystemServiceException {
 		var knetConfigurations = knetConfigurationRepository.findAll();
@@ -80,6 +69,28 @@ public class SystemConfigurationService {
 		updateSystemConfiguredState();
 	}
 
+	public void setDatabaseConfiguration(String url, String username, String password) throws SystemServiceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void loadKnetConfiguration(String encryptedAccessKey) throws SystemServiceException {
+		var knetConfigurationList = knetConfigurationRepository.findAll();
+		if (knetConfigurationList.size() != 1)
+			// TODO PROPER EXCEPTION
+			throw new SystemServiceException();
+		var knetConfiguration = knetConfigurationList.get(0);
+		var encryptedParameters = knetConfiguration.getEncryptedParameters();
+		var decryptedParameters = parameterEncryptor.decryptKnetParameters(encryptedParameters, encryptedAccessKey);
+		try {
+			kNetCommunicationService.setKnetConfiguration(decryptedParameters);
+		} catch (KNetException e) {
+			// TODO PROPER EXCEPTION
+			throw new SystemServiceException();
+		}
+		updateSystemConfiguredState();
+	}
+
 	public void refreshSystemKey() {
 		SystemKey.refreshKey();
 	}
@@ -91,14 +102,8 @@ public class SystemConfigurationService {
 	public void updateSystemConfiguredState() {
 		var temp = true;
 		temp = temp && appUserRepository.findAppUserByAuthorities(Authority.ADMINISTRATOR).isPresent();
-		temp = temp && knetConfigurationRepository.findAll().size() == 1;
+		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
 //		temp = temp && appUserRepository.findAppUserByAuthorities(Authority.DB_ADMIN).isPresent();
-	}
-
-	public void createDatabaseConfiguration(String url, String username, String password)
-			throws SystemServiceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,6 +34,7 @@ import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.entity.AppUser;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
+import br.ufsc.tsp.service.SystemConfigurationService;
 
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {
@@ -56,12 +58,20 @@ public class TestAppUserController {
 	@MockBean
 	private AppUserService appUserService;
 
+	@MockBean
+	private SystemConfigurationService systemConfigurationService;
+
 	@TestConfiguration
 	static class TestConfig {
 		@Bean
 		public PasswordEncoder passwordEncoderBean() {
 			return new BCryptPasswordEncoder();
 		}
+	}
+
+	@BeforeEach
+	public void setupConfiguration() {
+		when(systemConfigurationService.isSystemConfigured()).thenReturn(true);
 	}
 
 	@Test

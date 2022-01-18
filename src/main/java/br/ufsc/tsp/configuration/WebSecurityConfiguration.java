@@ -49,7 +49,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		// login
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/refresh-token", "/user").permitAll();
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/user").permitAll();
 
 		// /user
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user")
@@ -65,12 +65,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.USER.toString());
 
 		// /system
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet")
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet-config/**")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
 
 		//
 		http.authorizeRequests().anyRequest().authenticated();
+
+		// filters
 		http.addFilter(authenticationFilter);
 		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}

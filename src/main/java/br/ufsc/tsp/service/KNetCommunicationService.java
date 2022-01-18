@@ -22,7 +22,7 @@ public class KNetCommunicationService {
 	@Autowired
 	private KeyParameterEncryptor keyParameterEncryptor;
 
-	private KNetRequester kNetRequester;
+	private KNetRequester kNetRequester = null;
 
 	static {
 		final var props = System.getProperties();
@@ -73,6 +73,10 @@ public class KNetCommunicationService {
 		} else if (knetConfigurationList.size() > 1) {
 			// TODO
 		}
+	}
+
+	public boolean isKnetConfigurationLoaded() {
+		return kNetRequester == null;
 	}
 
 }
