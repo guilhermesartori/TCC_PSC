@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +28,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
-import br.ufsc.tsp.controller.request.RoleToUserForm;
 import br.ufsc.tsp.entity.AppUser;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
@@ -39,18 +36,11 @@ import br.ufsc.tsp.service.SystemConfigurationService;
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {
 
-	private static final String USER_NAME_1 = "test";
-	private static final String USER_NAME_2 = "test2";
 	private static final String USER_USERNAME_1 = "test";
 	private static final String USER_USERNAME_2 = "test";
 	private static final String USER_PASSWORD_1 = "test";
 	private static final String USER_PASSWORD_2 = "test";
-	private static final Authority ROLE = Authority.USER;
-	private static final List<Authority> ROLES = new ArrayList<>();
-
-	static {
-		ROLES.add(ROLE);
-	}
+	private static final Authority AUTHORITY = Authority.USER;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -77,11 +67,11 @@ public class TestAppUserController {
 	@Test
 	public void saveUser_success() throws Exception {
 		var objectMapper = new ObjectMapper();
-		var user = new RegisterUserRequest(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1);
+		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
 		var content = objectMapper.writeValueAsString(user);
-		var savedUser = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
+		var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
 		savedUser.setId(1L);
-		when(appUserService.registerNewUser(any(), any(), any())).thenReturn(savedUser);
+		when(appUserService.registerNewUser(any(), any())).thenReturn(savedUser);
 
 		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
@@ -101,8 +91,8 @@ public class TestAppUserController {
 	@Test
 	public void getUsers_success() throws Exception {
 		var objectMapper = new ObjectMapper();
-		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
-		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
+		var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
 		Collection<AppUser> users = List.of(user1, user2);
 		when(appUserService.getUsers()).thenReturn(users);
 
@@ -110,8 +100,9 @@ public class TestAppUserController {
 
 		var response = mvcResult.getResponse();
 		var responseBodyAsString = response.getContentAsString();
+		System.out.println(responseBodyAsString);
 		var responseBody = objectMapper.readValue(responseBodyAsString, AppUser[].class);
-		var appUserSet = Set.of(responseBody);
+		var appUserSet = List.of(responseBody);
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals(2, responseBody.length);
 		assertTrue(appUserSet.contains(user1));
@@ -121,8 +112,8 @@ public class TestAppUserController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void getUsers_fail_403() throws Exception {
-		var user1 = new AppUser(USER_NAME_1, USER_USERNAME_1, USER_PASSWORD_1, ROLES);
-		var user2 = new AppUser(USER_NAME_2, USER_USERNAME_2, USER_PASSWORD_2, ROLES);
+		var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
 		Collection<AppUser> users = List.of(user1, user2);
 		when(appUserService.getUsers()).thenReturn(users);
 
@@ -130,28 +121,6 @@ public class TestAppUserController {
 
 		var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
-	}
-
-	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
-	@Test
-	public void addRoleToUser_success() throws Exception {
-		var roleToUserForm = new RoleToUserForm("ADMINISTRATOR");
-
-		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
-				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();
-
-		assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-	}
-
-	@WithMockUser(username = "test", password = "test", authorities = {})
-	@Test
-	public void addRoleToUser_fail_403() throws Exception {
-		var roleToUserForm = new RoleToUserForm("CREATE_KEY");
-
-		var mvcResult = mockMvc.perform(post("/user/teste/authority").contentType(MediaType.APPLICATION_JSON)
-				.content(new ObjectMapper().writeValueAsString(roleToUserForm))).andReturn();
-
-		assertEquals(HttpStatus.FORBIDDEN.value(), mvcResult.getResponse().getStatus());
 	}
 
 }

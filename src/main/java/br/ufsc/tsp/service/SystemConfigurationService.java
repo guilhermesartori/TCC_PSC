@@ -1,6 +1,5 @@
 package br.ufsc.tsp.service;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -38,12 +37,11 @@ public class SystemConfigurationService {
 
 	private boolean systemIsConfigured = false;
 
-	public AppUser createAdministratorUser(String name, String username, String password)
-			throws SystemServiceException {
-		if (appUserRepository.findAppUserByAuthorities(Authority.ADMINISTRATOR).isPresent()) {
+	public AppUser createAdministratorUser(String username, String password) throws SystemServiceException {
+		if (appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent()) {
 			throw new SystemServiceException();
 		}
-		var user = new AppUser(name, username, password, List.of(Authority.ADMINISTRATOR));
+		var user = new AppUser(null, username, password, Authority.ADMINISTRATOR);
 		var savedUser = appUserService.saveUser(user);
 		updateSystemConfiguredState();
 		return savedUser;
@@ -101,7 +99,7 @@ public class SystemConfigurationService {
 
 	public void updateSystemConfiguredState() {
 		var temp = true;
-		temp = temp && appUserRepository.findAppUserByAuthorities(Authority.ADMINISTRATOR).isPresent();
+		temp = temp && appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent();
 		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
 //		temp = temp && appUserRepository.findAppUserByAuthorities(Authority.DB_ADMIN).isPresent();
 	}

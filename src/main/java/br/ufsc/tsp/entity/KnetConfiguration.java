@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
@@ -30,7 +29,7 @@ public class KnetConfiguration {
 	@ElementCollection
 	@MapKeyColumn(name = "name")
 	@Column(name = "value")
-	@CollectionTable(name = "parameter_name", joinColumns = @JoinColumn(name = "parameter_value"))
+	@CollectionTable
 	private Map<String, String> encryptedParameters;
 
 }

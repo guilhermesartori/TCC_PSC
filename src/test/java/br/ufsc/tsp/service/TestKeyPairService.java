@@ -32,7 +32,6 @@ import br.ufsc.tsp.service.exception.SystemServiceException;
 @SpringBootTest
 public class TestKeyPairService {
 
-	private static final String USER_NAME = "test";
 	private static final String USER_USERNAME = "test";
 	private static final String USER_PASSWORD = "test";
 
@@ -60,7 +59,7 @@ public class TestKeyPairService {
 	public void runBeforeEach() throws KNetException, SystemServiceException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
 		var parameters = new HashMap<String, String>();
 		parameters.put("ADDRESS_CONN", "192.168.66.20");

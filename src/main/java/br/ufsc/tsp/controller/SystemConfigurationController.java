@@ -31,10 +31,9 @@ public class SystemConfigurationController {
 	@PostMapping("admin-user")
 	public ResponseEntity<Object> createSystemAdmin(@RequestBody RegisterUserRequest registerUserRequest) {
 		try {
-			var name = registerUserRequest.getName();
 			var username = registerUserRequest.getUsername();
 			var password = registerUserRequest.getPassword();
-			var createdUser = systemConfigurationService.createAdministratorUser(name, username, password);
+			var createdUser = systemConfigurationService.createAdministratorUser(username, password);
 			var createdUserId = createdUser.getId();
 			var pathToCreatedUser = String.format("/user/%d", createdUserId);
 			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
@@ -69,7 +68,7 @@ public class SystemConfigurationController {
 		}
 	}
 
-	@PutMapping("db-config")
+	@PostMapping("db-config")
 	public ResponseEntity<Object> editDatabaseConfiguration(@RequestBody DatabaseConfigurationRequest request) {
 		try {
 			systemConfigurationService.setDatabaseConfiguration(request.getUrl(), request.getUsername(),

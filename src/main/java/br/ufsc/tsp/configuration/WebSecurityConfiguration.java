@@ -56,8 +56,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user/**")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**/authority")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 
 		// /key
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.USER.toString());
@@ -66,6 +64,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		// /system
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet-config/**")
+				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/refresh-key")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
 

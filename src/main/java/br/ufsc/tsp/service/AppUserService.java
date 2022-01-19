@@ -40,14 +40,13 @@ public class AppUserService implements UserDetailsService {
 		if (appUser == null)
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
 		var authorities = new ArrayList<SimpleGrantedAuthority>();
-		appUser.getAuthorities().forEach(authority -> {
-			authorities.add(new SimpleGrantedAuthority(authority.toString()));
-		});
+		authorities.add(new SimpleGrantedAuthority(appUser.getAuthority().toString()));
+
 		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
 
-	public AppUser registerNewUser(String name, String username, String password) {
-		var user = new AppUser(name, username, password, new ArrayList<>());
+	public AppUser registerNewUser(String username, String password) {
+		var user = new AppUser(null, username, password, Authority.USER);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}
@@ -56,23 +55,13 @@ public class AppUserService implements UserDetailsService {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}
-	
+
 	public AppUser getUser(String username) {
 		return appUserRepository.findAppUserByUsername(username);
 	}
 
 	public Collection<AppUser> getUsers() {
 		return appUserRepository.findAll();
-	}
-
-	public void addRoleToUser(String username, Authority authority) {
-		var appUser = appUserRepository.findAppUserByUsername(username);
-		appUser.getAuthorities().add(authority);
-	}
-
-	public void addRoleToUser(String username, String authorityName) {
-		var authority = Authority.valueOf(authorityName);
-		addRoleToUser(username, authority);
 	}
 
 	public void deleteUserByUsername(String username) throws AppUserServiceException {

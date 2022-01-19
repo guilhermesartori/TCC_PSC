@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +20,6 @@ import br.ufsc.tsp.service.exception.AppUserServiceException;
 @SpringBootTest
 public class TestAppUserService {
 
-	private static final String USER_NAME = "test";
 	private static final String USER_USERNAME = "test";
 	private static final String USER_PASSWORD = "test";
 
@@ -40,7 +37,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_loadUserByUsername_success() throws AppUserServiceException {
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
 			var userDetails = appUserService.loadUserByUsername(USER_USERNAME);
@@ -48,7 +45,7 @@ public class TestAppUserService {
 			assertEquals(USER_USERNAME, userDetails.getUsername());
 			assertNotNull(userDetails.getUsername());
 			assertNotNull(userDetails.getAuthorities());
-			assertEquals(0, userDetails.getAuthorities().size());
+			assertEquals(1, userDetails.getAuthorities().size());
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);
 		}
@@ -56,11 +53,11 @@ public class TestAppUserService {
 
 	@Test
 	public void test_saveUser_fail() throws AppUserServiceException {
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
 			assertThrows(DataIntegrityViolationException.class, () -> {
-				appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+				appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 			});
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -71,12 +68,11 @@ public class TestAppUserService {
 	public void test_saveUser_success() throws AppUserServiceException {
 		AppUser savedUser = null;
 		try {
-			savedUser = appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+			savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
-			assertEquals(USER_NAME, savedUser.getName());
 			assertEquals(USER_USERNAME, savedUser.getUsername());
 			assertNotNull(savedUser.getPassword());
-			assertEquals(new ArrayList<>(), savedUser.getAuthorities());
+			assertEquals(Authority.USER, savedUser.getAuthority());
 
 		} finally {
 			if (savedUser != null)
@@ -92,45 +88,14 @@ public class TestAppUserService {
 
 	@Test
 	public void test_getUser_success() throws AppUserServiceException {
-		final var savedUser = appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		final var savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
 			final var gottenUser = appUserService.getUser(USER_USERNAME);
 
-			assertEquals(savedUser.getName(), gottenUser.getName());
 			assertEquals(savedUser.getUsername(), gottenUser.getUsername());
 			assertNotNull(gottenUser.getPassword());
-			assertEquals(savedUser.getAuthorities().size(), gottenUser.getAuthorities().size());
-
-		} finally {
-			appUserService.deleteUserByUsername(USER_USERNAME);
-		}
-	}
-
-	@Test
-	public void test_addRoleToUserByAuthorityEnum() throws AppUserServiceException {
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
-
-		try {
-			appUserService.addRoleToUser(USER_USERNAME, Authority.USER);
-
-			final var gottenUser = appUserService.getUser(USER_USERNAME);
-			assertTrue(gottenUser.getAuthorities().contains(Authority.USER));
-
-		} finally {
-			appUserService.deleteUserByUsername(USER_USERNAME);
-		}
-	}
-
-	@Test
-	public void test_addRoleToUserByString() throws AppUserServiceException {
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
-
-		try {
-			appUserService.addRoleToUser(USER_USERNAME, "ADMINISTRATOR");
-
-			final var gottenUser = appUserService.getUser(USER_USERNAME);
-			assertTrue(gottenUser.getAuthorities().contains(Authority.ADMINISTRATOR));
+			assertEquals(savedUser.getAuthority(), gottenUser.getAuthority());
 
 		} finally {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -146,7 +111,7 @@ public class TestAppUserService {
 
 	@Test
 	public void test_deleteUserByUsername_success() {
-		appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
+		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		assertDoesNotThrow(() -> {
 			appUserService.deleteUserByUsername(USER_USERNAME);
@@ -158,8 +123,8 @@ public class TestAppUserService {
 
 	@Test
 	public void test_getUsers() throws AppUserServiceException {
-		final var savedUser = appUserService.registerNewUser(USER_NAME, USER_USERNAME, USER_PASSWORD);
-		final var savedUser2 = appUserService.registerNewUser(USER_NAME, USER_USERNAME + "2", USER_PASSWORD);
+		final var savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
+		final var savedUser2 = appUserService.registerNewUser(USER_USERNAME + "2", USER_PASSWORD);
 
 		try {
 			final var users = appUserService.getUsers();
