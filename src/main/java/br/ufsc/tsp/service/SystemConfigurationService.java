@@ -67,11 +67,6 @@ public class SystemConfigurationService {
 		updateSystemConfiguredState();
 	}
 
-	public void setDatabaseConfiguration(String url, String username, String password) throws SystemServiceException {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void loadKnetConfiguration(String encryptedAccessKey) throws SystemServiceException {
 		var knetConfigurationList = knetConfigurationRepository.findAll();
 		if (knetConfigurationList.size() != 1)
@@ -101,7 +96,6 @@ public class SystemConfigurationService {
 		var temp = true;
 		temp = temp && appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent();
 		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
-//		temp = temp && appUserRepository.findAppUserByAuthorities(Authority.DB_ADMIN).isPresent();
 	}
 
 }

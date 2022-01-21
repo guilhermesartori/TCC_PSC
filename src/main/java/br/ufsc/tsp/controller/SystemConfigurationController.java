@@ -12,15 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.ufsc.tsp.controller.request.DatabaseConfigurationRequest;
 import br.ufsc.tsp.controller.request.KNetConfigurationRequest;
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
-// TODO custom DB
-// TODO custom DB admin
 @RestController
 @RequestMapping(path = "system")
 public class SystemConfigurationController {
@@ -61,18 +58,6 @@ public class SystemConfigurationController {
 		try {
 			var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			systemConfigurationService.loadKnetConfiguration(encryptedAccessKey);
-			return ResponseEntity.ok().build();
-		} catch (SystemServiceException e) {
-			var errorResponse = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.internalServerError().body(errorResponse);
-		}
-	}
-
-	@PostMapping("db-config")
-	public ResponseEntity<Object> editDatabaseConfiguration(@RequestBody DatabaseConfigurationRequest request) {
-		try {
-			systemConfigurationService.setDatabaseConfiguration(request.getUrl(), request.getUsername(),
-					request.getPassword());
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e) {
 			var errorResponse = new ErrorMessageResponse(e.getMessage());

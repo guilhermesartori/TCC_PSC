@@ -100,7 +100,6 @@ public class TestAppUserController {
 
 		var response = mvcResult.getResponse();
 		var responseBodyAsString = response.getContentAsString();
-		System.out.println(responseBodyAsString);
 		var responseBody = objectMapper.readValue(responseBodyAsString, AppUser[].class);
 		var appUserSet = List.of(responseBody);
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
