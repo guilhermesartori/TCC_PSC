@@ -28,10 +28,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
+import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.controller.response.UserResponse;
 import br.ufsc.tsp.entity.AppUser;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.SystemConfigurationService;
+import br.ufsc.tsp.service.exception.AppUserServiceException;
+import br.ufsc.tsp.service.exception.AppUserServiceException.ExceptionType;
 
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {
@@ -65,7 +69,7 @@ public class TestAppUserController {
 	}
 
 	@Test
-	public void saveUser_success() throws Exception {
+	public void registerUser_success() throws Exception {
 		var objectMapper = new ObjectMapper();
 		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
 		var content = objectMapper.writeValueAsString(user);
@@ -85,7 +89,49 @@ public class TestAppUserController {
 		assertNotNull(response.getHeader("Location"));
 	}
 
-	// TODO saveUser_fail
+	@Test
+	public void registerUser_fail_usernameInUse() throws Exception {
+		var objectMapper = new ObjectMapper();
+		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+		var content = objectMapper.writeValueAsString(user);
+		var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		savedUser.setId(1L);
+		var exception = new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
+
+		when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
+
+		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+				.andReturn();
+
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+		assertEquals(exception.getMessage(), responseBody.getError());
+	}
+
+	@Test
+	public void registerUser_fail_internalError() throws Exception {
+		var objectMapper = new ObjectMapper();
+		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+		var content = objectMapper.writeValueAsString(user);
+		var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		savedUser.setId(1L);
+		var exception = new RuntimeException();
+
+		when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
+
+		var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+				.andReturn();
+
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+		assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
+	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
@@ -120,6 +166,67 @@ public class TestAppUserController {
 
 		var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
+	@Test
+	public void getUser_success() throws Exception {
+		var objectMapper = new ObjectMapper();
+		var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		when(appUserService.getUser(any())).thenReturn(user);
+
+		var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
+		assertEquals(HttpStatus.OK.value(), response.getStatus());
+		assertEquals(responseBody.getUsername(), user.getUsername());
+		assertEquals(responseBody.getAuthority(), user.getAuthority().name());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = {})
+	@Test
+	public void getUser_fail_403() throws Exception {
+		var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		when(appUserService.getUser(any())).thenReturn(user);
+
+		var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+
+		var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
+	@Test
+	public void getUser_fail_400() throws Exception {
+		var objectMapper = new ObjectMapper();
+		var exception = new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
+		when(appUserService.getUser(any())).thenThrow(exception);
+
+		var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+		assertEquals(exception.getMessage(), responseBody.getError());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
+	@Test
+	public void getUser_fail_500() throws Exception {
+		var objectMapper = new ObjectMapper();
+		var exception = new RuntimeException();
+		when(appUserService.getUser(any())).thenThrow(exception);
+
+		var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+
+		var response = mvcResult.getResponse();
+		var responseBodyAsString = response.getContentAsString();
+		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+		assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
 	}
 
 }

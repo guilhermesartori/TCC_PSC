@@ -82,8 +82,9 @@ public class TestAppUserService {
 
 	@Test
 	public void test_getUser_fail() {
-		final var user = appUserService.getUser(USER_USERNAME);
-		assertNull(user);
+		assertThrows(AppUserServiceException.class, () -> {
+			appUserService.getUser(USER_USERNAME);
+		});
 	}
 
 	@Test
@@ -110,15 +111,17 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_deleteUserByUsername_success() {
+	public void test_deleteUserByUsername_success() throws AppUserServiceException {
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		assertDoesNotThrow(() -> {
 			appUserService.deleteUserByUsername(USER_USERNAME);
 		});
 
-		final var gottenUser = appUserService.getUser(USER_USERNAME);
-		assertNull(gottenUser);
+		assertThrows(AppUserServiceException.class, () -> {
+			appUserService.getUser(USER_USERNAME);
+		});
+
 	}
 
 	@Test

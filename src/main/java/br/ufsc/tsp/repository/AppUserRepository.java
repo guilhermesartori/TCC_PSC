@@ -13,7 +13,7 @@ import br.ufsc.tsp.entity.enums.Authority;
 @Repository
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
-	public AppUser findAppUserByUsername(String username);
+	public Optional<AppUser> findAppUserByUsername(String username);
 
 	public Integer deleteAppUserByUsername(String username);
 

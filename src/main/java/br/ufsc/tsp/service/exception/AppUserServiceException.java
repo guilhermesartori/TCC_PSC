@@ -8,7 +8,7 @@ public class AppUserServiceException extends Exception {
 	private static final long serialVersionUID = -6414506226923184398L;
 
 	public enum ExceptionType {
-		DEFAULT("Error during user operation."), USERNAME_NOT_EXIST("Username does not exist.");
+		DEFAULT("Error during user operation."), USERNAME_NOT_EXIST("Username does not exist."), USERNAME_IN_USE("Username already in use.");
 
 		private String message;
 

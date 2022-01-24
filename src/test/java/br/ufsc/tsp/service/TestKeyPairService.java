@@ -56,7 +56,7 @@ public class TestKeyPairService {
 	private String accessKey;
 
 	@BeforeEach
-	public void runBeforeEach() throws KNetException, SystemServiceException {
+	public void runBeforeEach() throws KNetException, SystemServiceException, AppUserServiceException {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);

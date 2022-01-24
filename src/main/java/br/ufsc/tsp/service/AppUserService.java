@@ -6,6 +6,7 @@ import java.util.Collection;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,19 +37,24 @@ public class AppUserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		AppUser appUser = appUserRepository.findAppUserByUsername(username);
-		if (appUser == null)
+		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		if (optionalUser.isEmpty())
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
+		var appUser = optionalUser.get();
 		var authorities = new ArrayList<SimpleGrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority(appUser.getAuthority().toString()));
 
 		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
 
-	public AppUser registerNewUser(String username, String password) {
+	public AppUser registerNewUser(String username, String password) throws AppUserServiceException {
 		var user = new AppUser(null, username, password, Authority.USER);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return appUserRepository.save(user);
+		try {
+			return appUserRepository.save(user);
+		} catch (DataIntegrityViolationException e) {
+			throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
+		}
 	}
 
 	public AppUser saveUser(AppUser user) {
@@ -56,8 +62,12 @@ public class AppUserService implements UserDetailsService {
 		return appUserRepository.save(user);
 	}
 
-	public AppUser getUser(String username) {
-		return appUserRepository.findAppUserByUsername(username);
+	public AppUser getUser(String username) throws AppUserServiceException {
+		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		if (optionalUser.isPresent())
+			return optionalUser.get();
+		else
+			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
 	}
 
 	public Collection<AppUser> getUsers() {

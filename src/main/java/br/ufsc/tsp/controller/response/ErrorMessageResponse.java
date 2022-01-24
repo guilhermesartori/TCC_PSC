@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ErrorMessageResponse {
 
-	private String error;
+	public static final String DEFAULT_ERROR = "Internal error.";
+	
+	private String error = DEFAULT_ERROR;
 
 }

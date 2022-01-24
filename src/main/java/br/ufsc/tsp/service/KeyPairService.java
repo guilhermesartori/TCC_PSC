@@ -69,7 +69,7 @@ public class KeyPairService {
 			var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
 			var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
 			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
-			var keyOwner = appUserRepository.findAppUserByUsername(username);
+			var keyOwner = appUserRepository.findAppUserByUsername(username).get();
 
 			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
@@ -84,7 +84,7 @@ public class KeyPairService {
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
 			throws KNetException, KeyPairServiceException, KeyManagerException {
-		var user = appUserRepository.findAppUserByUsername(username);
+		var user = appUserRepository.findAppUserByUsername(username).get();
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -99,7 +99,7 @@ public class KeyPairService {
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
 			KNetException, KeyPairServiceException, KeyManagerException {
-		var user = appUserRepository.findAppUserByUsername(username);
+		var user = appUserRepository.findAppUserByUsername(username).get();
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -137,7 +137,7 @@ public class KeyPairService {
 	}
 
 	public KeyPair getKeyPair(String username, String keyUniqueIdentifier) throws KeyPairServiceException {
-		var user = appUserRepository.findAppUserByUsername(username);
+		var user = appUserRepository.findAppUserByUsername(username).get();
 		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
