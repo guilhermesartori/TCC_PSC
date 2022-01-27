@@ -1,5 +1,7 @@
 package br.ufsc.tsp.controller;
 
+import java.net.URI;
+
 import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
 import br.ufsc.tsp.controller.request.SignatureRequest;
@@ -43,13 +46,16 @@ public class KeyPairController {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(), request.getKeyParameter(),
-					request.getKeyName());
-			return ResponseEntity.created(null).build();
+			var keyPair = keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(),
+					request.getKeyParameter(), request.getKeyName());
+			var pathToCreatedKey = String.format("/key/%d", keyPair.getUniqueIdentifier());
+			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey).toUriString();
+			var uri = URI.create(uriString);
+			return ResponseEntity.created(uri).build();
 		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
@@ -71,8 +77,7 @@ public class KeyPairController {
 		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
@@ -88,7 +93,7 @@ public class KeyPairController {
 		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}

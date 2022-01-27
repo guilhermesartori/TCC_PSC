@@ -11,8 +11,15 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class KeyPair {
 
 	@Id
@@ -34,13 +41,6 @@ public class KeyPair {
 	private AppUser owner;
 
 	/**
-	 * 
-	 */
-	public KeyPair() {
-		super();
-	}
-
-	/**
 	 * @param publicKey
 	 * @param privateKey
 	 * @param keyAlgorithm
@@ -57,48 +57,6 @@ public class KeyPair {
 		this.uniqueIdentifier = uniqueIdentifier;
 		this.keyName = keyName;
 		this.owner = owner;
-	}
-
-	/**
-	 * @return the publicKey
-	 */
-	public String getPublicKey() {
-		return publicKey;
-	}
-
-	/**
-	 * @return the owner
-	 */
-	public AppUser getOwner() {
-		return owner;
-	}
-
-	/**
-	 * @return the privateKey
-	 */
-	public String getPrivateKey() {
-		return privateKey;
-	}
-
-	/**
-	 * @return the keyAlgorithm
-	 */
-	public String getKeyAlgorithm() {
-		return keyAlgorithm;
-	}
-
-	/**
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
-
-	/**
-	 * @return the uniqueIdentifier
-	 */
-	public String getUniqueIdentifier() {
-		return uniqueIdentifier;
 	}
 
 }
