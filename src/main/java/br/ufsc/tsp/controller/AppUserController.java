@@ -44,11 +44,14 @@ public class AppUserController {
 		var password = registerUserRequest.getPassword();
 		try {
 			var createdUser = appUserService.registerNewUser(username, password);
+			var userResponseBody = new UserResponse();
+			userResponseBody.setUsername(createdUser.getUsername());
+			userResponseBody.setAuthority(createdUser.getAuthority().name());
 			var createdUserId = createdUser.getId();
 			var pathToCreatedUser = String.format("/user/%d", createdUserId);
 			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
 			var uri = URI.create(uriString);
-			return ResponseEntity.created(uri).body(createdUser);
+			return ResponseEntity.created(uri).body(userResponseBody);
 		} catch (AppUserServiceException e) {
 			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
 		} catch (Throwable e) {

@@ -100,8 +100,7 @@ public class KeyPairController {
 	}
 
 	@GetMapping(path = "{keyUniqueIdentifier}")
-	public ResponseEntity<Object> getKey(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier,
-			@RequestBody SignatureVerificationRequest request) {
+	public ResponseEntity<Object> getKey(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier) {
 		try {
 			var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			var keyPair = keyPairService.getKeyPair(username, keyUniqueIdentifier);
@@ -113,7 +112,7 @@ public class KeyPairController {
 		} catch (KeyPairServiceException e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}

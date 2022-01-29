@@ -82,10 +82,10 @@ public class TestAppUserController {
 
 		var response = mvcResult.getResponse();
 		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, AppUser.class);
-
+		var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
 		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-		assertEquals(savedUser, responseBody);
+		assertEquals(savedUser.getUsername(), responseBody.getUsername());
+		assertEquals(savedUser.getAuthority().toString(), responseBody.getAuthority());
 		assertNotNull(response.getHeader("Location"));
 	}
 

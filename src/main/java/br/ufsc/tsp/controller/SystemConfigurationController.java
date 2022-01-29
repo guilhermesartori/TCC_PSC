@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import br.ufsc.tsp.controller.request.KNetConfigurationRequest;
 import br.ufsc.tsp.controller.request.RegisterUserRequest;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.controller.response.UserResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
@@ -31,13 +32,18 @@ public class SystemConfigurationController {
 			var username = registerUserRequest.getUsername();
 			var password = registerUserRequest.getPassword();
 			var createdUser = systemConfigurationService.createAdministratorUser(username, password);
+			var userResponseBody = new UserResponse();
+			userResponseBody.setUsername(createdUser.getUsername());
+			userResponseBody.setAuthority(createdUser.getAuthority().name());
 			var createdUserId = createdUser.getId();
 			var pathToCreatedUser = String.format("/user/%d", createdUserId);
 			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
 			var uri = URI.create(uriString);
-			return ResponseEntity.created(uri).body(createdUser);
+			return ResponseEntity.created(uri).body(userResponseBody);
 		} catch (SystemServiceException e) {
 			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+		} catch (Throwable e) {
+			return ResponseEntity.internalServerError().build();
 		}
 	}
 
@@ -49,7 +55,9 @@ public class SystemConfigurationController {
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e) {
 			var errorResponse = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.internalServerError().body(errorResponse);
+			return ResponseEntity.badRequest().body(errorResponse);
+		} catch (Throwable e) {
+			return ResponseEntity.internalServerError().build();
 		}
 	}
 
@@ -61,14 +69,20 @@ public class SystemConfigurationController {
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e) {
 			var errorResponse = new ErrorMessageResponse(e.getMessage());
-			return ResponseEntity.internalServerError().body(errorResponse);
+			return ResponseEntity.badRequest().body(errorResponse);
+		} catch (Throwable e) {
+			return ResponseEntity.internalServerError().build();
 		}
 	}
 
 	@PostMapping("refresh-key")
 	public ResponseEntity<Object> refreshSystemKey() {
-		systemConfigurationService.refreshSystemKey();
-		return ResponseEntity.ok().build();
+		try {
+			systemConfigurationService.refreshSystemKey();
+			return ResponseEntity.ok().build();
+		} catch (Throwable e) {
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 
 }
