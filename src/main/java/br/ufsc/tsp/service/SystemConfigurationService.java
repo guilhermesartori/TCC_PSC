@@ -48,7 +48,7 @@ public class SystemConfigurationService {
 		return savedUser;
 	}
 
-	public void setKnetConfiguration(Map<String, String> knetParameters, String encryptedAccessKey)
+	public KnetConfiguration setKnetConfiguration(Map<String, String> knetParameters, String encryptedAccessKey)
 			throws SystemServiceException {
 		var knetConfigurations = knetConfigurationRepository.findAll();
 		KnetConfiguration knetConfiguration;
@@ -64,8 +64,9 @@ public class SystemConfigurationService {
 			throw new SystemServiceException();
 		}
 		knetConfiguration.setEncryptedParameters(encryptedParameters);
-		knetConfigurationRepository.save(knetConfiguration);
+		var savedKnetConfiguration = knetConfigurationRepository.save(knetConfiguration);
 		updateSystemConfiguredState();
+		return savedKnetConfiguration;
 	}
 
 	public void loadKnetConfiguration(String encryptedAccessKey) throws SystemServiceException {
@@ -93,6 +94,10 @@ public class SystemConfigurationService {
 		var temp = true;
 		temp = temp && appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent();
 		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
+	}
+
+	public void deleteKnetConfiguration(KnetConfiguration savedKnetConfiguration) {
+		knetConfigurationRepository.delete(savedKnetConfiguration);
 	}
 
 }

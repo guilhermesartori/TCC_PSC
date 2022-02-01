@@ -12,7 +12,6 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 import br.ufsc.tsp.repository.KnetConfigurationRepository;
 import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
-import br.ufsc.tsp.service.exception.KNetCommunicationServiceException.ExceptionType;
 
 @Service
 public class KNetCommunicationService {
@@ -73,14 +72,12 @@ public class KNetCommunicationService {
 			var encryptedParameters = knetConfiguration.getEncryptedParameters();
 			var decryptedParameters = this.keyParameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
 			setKnetConfiguration(decryptedParameters);
-		} else if (knetConfigurationList.size() > 1) {
-			throw new KNetCommunicationServiceException(ExceptionType.MULTIPLE_CONFIGURATIONS);
-		}
-		throw new KNetCommunicationServiceException();
+		} else
+			throw new KNetCommunicationServiceException();
 	}
 
 	public boolean isKnetConfigurationLoaded() {
-		return kNetRequester == null;
+		return kNetRequester != null;
 	}
 
 	/**

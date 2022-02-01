@@ -3,11 +3,14 @@ package br.ufsc.tsp.service;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
+import br.ufsc.tsp.service.exception.SystemServiceException;
 
 @SpringBootTest
 public class TestKNetCommunicationService {
@@ -23,14 +27,25 @@ public class TestKNetCommunicationService {
 	@Autowired
 	private KNetCommunicationService knetCommunicationService;
 
+	@Autowired
+	private SystemConfigurationService systemConfigurationService;
+
+	@Autowired
+	private KeyParameterEncryptor keyParameterEncryptor;
+
+	private static Map<String, String> knetParameters;
+
+	static {
+		knetParameters = new HashMap<String, String>();
+		knetParameters.put("ADDRESS_CONN", "192.168.66.20");
+		knetParameters.put("PORT_CONN", "60055");
+		knetParameters.put("USERNAME", "test_user");
+		knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
+		knetParameters.put("MAX_CONNECTIONS", "1");
+	}
+
 	private void createKnetConfiguration() throws KNetException {
-		var parameters = new HashMap<String, String>();
-		parameters.put("ADDRESS_CONN", "192.168.66.20");
-		parameters.put("PORT_CONN", "60055");
-		parameters.put("USERNAME", "test_user");
-		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
-		parameters.put("MAX_CONNECTIONS", "1");
-		knetCommunicationService.setKnetConfiguration(parameters);
+		knetCommunicationService.setKnetConfiguration(knetParameters);
 	}
 
 	@Test
@@ -109,10 +124,76 @@ public class TestKNetCommunicationService {
 			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
 					identifiers.getPublicKeyIdentifier());
 		});
-		
+
 		createKnetConfiguration();
 		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
 				identifiers.getPublicKeyIdentifier());
+	}
+
+	@Test
+	public void getPublicKey_success() throws KNetException, KNetCommunicationServiceException {
+		createKnetConfiguration();
+		var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+
+		var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA");
+
+		assertNotNull(publicKey);
+
+		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+				identifiers.getPublicKeyIdentifier());
+	}
+
+	@Test
+	public void getPublicKey_fail() throws KNetException, KNetCommunicationServiceException {
+		knetCommunicationService.setkNetRequester(null);
+
+		assertThrows(KNetCommunicationServiceException.class, () -> {
+			knetCommunicationService.getPublicKey("test", "RSA");
+		});
+	}
+
+	@Test
+	public void isKnetConfigurationLoaded_true() throws KNetException, KNetCommunicationServiceException {
+		createKnetConfiguration();
+
+		var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+
+		assertTrue(isLoaded);
+	}
+
+	@Test
+	public void isKnetConfigurationLoaded_false() throws KNetException, KNetCommunicationServiceException {
+		knetCommunicationService.setkNetRequester(null);
+
+		var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+
+		assertFalse(isLoaded);
+
+	}
+
+	@Test
+	public void loadKnetConfiguration_success()
+			throws KNetException, KNetCommunicationServiceException, SystemServiceException {
+		var accessKey = keyParameterEncryptor.encryptKey("test");
+		var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+
+		assertDoesNotThrow(() -> {
+			knetCommunicationService.loadKnetConfiguration(accessKey);
+
+		});
+
+		systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+	}
+
+	@Test
+	public void loadKnetConfiguration_fail_noConfiguration() throws KNetException {
+		var accessKey = keyParameterEncryptor.encryptKey("test");
+
+		assertThrows(KNetCommunicationServiceException.class, () -> {
+			knetCommunicationService.loadKnetConfiguration(accessKey);
+
+		});
+
 	}
 
 }
