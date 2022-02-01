@@ -6,7 +6,6 @@ import java.util.Collection;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,16 +47,15 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public AppUser registerNewUser(String username, String password) throws AppUserServiceException {
+		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		if (optionalUser.isPresent())
+			throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
 		var user = new AppUser(null, username, password, Authority.USER);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		try {
-			return appUserRepository.save(user);
-		} catch (DataIntegrityViolationException e) {
-			throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
-		}
+		return appUserRepository.save(user);
 	}
 
-	public AppUser saveUser(AppUser user) {
+	public AppUser saveAppUser(AppUser user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}

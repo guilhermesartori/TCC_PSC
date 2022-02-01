@@ -1,6 +1,6 @@
 package br.ufsc.tsp.service.exception;
 
-public class KeyManagerException extends Exception {
+public class KNetCommunicationServiceException extends Exception {
 
 	/**
 	 * 
@@ -8,7 +8,8 @@ public class KeyManagerException extends Exception {
 	private static final long serialVersionUID = 8164927720607350111L;
 
 	public enum ExceptionType {
-		DEFAULT("KNet configuration not initialized.");
+		DEFAULT("KNet configuration not initialized."),
+		MULTIPLE_CONFIGURATIONS("Multiple KNet configurations registered.");
 
 		private String message;
 
@@ -24,11 +25,11 @@ public class KeyManagerException extends Exception {
 	/**
 	 * 
 	 */
-	public KeyManagerException() {
+	public KNetCommunicationServiceException() {
 		super(ExceptionType.DEFAULT.message);
 	}
 
-	public KeyManagerException(ExceptionType exceptionType) {
+	public KNetCommunicationServiceException(ExceptionType exceptionType) {
 		super(exceptionType.message);
 	}
 

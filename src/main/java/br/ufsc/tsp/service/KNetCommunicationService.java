@@ -11,7 +11,8 @@ import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
 import br.ufsc.tsp.repository.KnetConfigurationRepository;
-import br.ufsc.tsp.service.exception.KeyManagerException;
+import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
+import br.ufsc.tsp.service.exception.KNetCommunicationServiceException.ExceptionType;
 
 @Service
 public class KNetCommunicationService {
@@ -30,31 +31,33 @@ public class KNetCommunicationService {
 	}
 
 	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter, String keyName)
-			throws KNetException, KeyManagerException {
+			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
-			throw new KeyManagerException();
+			throw new KNetCommunicationServiceException();
 		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
 				keyName + "-public");
 		return keyIdentifierPair;
 	}
 
 	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data)
-			throws KNetException, KeyManagerException {
+			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
-			throw new KeyManagerException();
+			throw new KNetCommunicationServiceException();
 		var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
 		return signature;
 	}
 
-	public void deleteKeyPair(String privateKey, String publicKey) throws KNetException, KeyManagerException {
+	public void deleteKeyPair(String privateKey, String publicKey)
+			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
-			throw new KeyManagerException();
+			throw new KNetCommunicationServiceException();
 		kNetRequester.revokeAndDestroy(new String[] { privateKey, publicKey });
 	}
 
-	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm) throws KNetException, KeyManagerException {
+	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm)
+			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
-			throw new KeyManagerException();
+			throw new KNetCommunicationServiceException();
 		return kNetRequester.getPublicKey(keyIdentifier, keyAlgorithm);
 	}
 
@@ -63,7 +66,7 @@ public class KNetCommunicationService {
 				parameters.get("USERNAME"), parameters.get("PW"));
 	}
 
-	public void loadKnetConfiguration(String accessKey) throws KNetException {
+	public void loadKnetConfiguration(String accessKey) throws KNetException, KNetCommunicationServiceException {
 		var knetConfigurationList = knetConfigurationRepository.findAll();
 		if (knetConfigurationList.size() > 0) {
 			var knetConfiguration = knetConfigurationList.get(0);
@@ -71,12 +74,20 @@ public class KNetCommunicationService {
 			var decryptedParameters = this.keyParameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
 			setKnetConfiguration(decryptedParameters);
 		} else if (knetConfigurationList.size() > 1) {
-			// TODO
+			throw new KNetCommunicationServiceException(ExceptionType.MULTIPLE_CONFIGURATIONS);
 		}
+		throw new KNetCommunicationServiceException();
 	}
 
 	public boolean isKnetConfigurationLoaded() {
 		return kNetRequester == null;
+	}
+
+	/**
+	 * @param kNetRequester the kNetRequester to set
+	 */
+	public void setkNetRequester(KNetRequester kNetRequester) {
+		this.kNetRequester = kNetRequester;
 	}
 
 }

@@ -25,7 +25,7 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.repository.KeyPairRepository;
 import br.ufsc.tsp.service.exception.AppUserServiceException;
-import br.ufsc.tsp.service.exception.KeyManagerException;
+import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
@@ -76,7 +76,7 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KeyManagerException {
+	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyName = "test_createKeyPair_RSA_2048";
@@ -95,7 +95,7 @@ public class TestKeyPairService {
 
 	@Test
 	public void test_sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
-			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KeyManagerException {
+			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyName = "test_sign_RSA_2048_SHA256";
@@ -117,7 +117,7 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void deleteKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KeyManagerException {
+	public void deleteKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyName = "deleteKeyPair_RSA_2048";

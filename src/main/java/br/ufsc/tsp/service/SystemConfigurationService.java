@@ -13,6 +13,7 @@ import br.ufsc.tsp.entity.KnetConfiguration;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KnetConfigurationRepository;
+import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
 // TODO delegate finds to appuserservice
@@ -42,7 +43,7 @@ public class SystemConfigurationService {
 			throw new SystemServiceException();
 		}
 		var user = new AppUser(null, username, password, Authority.ADMINISTRATOR);
-		var savedUser = appUserService.saveUser(user);
+		var savedUser = appUserService.saveAppUser(user);
 		updateSystemConfiguredState();
 		return savedUser;
 	}
@@ -68,16 +69,12 @@ public class SystemConfigurationService {
 	}
 
 	public void loadKnetConfiguration(String encryptedAccessKey) throws SystemServiceException {
-		var knetConfigurationList = knetConfigurationRepository.findAll();
-		if (knetConfigurationList.size() != 1)
+		try {
+			kNetCommunicationService.loadKnetConfiguration(encryptedAccessKey);
+		} catch (KNetException e1) {
 			// TODO PROPER EXCEPTION
 			throw new SystemServiceException();
-		var knetConfiguration = knetConfigurationList.get(0);
-		var encryptedParameters = knetConfiguration.getEncryptedParameters();
-		var decryptedParameters = parameterEncryptor.decryptKnetParameters(encryptedParameters, encryptedAccessKey);
-		try {
-			kNetCommunicationService.setKnetConfiguration(decryptedParameters);
-		} catch (KNetException e) {
+		} catch (KNetCommunicationServiceException e1) {
 			// TODO PROPER EXCEPTION
 			throw new SystemServiceException();
 		}

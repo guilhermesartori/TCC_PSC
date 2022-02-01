@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import br.ufsc.tsp.entity.AppUser;
@@ -26,7 +25,7 @@ public class TestAppUserService {
 	private AppUserService appUserService;
 
 	@Test
-	public void test_loadUserByUsername_fail() {
+	public void loadUserByUsername_fail() {
 		var thrownException = assertThrows(UsernameNotFoundException.class, () -> {
 			appUserService.loadUserByUsername(USER_USERNAME);
 		});
@@ -35,7 +34,7 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_loadUserByUsername_success() throws AppUserServiceException {
+	public void loadUserByUsername_success() throws AppUserServiceException {
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
@@ -51,11 +50,11 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_saveUser_fail() throws AppUserServiceException {
+	public void registerNewUser_fail() throws AppUserServiceException {
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
-			assertThrows(DataIntegrityViolationException.class, () -> {
+			assertThrows(AppUserServiceException.class, () -> {
 				appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 			});
 		} finally {
@@ -64,7 +63,7 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_saveUser_success() throws AppUserServiceException {
+	public void registerNewUser_success() throws AppUserServiceException {
 		AppUser savedUser = null;
 		try {
 			savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
@@ -80,14 +79,30 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_getUser_fail() {
+	public void saveAppUser() throws AppUserServiceException {
+		AppUser savedUser = null;
+		try {
+			savedUser = appUserService.saveAppUser(new AppUser(USER_USERNAME, USER_PASSWORD, Authority.USER));
+
+			assertEquals(USER_USERNAME, savedUser.getUsername());
+			assertNotNull(savedUser.getPassword());
+			assertEquals(Authority.USER, savedUser.getAuthority());
+
+		} finally {
+			if (savedUser != null)
+				appUserService.deleteUserByUsername(USER_USERNAME);
+		}
+	}
+
+	@Test
+	public void getUser_fail() {
 		assertThrows(AppUserServiceException.class, () -> {
 			appUserService.getUser(USER_USERNAME);
 		});
 	}
 
 	@Test
-	public void test_getUser_success() throws AppUserServiceException {
+	public void getUser_success() throws AppUserServiceException {
 		final var savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
@@ -103,14 +118,14 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_deleteUserByUsername_fail() {
+	public void deleteUserByUsername_fail() {
 		assertThrows(AppUserServiceException.class, () -> {
 			appUserService.deleteUserByUsername(USER_USERNAME);
 		});
 	}
 
 	@Test
-	public void test_deleteUserByUsername_success() throws AppUserServiceException {
+	public void deleteUserByUsername_success() throws AppUserServiceException {
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		assertDoesNotThrow(() -> {
@@ -124,7 +139,7 @@ public class TestAppUserService {
 	}
 
 	@Test
-	public void test_getUsers() throws AppUserServiceException {
+	public void getUsers() throws AppUserServiceException {
 		final var savedUser = appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 		final var savedUser2 = appUserService.registerNewUser(USER_USERNAME + "2", USER_PASSWORD);
 

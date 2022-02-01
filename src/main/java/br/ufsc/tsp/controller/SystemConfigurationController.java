@@ -67,7 +67,7 @@ public class SystemConfigurationController {
 			var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			systemConfigurationService.loadKnetConfiguration(encryptedAccessKey);
 			return ResponseEntity.ok().build();
-		} catch (SystemServiceException e) {
+		} catch (SystemServiceException e ) {
 			var errorResponse = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(errorResponse);
 		} catch (Throwable e) {

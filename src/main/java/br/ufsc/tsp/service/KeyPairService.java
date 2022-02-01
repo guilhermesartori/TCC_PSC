@@ -20,7 +20,7 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.entity.KeyPair;
 import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KeyPairRepository;
-import br.ufsc.tsp.service.exception.KeyManagerException;
+import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 import br.ufsc.tsp.service.exception.KeyPairServiceException.ExceptionType;
 
@@ -59,7 +59,7 @@ public class KeyPairService {
 	}
 
 	public KeyPair createKeyPair(String username, String accessKey, String keyAlgorithm, String keyParameter,
-			String keyName) throws KeyPairServiceException, KeyManagerException {
+			String keyName) throws KeyPairServiceException, KNetCommunicationServiceException {
 		try {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
@@ -83,7 +83,7 @@ public class KeyPairService {
 	}
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
-			throws KNetException, KeyPairServiceException, KeyManagerException {
+			throws KNetException, KeyPairServiceException, KNetCommunicationServiceException {
 		var user = appUserRepository.findAppUserByUsername(username).get();
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, uniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
@@ -98,7 +98,7 @@ public class KeyPairService {
 
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
-			KNetException, KeyPairServiceException, KeyManagerException {
+			KNetException, KeyPairServiceException, KNetCommunicationServiceException {
 		var user = appUserRepository.findAppUserByUsername(username).get();
 		var optionalkeyPair = keyPairRepository.findKeyPairByOwnerAndUniqueIdentifier(user, keyUniqueIdentifier);
 		if (optionalkeyPair.isEmpty())
@@ -145,7 +145,7 @@ public class KeyPairService {
 	}
 
 	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature)
-			throws KeyPairServiceException, KNetException, KeyManagerException, InvalidKeyException,
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException, InvalidKeyException,
 			NoSuchAlgorithmException, SignatureException {
 		var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
@@ -171,7 +171,7 @@ public class KeyPairService {
 			var encodedPublicKey = publicKey.getEncoded();
 			var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
 			return base64Encoding;
-		} catch (KNetException | KeyManagerException e) {
+		} catch (KNetException | KNetCommunicationServiceException e) {
 			throw new KeyPairServiceException();
 		}
 	}
