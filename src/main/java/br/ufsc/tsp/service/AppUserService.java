@@ -2,6 +2,7 @@ package br.ufsc.tsp.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -76,6 +77,10 @@ public class AppUserService implements UserDetailsService {
 		var success = appUserRepository.deleteAppUserByUsername(username);
 		if (success == 0)
 			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
+	}
+
+	public Optional<AppUser> getAdministrator() {
+		return appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR);
 	}
 
 }

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 // TODO rename class and related attributes and classes
 @Service
-public class KeyParameterEncryptor {
+public class ParameterEncryptor {
 
 	private static final Provider PROVIDER = new BouncyCastleProvider();
 	private static final String ACCESS_KEY_ALGORITHM = "AES";
@@ -29,7 +29,7 @@ public class KeyParameterEncryptor {
 	private final Cipher cipher;
 	private SecretKey secretKey;
 
-	public KeyParameterEncryptor() {
+	public ParameterEncryptor() {
 		try {
 			this.cipher = Cipher.getInstance(CIPHER_TRANSFORMATION, PROVIDER);
 			secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);

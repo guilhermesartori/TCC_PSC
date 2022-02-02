@@ -20,7 +20,7 @@ public class KNetCommunicationService {
 	private KnetConfigurationRepository knetConfigurationRepository;
 
 	@Autowired
-	private KeyParameterEncryptor keyParameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	private KNetRequester kNetRequester = null;
 
@@ -70,7 +70,7 @@ public class KNetCommunicationService {
 		if (knetConfigurationList.size() > 0) {
 			var knetConfiguration = knetConfigurationList.get(0);
 			var encryptedParameters = knetConfiguration.getEncryptedParameters();
-			var decryptedParameters = this.keyParameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
+			var decryptedParameters = this.parameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
 			setKnetConfiguration(decryptedParameters);
 		} else
 			throw new KNetCommunicationServiceException();

@@ -9,30 +9,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class TestKeyParameterEncryptor {
+public class TestParameterEncryptor {
 
 	@Autowired
-	private KeyParameterEncryptor keyParameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 	private String encryptedKey;
 	private String valueToBeEncrypted;
 
 	@BeforeEach
 	public void initialize() {
-		encryptedKey = keyParameterEncryptor.encryptKey("password");
+		encryptedKey = parameterEncryptor.encryptKey("password");
 		valueToBeEncrypted = "test";
 	}
 
 	@Test
 	public void test_encrypt() {
-		String encryption = keyParameterEncryptor.encrypt(valueToBeEncrypted, encryptedKey);
+		String encryption = parameterEncryptor.encrypt(valueToBeEncrypted, encryptedKey);
 		assertNotNull(encryption);
 	}
 
 	@Test
 	public void test_decrypt() {
-		String encryption = keyParameterEncryptor.encrypt(valueToBeEncrypted, encryptedKey);
+		String encryption = parameterEncryptor.encrypt(valueToBeEncrypted, encryptedKey);
 
-		String decryption = keyParameterEncryptor.decrypt(encryption, encryptedKey);
+		String decryption = parameterEncryptor.decrypt(encryption, encryptedKey);
 		assertNotNull(decryption);
 		assertEquals(valueToBeEncrypted, decryption);
 	}

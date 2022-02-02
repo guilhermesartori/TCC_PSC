@@ -37,7 +37,7 @@ import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KnetConfigurationRepository;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.KNetCommunicationService;
-import br.ufsc.tsp.service.KeyParameterEncryptor;
+import br.ufsc.tsp.service.ParameterEncryptor;
 import br.ufsc.tsp.service.SystemConfigurationService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 
@@ -64,7 +64,7 @@ public class TestSystemController {
 	private KnetConfigurationRepository knetConfigurationRepository;
 
 	@MockBean
-	private KeyParameterEncryptor parameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	@MockBean
 	private SystemConfigurationService systemConfigurationService;
@@ -148,7 +148,7 @@ public class TestSystemController {
 		var objectMapper = new ObjectMapper();
 		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
 		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
-		doNothing().when(systemConfigurationService).setKnetConfiguration(any(), any());
+		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
 		var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
@@ -164,7 +164,7 @@ public class TestSystemController {
 		var objectMapper = new ObjectMapper();
 		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
 		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
-		doNothing().when(systemConfigurationService).setKnetConfiguration(any(), any());
+		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
 		var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))

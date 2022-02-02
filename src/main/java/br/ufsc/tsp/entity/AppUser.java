@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// TODO alterar colecao de autorities para uma unica authority
 @Entity
 @Table
 @Data

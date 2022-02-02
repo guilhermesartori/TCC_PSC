@@ -11,12 +11,11 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.tsp.entity.AppUser;
 import br.ufsc.tsp.entity.KnetConfiguration;
 import br.ufsc.tsp.entity.enums.Authority;
-import br.ufsc.tsp.repository.AppUserRepository;
 import br.ufsc.tsp.repository.KnetConfigurationRepository;
 import br.ufsc.tsp.service.exception.KNetCommunicationServiceException;
 import br.ufsc.tsp.service.exception.SystemServiceException;
+import br.ufsc.tsp.service.exception.SystemServiceException.ExceptionType;
 
-// TODO delegate finds to appuserservice
 @Service
 @Transactional
 public class SystemConfigurationService {
@@ -25,21 +24,18 @@ public class SystemConfigurationService {
 	private AppUserService appUserService;
 
 	@Autowired
-	private AppUserRepository appUserRepository;
-
-	@Autowired
 	private KNetCommunicationService kNetCommunicationService;
 
 	@Autowired
 	private KnetConfigurationRepository knetConfigurationRepository;
 
 	@Autowired
-	private KeyParameterEncryptor parameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	private boolean systemIsConfigured = false;
 
 	public AppUser createAdministratorUser(String username, String password) throws SystemServiceException {
-		if (appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent()) {
+		if (appUserService.getAdministrator().isPresent()) {
 			throw new SystemServiceException();
 		}
 		var user = new AppUser(null, username, password, Authority.ADMINISTRATOR);
@@ -60,8 +56,7 @@ public class SystemConfigurationService {
 		try {
 			kNetCommunicationService.setKnetConfiguration(knetParameters);
 		} catch (KNetException e) {
-			// TODO PROPER EXCEPTION
-			throw new SystemServiceException();
+			throw new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
 		}
 		knetConfiguration.setEncryptedParameters(encryptedParameters);
 		var savedKnetConfiguration = knetConfigurationRepository.save(knetConfiguration);
@@ -73,11 +68,9 @@ public class SystemConfigurationService {
 		try {
 			kNetCommunicationService.loadKnetConfiguration(encryptedAccessKey);
 		} catch (KNetException e1) {
-			// TODO PROPER EXCEPTION
-			throw new SystemServiceException();
+			throw new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
 		} catch (KNetCommunicationServiceException e1) {
-			// TODO PROPER EXCEPTION
-			throw new SystemServiceException();
+			throw new SystemServiceException(e1.getMessage());
 		}
 		updateSystemConfiguredState();
 	}
@@ -92,7 +85,7 @@ public class SystemConfigurationService {
 
 	public void updateSystemConfiguredState() {
 		var temp = true;
-		temp = temp && appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR).isPresent();
+		temp = temp && appUserService.getAdministrator().isPresent();
 		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
 	}
 

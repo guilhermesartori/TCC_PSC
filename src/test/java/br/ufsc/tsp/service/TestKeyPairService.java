@@ -42,7 +42,7 @@ public class TestKeyPairService {
 	private AppUserService appUserService;
 
 	@Autowired
-	private KeyParameterEncryptor keyParameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	@Autowired
 	private KeyPairRepository keyPairRepository;
@@ -60,7 +60,7 @@ public class TestKeyPairService {
 		var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
-		accessKey = keyParameterEncryptor.encryptKey(USER_PASSWORD);
+		accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
 		var parameters = new HashMap<String, String>();
 		parameters.put("ADDRESS_CONN", "192.168.66.20");
 		parameters.put("PORT_CONN", "60055");

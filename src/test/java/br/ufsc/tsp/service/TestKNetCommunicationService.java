@@ -31,7 +31,7 @@ public class TestKNetCommunicationService {
 	private SystemConfigurationService systemConfigurationService;
 
 	@Autowired
-	private KeyParameterEncryptor keyParameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	private static Map<String, String> knetParameters;
 
@@ -174,7 +174,7 @@ public class TestKNetCommunicationService {
 	@Test
 	public void loadKnetConfiguration_success()
 			throws KNetException, KNetCommunicationServiceException, SystemServiceException {
-		var accessKey = keyParameterEncryptor.encryptKey("test");
+		var accessKey = parameterEncryptor.encryptKey("test");
 		var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
 
 		assertDoesNotThrow(() -> {
@@ -187,7 +187,7 @@ public class TestKNetCommunicationService {
 
 	@Test
 	public void loadKnetConfiguration_fail_noConfiguration() throws KNetException {
-		var accessKey = keyParameterEncryptor.encryptKey("test");
+		var accessKey = parameterEncryptor.encryptKey("test");
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
 			knetCommunicationService.loadKnetConfiguration(accessKey);

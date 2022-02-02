@@ -3,7 +3,7 @@ package br.ufsc.tsp.service.exception;
 public class SystemServiceException extends Exception {
 
 	public enum ExceptionType {
-		DEFAULT("Error submitting KNet configuration.");
+		DEFAULT("Error submitting KNet configuration."), INVALID_KNET_CONFIG("Invalid KNet configuration.");
 
 		private String message;
 
@@ -30,6 +30,10 @@ public class SystemServiceException extends Exception {
 
 	public SystemServiceException(ExceptionType exceptionType) {
 		super(exceptionType.message);
+	}
+	
+	public SystemServiceException(String message) {
+		super(message);
 	}
 
 }

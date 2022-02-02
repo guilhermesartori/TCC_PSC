@@ -19,7 +19,6 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 import br.ufsc.tsp.controller.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 
-// TODO make proper response
 @Component
 @Order(1)
 public class SystemConfigurationStateFilter extends OncePerRequestFilter {

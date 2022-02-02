@@ -18,7 +18,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 public class JWTManager {
 
 	@Autowired
-	private KeyParameterEncryptor keyParameterEncryptor;
+	private ParameterEncryptor parameterEncryptor;
 
 	private static final Algorithm ALGORITHM = Algorithm.HMAC256(SystemKey.getKey());
 	private static final long ACCESS_TOKEN_VALIDITY_MS = 10 * 60 * 1000;
@@ -54,7 +54,7 @@ public class JWTManager {
 
 	public String createAccessToken(String username, String password, String issuer, List<String> roles) {
 		var currTime = System.currentTimeMillis();
-		var encodedAccessKey = keyParameterEncryptor.encryptKey(username + password + currTime);
+		var encodedAccessKey = parameterEncryptor.encryptKey(username + password + currTime);
 		var accessToken = JWT.create().withSubject(username)
 				.withExpiresAt(new Date(currTime + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
 				.withClaim(ROLES_CLAIM, roles).withClaim(ACCESS_KEY_CLAIM, encodedAccessKey).sign(ALGORITHM);

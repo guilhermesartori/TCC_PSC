@@ -32,7 +32,7 @@ public class KeyPairService {
 	private final KeyPairRepository keyPairRepository;
 	private final KNetCommunicationService keyManager;
 	private final MessageDigest digest;
-	private final KeyParameterEncryptor keyParameterEncryptor;
+	private final ParameterEncryptor parameterEncryptor;
 
 	/**
 	 * 
@@ -41,12 +41,12 @@ public class KeyPairService {
 	 */
 	@Autowired
 	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository,
-			KNetCommunicationService keyManager, KeyParameterEncryptor keyParameterEncryptor) {
+			KNetCommunicationService keyManager, ParameterEncryptor parameterEncryptor) {
 		super();
 		this.keyPairRepository = keyPairRepository;
 		this.appUserRepository = appUserRepository;
 		this.keyManager = keyManager;
-		this.keyParameterEncryptor = keyParameterEncryptor;
+		this.parameterEncryptor = parameterEncryptor;
 		try {
 			this.digest = MessageDigest.getInstance("SHA-256", new BouncyCastleProvider());
 		} catch (NoSuchAlgorithmException e) {
@@ -71,7 +71,7 @@ public class KeyPairService {
 			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
 			var keyOwner = appUserRepository.findAppUserByUsername(username).get();
 
-			var encryptedPrivateKeyIdentifier = keyParameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
+			var encryptedPrivateKeyIdentifier = parameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
 			var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
 					uniqueIdentifier, keyName, keyOwner);
@@ -90,7 +90,7 @@ public class KeyPairService {
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		else {
 			var keyPair = optionalkeyPair.get();
-			var privateKeyIdentifier = keyParameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
+			var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
 			keyManager.deleteKeyPair(privateKeyIdentifier, keyPair.getPublicKey());
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
 		}
@@ -110,7 +110,7 @@ public class KeyPairService {
 		var hashedData = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider()).digest(data);
 
 		var keyPair = optionalkeyPair.get();
-		var privateKeyIdentifier = keyParameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
+		var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
 		var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), hashedData);
 		var base64Encoder = Base64.getEncoder();
 		var base64Signature = base64Encoder.encodeToString(signature);
