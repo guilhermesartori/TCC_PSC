@@ -87,6 +87,7 @@ public class SystemConfigurationService {
 		var temp = true;
 		temp = temp && appUserService.getAdministrator().isPresent();
 		temp = temp && kNetCommunicationService.isKnetConfigurationLoaded();
+		systemIsConfigured = temp;
 	}
 
 	public void deleteKnetConfiguration(KnetConfiguration savedKnetConfiguration) {
