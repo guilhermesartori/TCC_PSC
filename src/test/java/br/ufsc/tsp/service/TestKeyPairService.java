@@ -3,6 +3,7 @@ package br.ufsc.tsp.service;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.InvalidKeyException;
@@ -34,6 +35,7 @@ public class TestKeyPairService {
 
 	private static final String USER_USERNAME = "test";
 	private static final String USER_PASSWORD = "test";
+	private static final String KEY_NAME = "test_key_name";
 
 	@Autowired
 	private KeyPairService keyPairService;
@@ -76,12 +78,12 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void test_createKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void createKeyPair_RSA_2048()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		final var keyName = "test_createKeyPair_RSA_2048";
 
-		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
 
@@ -94,15 +96,41 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void test_sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
+	public void createKeyPair_RSA_2048_duplicateKeyPair()
+			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+
+			keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+		});
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+	}
+
+	@Test
+	public void createKeyPair_RSA_2048_noSuchAlgorithm()
+			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
+		final var algorithm = "DASPDAPJI";
+		final var parameter = "2048";
+
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+		});
+	}
+
+	@Test
+	public void sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
 			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		final var keyName = "test_sign_RSA_2048_SHA256";
 		final var hashingAlgorithm = "SHA256";
 		final var dataToSign = "test".getBytes();
 		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
-		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
 		final var publicKey = keyManager.getPublicKey(keyPair.getPublicKey(), algorithm);
 		final var signature = Signature.getInstance("SHA256WithRSA", new BouncyCastleProvider());
 		signature.initVerify(publicKey);
@@ -117,15 +145,118 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void deleteKeyPair_RSA_2048() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void sign_keyDoesntExist() throws KeyPairServiceException, KNetException, InvalidKeyException,
+			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
+		final var hashingAlgorithm = "SHA256";
+		final var dataToSign = "test".getBytes();
+		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
+		final var uniqueIdentifier = "test";
+
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign, uniqueIdentifier, hashingAlgorithm);
+		});
+	}
+
+	@Test
+	public void deleteKeyPair_RSA_2048()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		final var keyName = "deleteKeyPair_RSA_2048";
-		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, keyName);
+		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
 
 		assertFalse(keyPairRepository.existsKeyPairByUniqueIdentifier(keyPair.getUniqueIdentifier()));
+
+	}
+
+	@Test
+	public void deleteKeyPair_keyDoesntExist()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.deleteKeyPair(USER_USERNAME, accessKey, "test");
+		});
+
+	}
+
+	@Test
+	public void getKeyPair() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+
+		final var gotKeyPair = keyPairService.getKeyPair(USER_USERNAME, keyPair.getUniqueIdentifier());
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertEquals(keyPair.getId(), gotKeyPair.getId());
+	}
+
+	@Test
+	public void getKeyPair_keyDoesntExist()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.getKeyPair(USER_USERNAME, "test");
+		});
+
+	}
+
+	@Test
+	public void getPublicKey() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+
+		final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), algorithm);
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertNotNull(publicKey);
+		assertFalse(publicKey.isBlank());
+	}
+
+	@Test
+	public void getPublicKey_keyDoesntExist()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		final var algorithm = "RSA";
+
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.getPublicKey("test", algorithm);
+		});
+
+	}
+
+	@Test
+	public void verifySignature() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException,
+			InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var hashingAlgorithm = "SHA256";
+		final var dataToSign = "test".getBytes();
+		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+		final var signedData = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign,
+				keyPair.getUniqueIdentifier(), hashingAlgorithm);
+
+		final var valid = keyPairService.verifySignature(keyPair.getUniqueIdentifier(), base64EncodedDataToSign,
+				signedData, "SHA256WithRSA");
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertTrue(valid);
+	}
+
+	@Test
+	public void verifySignature_keyDoesntExist()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		final var dataToSign = "test".getBytes();
+		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
+		final var uniqueIdentifier = "test";
+		final var signedData = "test";
+
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.verifySignature(uniqueIdentifier, base64EncodedDataToSign, signedData, "SHA256WithRSA");
+		});
 
 	}
 

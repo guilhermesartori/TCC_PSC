@@ -123,7 +123,7 @@ public class KeyPairController {
 			@RequestBody SignatureVerificationRequest request) {
 		try {
 			var validSignature = keyPairService.verifySignature(keyUniqueIdentifier, request.getBase64EncodedData(),
-					request.getBase64EncodedSignature());
+					request.getBase64EncodedSignature(), request.getSignatureAlgorithm());
 			var body = new SignatureVerificationResponse(validSignature);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {

@@ -77,14 +77,15 @@ public class KeyPairService {
 					uniqueIdentifier, keyName, keyOwner);
 
 			return keyPairRepository.save(keyPairEntity);
-		} catch (NoSuchAlgorithmException | KNetException e) {
+		} catch (NoSuchAlgorithmException | KNetException | IllegalArgumentException e) {
 			throw new KeyPairServiceException();
 		}
 	}
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
 			throws KNetException, KeyPairServiceException, KNetCommunicationServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username, uniqueIdentifier);
+		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+				uniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		else {
@@ -98,7 +99,8 @@ public class KeyPairService {
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
 			KNetException, KeyPairServiceException, KNetCommunicationServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username, keyUniqueIdentifier);
+		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+				keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 
@@ -135,15 +137,16 @@ public class KeyPairService {
 	}
 
 	public KeyPair getKeyPair(String username, String keyUniqueIdentifier) throws KeyPairServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username, keyUniqueIdentifier);
+		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+				keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		return optionalKeyPair.get();
 	}
 
-	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature)
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException, InvalidKeyException,
-			NoSuchAlgorithmException, SignatureException {
+	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature,
+			String signatureAlgorithm) throws KeyPairServiceException, KNetException, KNetCommunicationServiceException,
+			InvalidKeyException, NoSuchAlgorithmException, SignatureException {
 		var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -156,10 +159,10 @@ public class KeyPairService {
 		var data = Base64.getDecoder().decode(base64EncodedData);
 		var signature = Base64.getDecoder().decode(base64EncodedSignature);
 
-		var signatureVerifier = Signature.getInstance(algorithm, new BouncyCastleProvider());
+		var signatureVerifier = Signature.getInstance(signatureAlgorithm, new BouncyCastleProvider());
 		signatureVerifier.initVerify(publicKey);
 		signatureVerifier.update(data);
-		return signatureVerifier.verify(Base64.getDecoder().decode(signature));
+		return signatureVerifier.verify(signature);
 	}
 
 	public String getPublicKey(String keyIdentifier, String keyAlgorithm) throws KeyPairServiceException {

@@ -335,9 +335,10 @@ public class TestKeyPairController {
 		final var signatureVerificationRequest = new SignatureVerificationRequest();
 		signatureVerificationRequest.setBase64EncodedData("test");
 		signatureVerificationRequest.setBase64EncodedSignature("test");
+		signatureVerificationRequest.setSignatureAlgorithm("SHA256WithRSA");
 		final var objectMapper = new ObjectMapper();
 		final var content = objectMapper.writeValueAsString(signatureVerificationRequest);
-		when(keyPairService.verifySignature(any(), any(), any())).thenReturn(true);
+		when(keyPairService.verifySignature(any(), any(), any(), any())).thenReturn(true);
 
 		final var mvcResult = mockMvc.perform(
 				post("/key/uniqueIdentifier/verify-signature").contentType(MediaType.APPLICATION_JSON).content(content))
@@ -356,10 +357,11 @@ public class TestKeyPairController {
 		final var signatureVerificationRequest = new SignatureVerificationRequest();
 		signatureVerificationRequest.setBase64EncodedData("test");
 		signatureVerificationRequest.setBase64EncodedSignature("test");
+		signatureVerificationRequest.setSignatureAlgorithm("SHA256WithRSA");
 		final var objectMapper = new ObjectMapper();
 		final var content = objectMapper.writeValueAsString(signatureVerificationRequest);
 		final var exception = new KeyPairServiceException();
-		when(keyPairService.verifySignature(any(), any(), any())).thenThrow(exception);
+		when(keyPairService.verifySignature(any(), any(), any(), any())).thenThrow(exception);
 
 		final var mvcResult = mockMvc.perform(
 				post("/key/uniqueIdentifier/verify-signature").contentType(MediaType.APPLICATION_JSON).content(content))
@@ -378,10 +380,11 @@ public class TestKeyPairController {
 		final var signatureVerificationRequest = new SignatureVerificationRequest();
 		signatureVerificationRequest.setBase64EncodedData("test");
 		signatureVerificationRequest.setBase64EncodedSignature("test");
+		signatureVerificationRequest.setSignatureAlgorithm("SHA256WithRSA");
 		final var objectMapper = new ObjectMapper();
 		final var content = objectMapper.writeValueAsString(signatureVerificationRequest);
 		final var exception = new RuntimeException("test");
-		when(keyPairService.verifySignature(any(), any(), any())).thenThrow(exception);
+		when(keyPairService.verifySignature(any(), any(), any(), any())).thenThrow(exception);
 
 		final var mvcResult = mockMvc.perform(
 				post("/key/uniqueIdentifier/verify-signature").contentType(MediaType.APPLICATION_JSON).content(content))
