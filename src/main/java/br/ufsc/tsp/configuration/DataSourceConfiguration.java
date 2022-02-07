@@ -29,14 +29,14 @@ public class DataSourceConfiguration {
 	@Lazy
 	@Bean
 	public DataSource customDataSource() throws IOException {
-		var gson = new Gson();
-		var reader = Files.newBufferedReader(Paths.get(PATH_TO_FILE));
-		var json = gson.fromJson(reader, JsonObject.class);
-		var databaseConfig = json.get("databaseConfiguration").getAsJsonObject();
-		var url = databaseConfig.get("url").getAsString();
-		var username = databaseConfig.get("username").getAsString();
-		var password = databaseConfig.get("password").getAsString();
-		var dsBuilder = DataSourceBuilder.create();
+		final var gson = new Gson();
+		final var reader = Files.newBufferedReader(Paths.get(PATH_TO_FILE));
+		final var json = gson.fromJson(reader, JsonObject.class);
+		final var databaseConfig = json.get("databaseConfiguration").getAsJsonObject();
+		final var url = databaseConfig.get("url").getAsString();
+		final var username = databaseConfig.get("username").getAsString();
+		final var password = databaseConfig.get("password").getAsString();
+		final var dsBuilder = DataSourceBuilder.create();
 		dsBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
 		dsBuilder.url(url);
 		dsBuilder.username(username);

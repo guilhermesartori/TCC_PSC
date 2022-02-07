@@ -70,15 +70,15 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void createKeyPair_success() throws Exception {
-		var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
-		var keyPair = new KeyPair();
+		final var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
+		final var keyPair = new KeyPair();
 		keyPair.setUniqueIdentifier("test");
 		when(keyPairService.createKeyPair(any(), any(), any(), any(), any())).thenReturn(new KeyPair());
 
-		var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
+		final var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(requestBody))).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
 		assertNotNull(response.getHeader("Location"));
 	}
@@ -86,17 +86,17 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void createKeyPair_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
-		var exception = new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
+		final var exception = new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 		when(keyPairService.createKeyPair(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
+		final var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(requestBody))).andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -104,17 +104,17 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void createKeyPair_fail_500() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
-		var exception = new RuntimeException("test");
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
+		final var exception = new RuntimeException("test");
 		when(keyPairService.createKeyPair(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
+		final var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(requestBody))).andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -122,45 +122,45 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void createKeyPair_fail_403() throws Exception {
-		var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
+		final var requestBody = new KeyPairGenerationRequest("RSA", "2048", "my_key");
 
-		var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
+		final var mvcResult = mockMvc.perform(post("/key").contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(requestBody))).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void deleteKeyPair_success() throws Exception {
-		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
+		final var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void deleteKeyPair_fail_403() throws Exception {
-		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
+		final var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void deleteKeyPair_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var exception = new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
+		final var objectMapper = new ObjectMapper();
+		final var exception = new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 		doThrow(exception).when(keyPairService).deleteKeyPair(any(), any(), any());
 
-		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
+		final var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -168,15 +168,15 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void deleteKeyPair_fail_500() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var exception = new RuntimeException("test");
+		final var objectMapper = new ObjectMapper();
+		final var exception = new RuntimeException("test");
 		doThrow(exception).when(keyPairService).deleteKeyPair(any(), any(), any());
 
-		var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
+		final var mvcResult = mockMvc.perform(delete("/key/test")).andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -194,12 +194,12 @@ public class TestKeyPairController {
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
 		when(keyPairService.getPublicKey(any(), any())).thenReturn("test");
 
-		var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
+		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, SignatureResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, SignatureResponse.class);
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals(signature, responseBody.getBase64EncodedSignature());
 	}
@@ -207,34 +207,34 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void sign_fail_403() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new SignatureRequest("test", "SHA512", "test");
-		var content = objectMapper.writeValueAsString(requestBody);
-		var signature = "test";
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var content = objectMapper.writeValueAsString(requestBody);
+		final var signature = "test";
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenReturn(signature);
 
-		var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
+		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void sign_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new SignatureRequest("test", "SHA512", "test");
-		var content = objectMapper.writeValueAsString(requestBody);
-		var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var content = objectMapper.writeValueAsString(requestBody);
+		final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
+		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -242,18 +242,18 @@ public class TestKeyPairController {
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void sign_fail_500() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var requestBody = new SignatureRequest("test", "SHA512", "test");
-		var content = objectMapper.writeValueAsString(requestBody);
-		var exception = new RuntimeException("test");
+		final var objectMapper = new ObjectMapper();
+		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var content = objectMapper.writeValueAsString(requestBody);
+		final var exception = new RuntimeException("test");
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
+		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}

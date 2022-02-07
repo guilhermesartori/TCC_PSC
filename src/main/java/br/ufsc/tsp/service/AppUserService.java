@@ -37,21 +37,21 @@ public class AppUserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		final var optionalUser = appUserRepository.findAppUserByUsername(username);
 		if (optionalUser.isEmpty())
 			throw new UsernameNotFoundException(String.format("User %s not found", username));
-		var appUser = optionalUser.get();
-		var authorities = new ArrayList<SimpleGrantedAuthority>();
+		final var appUser = optionalUser.get();
+		final var authorities = new ArrayList<SimpleGrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority(appUser.getAuthority().toString()));
 
 		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
 	}
 
 	public AppUser registerNewUser(String username, String password) throws AppUserServiceException {
-		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		final var optionalUser = appUserRepository.findAppUserByUsername(username);
 		if (optionalUser.isPresent())
 			throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
-		var user = new AppUser(null, username, password, Authority.USER);
+		final var user = new AppUser(null, username, password, Authority.USER);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return appUserRepository.save(user);
 	}
@@ -62,7 +62,7 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public AppUser getUser(String username) throws AppUserServiceException {
-		var optionalUser = appUserRepository.findAppUserByUsername(username);
+		final var optionalUser = appUserRepository.findAppUserByUsername(username);
 		if (optionalUser.isPresent())
 			return optionalUser.get();
 		else
@@ -74,7 +74,7 @@ public class AppUserService implements UserDetailsService {
 	}
 
 	public void deleteUserByUsername(String username) throws AppUserServiceException {
-		var success = appUserRepository.deleteAppUserByUsername(username);
+		final var success = appUserRepository.deleteAppUserByUsername(username);
 		if (success == 0)
 			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
 	}

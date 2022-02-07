@@ -44,19 +44,19 @@ public class KeyPairController {
 	@PostMapping
 	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {
-			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			var keyPair = keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(),
+			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			final var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			final var keyPair = keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(),
 					request.getKeyParameter(), request.getKeyName());
-			var pathToCreatedKey = String.format("/key/%d", keyPair.getUniqueIdentifier());
-			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey).toUriString();
-			var uri = URI.create(uriString);
+			final var pathToCreatedKey = String.format("/key/%d", keyPair.getUniqueIdentifier());
+			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey).toUriString();
+			final var uri = URI.create(uriString);
 			return ResponseEntity.created(uri).build();
 		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Throwable e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}
@@ -64,21 +64,21 @@ public class KeyPairController {
 	@PostMapping(path = "sign")
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
 		try {
-			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-			var signature = keyPairService.sign(username, accessKey, request.getBase64EncodedData(),
+			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			final var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			final var signature = keyPairService.sign(username, accessKey, request.getBase64EncodedData(),
 					request.getKeyUniqueIdentifier(), request.getHashingAlgorithm());
 
-			var keyPair = keyPairService.getKeyPair(username, request.getKeyUniqueIdentifier());
-			var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyPair.getKeyAlgorithm());
+			final var keyPair = keyPairService.getKeyPair(username, request.getKeyUniqueIdentifier());
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyPair.getKeyAlgorithm());
 
-			var body = new SignatureResponse(signature, keyPair.getUniqueIdentifier(), publicKey);
+			final var body = new SignatureResponse(signature, keyPair.getUniqueIdentifier(), publicKey);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Throwable e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}
@@ -86,15 +86,15 @@ public class KeyPairController {
 	@DeleteMapping(path = "{keyUniqueIdentifier}")
 	public ResponseEntity<Object> deleteKeyPair(@PathParam("keyUniqueIdentifier") String uniqueIdentifier) {
 		try {
-			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			final var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			keyPairService.deleteKeyPair(username, encodingKey, uniqueIdentifier);
 			return ResponseEntity.noContent().build();
 		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Throwable e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}
@@ -102,18 +102,18 @@ public class KeyPairController {
 	@GetMapping(path = "{keyUniqueIdentifier}")
 	public ResponseEntity<Object> getKey(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier) {
 		try {
-			var username = SecurityContextHolder.getContext().getAuthentication().getName();
-			var keyPair = keyPairService.getKeyPair(username, keyUniqueIdentifier);
-			var keyAlgorithm = keyPair.getKeyAlgorithm();
-			var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
-			var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm);
-			var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
+			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			final var keyPair = keyPairService.getKeyPair(username, keyUniqueIdentifier);
+			final var keyAlgorithm = keyPair.getKeyAlgorithm();
+			final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm);
+			final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Throwable e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}
@@ -122,15 +122,15 @@ public class KeyPairController {
 	public ResponseEntity<Object> verify(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier,
 			@RequestBody SignatureVerificationRequest request) {
 		try {
-			var validSignature = keyPairService.verifySignature(keyUniqueIdentifier, request.getBase64EncodedData(),
+			final var validSignature = keyPairService.verifySignature(keyUniqueIdentifier, request.getBase64EncodedData(),
 					request.getBase64EncodedSignature(), request.getSignatureAlgorithm());
-			var body = new SignatureVerificationResponse(validSignature);
+			final var body = new SignatureVerificationResponse(validSignature);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(body);
 		} catch (Exception e) {
-			var body = new ErrorMessageResponse(e.getMessage());
+			final var body = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}

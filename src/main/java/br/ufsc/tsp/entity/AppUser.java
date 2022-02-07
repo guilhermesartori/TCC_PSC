@@ -39,7 +39,7 @@ public class AppUser {
 	public boolean equals(Object obj) {
 		if (!(obj instanceof AppUser))
 			return false;
-		var other = (AppUser) obj;
+		final var other = (AppUser) obj;
 		return other.username.equals(username) && other.password.equals(password) && other.authority == authority;
 	}
 

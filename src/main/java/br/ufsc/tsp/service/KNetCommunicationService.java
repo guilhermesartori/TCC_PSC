@@ -33,7 +33,7 @@ public class KNetCommunicationService {
 			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
+		final var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
 				keyName + "-public");
 		return keyIdentifierPair;
 	}
@@ -42,7 +42,7 @@ public class KNetCommunicationService {
 			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
+		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
 		return signature;
 	}
 
@@ -66,11 +66,11 @@ public class KNetCommunicationService {
 	}
 
 	public void loadKnetConfiguration(String accessKey) throws KNetException, KNetCommunicationServiceException {
-		var knetConfigurationList = knetConfigurationRepository.findAll();
+		final var knetConfigurationList = knetConfigurationRepository.findAll();
 		if (knetConfigurationList.size() > 0) {
-			var knetConfiguration = knetConfigurationList.get(0);
-			var encryptedParameters = knetConfiguration.getEncryptedParameters();
-			var decryptedParameters = this.parameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
+			final var knetConfiguration = knetConfigurationList.get(0);
+			final var encryptedParameters = knetConfiguration.getEncryptedParameters();
+			final var decryptedParameters = this.parameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
 			setKnetConfiguration(decryptedParameters);
 		} else
 			throw new KNetCommunicationServiceException();

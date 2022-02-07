@@ -38,28 +38,28 @@ public class SystemConfigurationService {
 		if (appUserService.getAdministrator().isPresent()) {
 			throw new SystemServiceException();
 		}
-		var user = new AppUser(null, username, password, Authority.ADMINISTRATOR);
-		var savedUser = appUserService.saveAppUser(user);
+		final var user = new AppUser(null, username, password, Authority.ADMINISTRATOR);
+		final var savedUser = appUserService.saveAppUser(user);
 		updateSystemConfiguredState();
 		return savedUser;
 	}
 
 	public KnetConfiguration setKnetConfiguration(Map<String, String> knetParameters, String encryptedAccessKey)
 			throws SystemServiceException {
-		var knetConfigurations = knetConfigurationRepository.findAll();
+		final var knetConfigurations = knetConfigurationRepository.findAll();
 		KnetConfiguration knetConfiguration;
 		if (knetConfigurations.size() == 0)
 			knetConfiguration = new KnetConfiguration();
 		else
 			knetConfiguration = knetConfigurations.get(0);
-		var encryptedParameters = parameterEncryptor.encryptKnetParameters(knetParameters, encryptedAccessKey);
+		final var encryptedParameters = parameterEncryptor.encryptKnetParameters(knetParameters, encryptedAccessKey);
 		try {
 			kNetCommunicationService.setKnetConfiguration(knetParameters);
 		} catch (KNetException e) {
 			throw new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
 		}
 		knetConfiguration.setEncryptedParameters(encryptedParameters);
-		var savedKnetConfiguration = knetConfigurationRepository.save(knetConfiguration);
+		final var savedKnetConfiguration = knetConfigurationRepository.save(knetConfiguration);
 		updateSystemConfiguredState();
 		return savedKnetConfiguration;
 	}

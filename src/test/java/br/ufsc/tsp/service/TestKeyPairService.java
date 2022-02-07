@@ -59,11 +59,11 @@ public class TestKeyPairService {
 
 	@BeforeEach
 	public void runBeforeEach() throws KNetException, SystemServiceException, AppUserServiceException {
-		var authorities = new ArrayList<Authority>();
+		final var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 		accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		var parameters = new HashMap<String, String>();
+		final var parameters = new HashMap<String, String>();
 		parameters.put("ADDRESS_CONN", "192.168.66.20");
 		parameters.put("PORT_CONN", "60055");
 		parameters.put("USERNAME", "test_user");
@@ -136,7 +136,7 @@ public class TestKeyPairService {
 		signature.initVerify(publicKey);
 		signature.update(dataToSign);
 
-		var signedData = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign,
+		final var signedData = keyPairService.sign(USER_USERNAME, accessKey, base64EncodedDataToSign,
 				keyPair.getUniqueIdentifier(), hashingAlgorithm);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
@@ -162,7 +162,7 @@ public class TestKeyPairService {
 			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
-		var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
 

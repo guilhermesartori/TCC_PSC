@@ -43,7 +43,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean());
+		final var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean());
 		authenticationFilter.setFilterProcessesUrl("/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

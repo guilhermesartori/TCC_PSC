@@ -52,7 +52,7 @@ public class TestKNetCommunicationService {
 	public void createKeyPair_success() throws KNetException, KNetCommunicationServiceException {
 		createKnetConfiguration();
 
-		var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
 		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
 				identifiers.getPublicKeyIdentifier());
@@ -66,7 +66,7 @@ public class TestKNetCommunicationService {
 		knetCommunicationService.setkNetRequester(null);
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
-			var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+			final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
 			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
 					identifiers.getPublicKeyIdentifier());
@@ -80,9 +80,9 @@ public class TestKNetCommunicationService {
 		KeyIdentifierPair identifiers = null;
 		try {
 			identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_sign");
-			var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
+			final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
-			var signature = knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(), "RSA", data);
+			final var signature = knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(), "RSA", data);
 			assertNotNull(signature);
 		} catch (Exception e) {
 			fail();
@@ -96,7 +96,7 @@ public class TestKNetCommunicationService {
 	@Test
 	public void sign_fail() throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
 		knetCommunicationService.setkNetRequester(null);
-		var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
+		final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
 			knetCommunicationService.sign("test", "RSA", data);
@@ -106,7 +106,7 @@ public class TestKNetCommunicationService {
 	@Test
 	public void deleteKeyPair_success() throws KNetException, KNetCommunicationServiceException {
 		createKnetConfiguration();
-		var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
 		assertDoesNotThrow(() -> {
 			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
@@ -117,7 +117,7 @@ public class TestKNetCommunicationService {
 	@Test
 	public void deleteKeyPair_fail() throws KNetException, KNetCommunicationServiceException {
 		createKnetConfiguration();
-		var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 		knetCommunicationService.setkNetRequester(null);
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
@@ -133,9 +133,9 @@ public class TestKNetCommunicationService {
 	@Test
 	public void getPublicKey_success() throws KNetException, KNetCommunicationServiceException {
 		createKnetConfiguration();
-		var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-		var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA");
+		final var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA");
 
 		assertNotNull(publicKey);
 
@@ -156,7 +156,7 @@ public class TestKNetCommunicationService {
 	public void isKnetConfigurationLoaded_true() throws KNetException, KNetCommunicationServiceException {
 		createKnetConfiguration();
 
-		var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+		final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
 
 		assertTrue(isLoaded);
 	}
@@ -165,7 +165,7 @@ public class TestKNetCommunicationService {
 	public void isKnetConfigurationLoaded_false() throws KNetException, KNetCommunicationServiceException {
 		knetCommunicationService.setkNetRequester(null);
 
-		var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+		final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
 
 		assertFalse(isLoaded);
 
@@ -174,8 +174,8 @@ public class TestKNetCommunicationService {
 	@Test
 	public void loadKnetConfiguration_success()
 			throws KNetException, KNetCommunicationServiceException, SystemServiceException {
-		var accessKey = parameterEncryptor.encryptKey("test");
-		var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+		final var accessKey = parameterEncryptor.encryptKey("test");
+		final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
 
 		assertDoesNotThrow(() -> {
 			knetCommunicationService.loadKnetConfiguration(accessKey);
@@ -187,7 +187,7 @@ public class TestKNetCommunicationService {
 
 	@Test
 	public void loadKnetConfiguration_fail_noConfiguration() throws KNetException {
-		var accessKey = parameterEncryptor.encryptKey("test");
+		final var accessKey = parameterEncryptor.encryptKey("test");
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
 			knetCommunicationService.loadKnetConfiguration(accessKey);

@@ -29,16 +29,16 @@ public class SystemConfigurationController {
 	@PostMapping("admin-user")
 	public ResponseEntity<Object> createSystemAdmin(@RequestBody RegisterUserRequest registerUserRequest) {
 		try {
-			var username = registerUserRequest.getUsername();
-			var password = registerUserRequest.getPassword();
-			var createdUser = systemConfigurationService.createAdministratorUser(username, password);
-			var userResponseBody = new UserResponse();
+			final var username = registerUserRequest.getUsername();
+			final var password = registerUserRequest.getPassword();
+			final var createdUser = systemConfigurationService.createAdministratorUser(username, password);
+			final var userResponseBody = new UserResponse();
 			userResponseBody.setUsername(createdUser.getUsername());
 			userResponseBody.setAuthority(createdUser.getAuthority().name());
-			var createdUserId = createdUser.getId();
-			var pathToCreatedUser = String.format("/user/%d", createdUserId);
-			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
-			var uri = URI.create(uriString);
+			final var createdUserId = createdUser.getId();
+			final var pathToCreatedUser = String.format("/user/%d", createdUserId);
+			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
+			final var uri = URI.create(uriString);
 			return ResponseEntity.created(uri).body(userResponseBody);
 		} catch (SystemServiceException e) {
 			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
@@ -50,11 +50,11 @@ public class SystemConfigurationController {
 	@PutMapping("knet-config")
 	public ResponseEntity<Object> setKnetConfiguration(@RequestBody KNetConfigurationRequest request) {
 		try {
-			var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			final var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			systemConfigurationService.setKnetConfiguration(request.getParameters(), encryptedAccessKey);
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e) {
-			var errorResponse = new ErrorMessageResponse(e.getMessage());
+			final var errorResponse = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(errorResponse);
 		} catch (Throwable e) {
 			return ResponseEntity.internalServerError().build();
@@ -64,11 +64,11 @@ public class SystemConfigurationController {
 	@PostMapping("knet-config/load")
 	public ResponseEntity<Object> loadKnetConfiguration() {
 		try {
-			var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+			final var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			systemConfigurationService.loadKnetConfiguration(encryptedAccessKey);
 			return ResponseEntity.ok().build();
 		} catch (SystemServiceException e ) {
-			var errorResponse = new ErrorMessageResponse(e.getMessage());
+			final var errorResponse = new ErrorMessageResponse(e.getMessage());
 			return ResponseEntity.badRequest().body(errorResponse);
 		} catch (Throwable e) {
 			return ResponseEntity.internalServerError().build();

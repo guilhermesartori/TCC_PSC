@@ -38,8 +38,8 @@ public class JWTManager {
 		}
 
 		public Collection<SimpleGrantedAuthority> getAuthorities() {
-			var roles = decodedJWT.getClaim(ROLES_CLAIM).asArray(String.class);
-			var authorities = new ArrayList<SimpleGrantedAuthority>();
+			final var roles = decodedJWT.getClaim(ROLES_CLAIM).asArray(String.class);
+			final var authorities = new ArrayList<SimpleGrantedAuthority>();
 			Arrays.stream(roles).forEach(role -> {
 				authorities.add(new SimpleGrantedAuthority(role));
 			});
@@ -53,17 +53,17 @@ public class JWTManager {
 	}
 
 	public String createAccessToken(String username, String password, String issuer, List<String> roles) {
-		var currTime = System.currentTimeMillis();
-		var encodedAccessKey = parameterEncryptor.encryptKey(username + password + currTime);
-		var accessToken = JWT.create().withSubject(username)
+		final var currTime = System.currentTimeMillis();
+		final var encodedAccessKey = parameterEncryptor.encryptKey(username + password + currTime);
+		final var accessToken = JWT.create().withSubject(username)
 				.withExpiresAt(new Date(currTime + ACCESS_TOKEN_VALIDITY_MS)).withIssuer(issuer)
 				.withClaim(ROLES_CLAIM, roles).withClaim(ACCESS_KEY_CLAIM, encodedAccessKey).sign(ALGORITHM);
 		return accessToken;
 	}
 
 	public DecodedJWTManager decode(String token) {
-		var jwtVerifier = JWT.require(ALGORITHM).build();
-		var decodedJWT = jwtVerifier.verify(token);
+		final var jwtVerifier = JWT.require(ALGORITHM).build();
+		final var decodedJWT = jwtVerifier.verify(token);
 		return new DecodedJWTManager(decodedJWT);
 	}
 }

@@ -26,7 +26,7 @@ public class TestAppUserService {
 
 	@Test
 	public void loadUserByUsername_fail() {
-		var thrownException = assertThrows(UsernameNotFoundException.class, () -> {
+		final var thrownException = assertThrows(UsernameNotFoundException.class, () -> {
 			appUserService.loadUserByUsername(USER_USERNAME);
 		});
 
@@ -38,7 +38,7 @@ public class TestAppUserService {
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
 
 		try {
-			var userDetails = appUserService.loadUserByUsername(USER_USERNAME);
+			final var userDetails = appUserService.loadUserByUsername(USER_USERNAME);
 
 			assertEquals(USER_USERNAME, userDetails.getUsername());
 			assertNotNull(userDetails.getUsername());

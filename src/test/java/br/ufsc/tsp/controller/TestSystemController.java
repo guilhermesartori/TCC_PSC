@@ -85,20 +85,20 @@ public class TestSystemController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void createSystemAdmin_success() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		var content = objectMapper.writeValueAsString(user);
-		var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+		final var objectMapper = new ObjectMapper();
+		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+		final var content = objectMapper.writeValueAsString(user);
+		final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
 		savedUser.setId(1L);
 		when(systemConfigurationService.createAdministratorUser(any(), any())).thenReturn(savedUser);
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(post("/system/admin-user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
 		assertEquals(response.getStatus(), HttpStatus.CREATED.value());
 		assertNotNull(response.getHeader("Location"));
 		assertEquals(savedUser.getUsername(), responseBody.getUsername());
@@ -108,19 +108,19 @@ public class TestSystemController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void createSystemAdmin_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		var content = objectMapper.writeValueAsString(user);
-		var exception = new SystemServiceException();
+		final var objectMapper = new ObjectMapper();
+		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+		final var content = objectMapper.writeValueAsString(user);
+		final var exception = new SystemServiceException();
 		when(systemConfigurationService.createAdministratorUser(any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(post("/system/admin-user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(response.getStatus(), HttpStatus.BAD_REQUEST.value());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -128,68 +128,68 @@ public class TestSystemController {
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void createSystemAdmin_fail_500() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		var content = objectMapper.writeValueAsString(user);
-		var exception = new RuntimeException();
+		final var objectMapper = new ObjectMapper();
+		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+		final var content = objectMapper.writeValueAsString(user);
+		final var exception = new RuntimeException();
 		when(systemConfigurationService.createAdministratorUser(any(), any())).thenThrow(exception);
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(post("/system/admin-user").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void setKnetConfiguration_success() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
-		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
+		final var objectMapper = new ObjectMapper();
+		final var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
+		final var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
 		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.OK.value());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = {})
 	@Test
 	public void setKnetConfiguration_fail_403() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
-		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
+		final var objectMapper = new ObjectMapper();
+		final var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
+		final var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
 		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.FORBIDDEN.value());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void setKnetConfiguration_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
-		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
-		var exception = new SystemServiceException();
+		final var objectMapper = new ObjectMapper();
+		final var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
+		final var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
+		final var exception = new SystemServiceException();
 		doThrow(exception).when(systemConfigurationService).setKnetConfiguration(any(), any());
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(response.getStatus(), HttpStatus.BAD_REQUEST.value());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -197,17 +197,17 @@ public class TestSystemController {
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void setKnetConfiguration_fail_500() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
-		var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
-		var exception = new RuntimeException();
+		final var objectMapper = new ObjectMapper();
+		final var kNetConfigurationRequest = new KNetConfigurationRequest(new HashMap<String, String>());
+		final var content = objectMapper.writeValueAsString(kNetConfigurationRequest);
+		final var exception = new RuntimeException();
 		doThrow(exception).when(systemConfigurationService).setKnetConfiguration(any(), any());
 
-		var mvcResult = mockMvc
+		final var mvcResult = mockMvc
 				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
 
@@ -216,9 +216,9 @@ public class TestSystemController {
 	public void loadKnetConfiguration_success() throws Exception {
 		doNothing().when(systemConfigurationService).loadKnetConfiguration(any());
 
-		var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.OK.value());
 	}
 
@@ -227,24 +227,24 @@ public class TestSystemController {
 	public void loadKnetConfiguration_fail_403() throws Exception {
 		doNothing().when(systemConfigurationService).loadKnetConfiguration(any());
 
-		var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.FORBIDDEN.value());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void loadKnetConfiguration_fail_400() throws Exception {
-		var objectMapper = new ObjectMapper();
-		var exception = new SystemServiceException();
+		final var objectMapper = new ObjectMapper();
+		final var exception = new SystemServiceException();
 		doThrow(exception).when(systemConfigurationService).loadKnetConfiguration(any());
 
-		var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
 
-		var response = mvcResult.getResponse();
-		var responseBodyAsString = response.getContentAsString();
-		var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 		assertEquals(response.getStatus(), HttpStatus.BAD_REQUEST.value());
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
@@ -252,12 +252,12 @@ public class TestSystemController {
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void loadKnetConfiguration_fail_500() throws Exception {
-		var exception = new RuntimeException();
+		final var exception = new RuntimeException();
 		doThrow(exception).when(systemConfigurationService).loadKnetConfiguration(any());
 
-		var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
 
@@ -266,9 +266,9 @@ public class TestSystemController {
 	public void refreshSystemKey_success() throws Exception {
 		doNothing().when(systemConfigurationService).refreshSystemKey();
 
-		var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.OK.value());
 	}
 
@@ -277,21 +277,21 @@ public class TestSystemController {
 	public void refreshSystemKey_fail_403() throws Exception {
 		doNothing().when(systemConfigurationService).refreshSystemKey();
 
-		var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.FORBIDDEN.value());
 	}
 
 	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
 	@Test
 	public void refreshSystemKey_fail_500() throws Exception {
-		var exception = new RuntimeException();
+		final var exception = new RuntimeException();
 		doThrow(exception).when(systemConfigurationService).refreshSystemKey();
 
-		var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/refresh-key")).andReturn();
 
-		var response = mvcResult.getResponse();
+		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
 

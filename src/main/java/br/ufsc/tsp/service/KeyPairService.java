@@ -64,16 +64,16 @@ public class KeyPairService {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 
-			var identifiers = keyManager.createKeyPair(keyAlgorithm, keyParameter, keyName);
+			final var identifiers = keyManager.createKeyPair(keyAlgorithm, keyParameter, keyName);
 
-			var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
-			var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
-			var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
-			var keyOwner = appUserRepository.findAppUserByUsername(username).get();
+			final var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
+			final var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
+			final var uniqueIdentifier = generateUniqueIdentifier(privateKeyIdentifier, publicKeyIdentifier);
+			final var keyOwner = appUserRepository.findAppUserByUsername(username).get();
 
-			var encryptedPrivateKeyIdentifier = parameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
+			final var encryptedPrivateKeyIdentifier = parameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
-			var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
+			final var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
 					uniqueIdentifier, keyName, keyOwner);
 
 			return keyPairRepository.save(keyPairEntity);
@@ -84,13 +84,13 @@ public class KeyPairService {
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
 			throws KNetException, KeyPairServiceException, KNetCommunicationServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
 				uniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		else {
-			var keyPair = optionalKeyPair.get();
-			var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
+			final var keyPair = optionalKeyPair.get();
+			final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
 			keyManager.deleteKeyPair(privateKeyIdentifier, keyPair.getPublicKey());
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
 		}
@@ -99,45 +99,45 @@ public class KeyPairService {
 	public String sign(String username, String accessKey, String base64EncodedData, String keyUniqueIdentifier,
 			String hashingAlgorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
 			KNetException, KeyPairServiceException, KNetCommunicationServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
 				keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 
-		var base64Decoder = Base64.getDecoder();
-		var data = base64Decoder.decode(base64EncodedData);
+		final var base64Decoder = Base64.getDecoder();
+		final var data = base64Decoder.decode(base64EncodedData);
 
-		var hashedData = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider()).digest(data);
+		final var hashedData = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider()).digest(data);
 
-		var keyPair = optionalKeyPair.get();
-		var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
-		var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), hashedData);
-		var base64Encoder = Base64.getEncoder();
-		var base64Signature = base64Encoder.encodeToString(signature);
+		final var keyPair = optionalKeyPair.get();
+		final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
+		final var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), hashedData);
+		final var base64Encoder = Base64.getEncoder();
+		final var base64Signature = base64Encoder.encodeToString(signature);
 
 		return base64Signature;
 	}
 
 	private String generateUniqueIdentifier(String privateKeyIdentifier, String publicKeyIdentifier)
 			throws NoSuchAlgorithmException {
-		var base64Encoder = Base64.getEncoder();
+		final var base64Encoder = Base64.getEncoder();
 
-		var encodedPrivateKey = privateKeyIdentifier.getBytes();
-		var encodedPublicKey = publicKeyIdentifier.getBytes();
+		final var encodedPrivateKey = privateKeyIdentifier.getBytes();
+		final var encodedPublicKey = publicKeyIdentifier.getBytes();
 
-		var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
-		var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
+		final var base64EncodedPrivateKey = base64Encoder.encodeToString(encodedPrivateKey);
+		final var base64EncodedPublicKey = base64Encoder.encodeToString(encodedPublicKey);
 
-		var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
-		var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
-		var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
-		var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
+		final var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
+		final var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
+		final var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
+		final var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
 
 		return uniqueIdentifier;
 	}
 
 	public KeyPair getKeyPair(String username, String keyUniqueIdentifier) throws KeyPairServiceException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
+		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
 				keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -147,19 +147,19 @@ public class KeyPairService {
 	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature,
 			String signatureAlgorithm) throws KeyPairServiceException, KNetException, KNetCommunicationServiceException,
 			InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-		var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
+		final var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 
-		var keyPair = optionalKeyPair.get();
-		var algorithm = keyPair.getKeyAlgorithm();
-		var publicKeyIdentifier = keyPair.getPublicKey();
-		var publicKey = keyManager.getPublicKey(publicKeyIdentifier, algorithm);
+		final var keyPair = optionalKeyPair.get();
+		final var algorithm = keyPair.getKeyAlgorithm();
+		final var publicKeyIdentifier = keyPair.getPublicKey();
+		final var publicKey = keyManager.getPublicKey(publicKeyIdentifier, algorithm);
 
-		var data = Base64.getDecoder().decode(base64EncodedData);
-		var signature = Base64.getDecoder().decode(base64EncodedSignature);
+		final var data = Base64.getDecoder().decode(base64EncodedData);
+		final var signature = Base64.getDecoder().decode(base64EncodedSignature);
 
-		var signatureVerifier = Signature.getInstance(signatureAlgorithm, new BouncyCastleProvider());
+		final var signatureVerifier = Signature.getInstance(signatureAlgorithm, new BouncyCastleProvider());
 		signatureVerifier.initVerify(publicKey);
 		signatureVerifier.update(data);
 		return signatureVerifier.verify(signature);
@@ -167,9 +167,9 @@ public class KeyPairService {
 
 	public String getPublicKey(String keyIdentifier, String keyAlgorithm) throws KeyPairServiceException {
 		try {
-			var publicKey = keyManager.getPublicKey(keyIdentifier, keyAlgorithm);
-			var encodedPublicKey = publicKey.getEncoded();
-			var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
+			final var publicKey = keyManager.getPublicKey(keyIdentifier, keyAlgorithm);
+			final var encodedPublicKey = publicKey.getEncoded();
+			final var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
 			return base64Encoding;
 		} catch (KNetException | KNetCommunicationServiceException e) {
 			throw new KeyPairServiceException();

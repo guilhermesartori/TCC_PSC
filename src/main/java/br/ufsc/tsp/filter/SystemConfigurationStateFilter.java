@@ -39,7 +39,7 @@ public class SystemConfigurationStateFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		else {
 			response.setStatus(Status.BAD_REQUEST.getStatusCode());
-			var responseBody = new ErrorMessageResponse();
+			final var responseBody = new ErrorMessageResponse();
 			responseBody.setError(ERROR_MESSAGE);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			new ObjectMapper().writeValue(response.getOutputStream(), responseBody);

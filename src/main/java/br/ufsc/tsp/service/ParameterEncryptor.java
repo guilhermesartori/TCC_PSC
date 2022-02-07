@@ -39,10 +39,10 @@ public class ParameterEncryptor {
 
 	public String encrypt(String dataToEncrypt, String encryptedAccessKey) {
 		try {
-			var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
+			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
 			cipher.init(Cipher.ENCRYPT_MODE, accessKeySpec);
-			var encryptedData = cipher.doFinal(dataToEncrypt.getBytes());
-			var base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
+			final var encryptedData = cipher.doFinal(dataToEncrypt.getBytes());
+			final var base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
 			return base64EncodedEncryptedData;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
@@ -51,11 +51,11 @@ public class ParameterEncryptor {
 
 	public String decrypt(String base64EncodedEncryptedData, String encryptedAccessKey) {
 		try {
-			var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
+			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
 			cipher.init(Cipher.DECRYPT_MODE, accessKeySpec);
-			var encryptedData = Base64.getDecoder().decode(base64EncodedEncryptedData);
-			var decryptedDataBytes = cipher.doFinal(encryptedData);
-			var decryptedString = new String(decryptedDataBytes);
+			final var encryptedData = Base64.getDecoder().decode(base64EncodedEncryptedData);
+			final var decryptedDataBytes = cipher.doFinal(encryptedData);
+			final var decryptedString = new String(decryptedDataBytes);
 			return decryptedString;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
@@ -63,14 +63,14 @@ public class ParameterEncryptor {
 	}
 
 	private SecretKeySpec encryptedAccessKeyToSecretKeySpec(String encryptedAccessKey) {
-		var accessKey = decryptKey(encryptedAccessKey);
-		var adjustedAccessKey = adjustKeySize(accessKey);
-		var accessKeySpec = new SecretKeySpec(adjustedAccessKey, ACCESS_KEY_ALGORITHM);
+		final var accessKey = decryptKey(encryptedAccessKey);
+		final var adjustedAccessKey = adjustKeySize(accessKey);
+		final var accessKeySpec = new SecretKeySpec(adjustedAccessKey, ACCESS_KEY_ALGORITHM);
 		return accessKeySpec;
 	}
 
 	private byte[] adjustKeySize(String decryptedKey) {
-		var bytes = decryptedKey.getBytes();
+		final var bytes = decryptedKey.getBytes();
 		byte[] newKey;
 		if (bytes.length < 16)
 			newKey = new byte[16];
@@ -86,8 +86,8 @@ public class ParameterEncryptor {
 	public String encryptKey(String key) {
 		try {
 			cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
-			var encryptedBytes = cipher.doFinal(key.getBytes());
-			var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
+			final var encryptedBytes = cipher.doFinal(key.getBytes());
+			final var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
 			return base64Encryption;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
@@ -97,9 +97,9 @@ public class ParameterEncryptor {
 	private String decryptKey(String encryptedKey) {
 		try {
 			cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
-			var encryptedBytes = Base64.getDecoder().decode(encryptedKey);
-			var decryptedBytes = cipher.doFinal(encryptedBytes);
-			var decryptedKey = new String(decryptedBytes);
+			final var encryptedBytes = Base64.getDecoder().decode(encryptedKey);
+			final var decryptedBytes = cipher.doFinal(encryptedBytes);
+			final var decryptedKey = new String(decryptedBytes);
 			return decryptedKey;
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new RuntimeException(e);
@@ -107,18 +107,18 @@ public class ParameterEncryptor {
 	}
 
 	public Map<String, String> decryptKnetParameters(Map<String, String> encryptedParameters, String accessKey) {
-		var decryptedParameters = new HashMap<String, String>();
-		for (var entry : encryptedParameters.entrySet()) {
-			var decryptedPramater = decrypt(entry.getValue(), accessKey);
+		final var decryptedParameters = new HashMap<String, String>();
+		for (final var entry : encryptedParameters.entrySet()) {
+			final var decryptedPramater = decrypt(entry.getValue(), accessKey);
 			decryptedParameters.put(entry.getKey(), decryptedPramater);
 		}
 		return decryptedParameters;
 	}
 
 	public Map<String, String> encryptKnetParameters(Map<String, String> parameters, String accessKey) {
-		var encryptedParameters = new HashMap<String, String>();
-		for (var entry : parameters.entrySet()) {
-			var encryptedPramater = encrypt(entry.getValue(), accessKey);
+		final var encryptedParameters = new HashMap<String, String>();
+		for (final var entry : parameters.entrySet()) {
+			final var encryptedPramater = encrypt(entry.getValue(), accessKey);
 			encryptedParameters.put(entry.getKey(), encryptedPramater);
 		}
 		return encryptedParameters;

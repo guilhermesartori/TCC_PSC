@@ -40,17 +40,17 @@ public class AppUserController {
 
 	@PostMapping
 	public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
-		var username = registerUserRequest.getUsername();
-		var password = registerUserRequest.getPassword();
+		final var username = registerUserRequest.getUsername();
+		final var password = registerUserRequest.getPassword();
 		try {
-			var createdUser = appUserService.registerNewUser(username, password);
-			var userResponseBody = new UserResponse();
+			final var createdUser = appUserService.registerNewUser(username, password);
+			final var userResponseBody = new UserResponse();
 			userResponseBody.setUsername(createdUser.getUsername());
 			userResponseBody.setAuthority(createdUser.getAuthority().name());
-			var createdUserId = createdUser.getId();
-			var pathToCreatedUser = String.format("/user/%d", createdUserId);
-			var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
-			var uri = URI.create(uriString);
+			final var createdUserId = createdUser.getId();
+			final var pathToCreatedUser = String.format("/user/%d", createdUserId);
+			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
+			final var uri = URI.create(uriString);
 			return ResponseEntity.created(uri).body(userResponseBody);
 		} catch (AppUserServiceException e) {
 			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
@@ -62,8 +62,8 @@ public class AppUserController {
 	@GetMapping(path = "{username}")
 	public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
 		try {
-			var user = appUserService.getUser(username);
-			var userResponseBody = new UserResponse();
+			final var user = appUserService.getUser(username);
+			final var userResponseBody = new UserResponse();
 			userResponseBody.setUsername(user.getUsername());
 			userResponseBody.setAuthority(user.getAuthority().name());
 			return ResponseEntity.ok().body(userResponseBody);

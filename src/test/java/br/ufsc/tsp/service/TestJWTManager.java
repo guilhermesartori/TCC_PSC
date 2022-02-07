@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -38,7 +39,7 @@ public class TestJWTManager {
 	}
 
 	@Test
-	public void test_createAccessToken() {
+	public void createAccessToken() {
 		final var verifier = JWT.require(Algorithm.HMAC256(SystemKey.getKey())).build();
 
 		final var token = jwtManager.createAccessToken(USERNAME, PASSWORD, ISSUER, ROLES);
@@ -73,13 +74,15 @@ public class TestJWTManager {
 	}
 
 	@Test
-	public void test_decode() {
+	public void decode() {
 		final var token = jwtManager.createAccessToken(USERNAME, PASSWORD, ISSUER, ROLES);
 
-		assertDoesNotThrow(() -> {
-			jwtManager.decode(token);
-		});
+		final var decodedJwtManager = jwtManager.decode(token);
 
+		assertEquals(USERNAME, decodedJwtManager.getUsername());
+		assertNotNull(decodedJwtManager.getAccessKey());
+		for (final var role : ROLES)
+			assertTrue(decodedJwtManager.getAuthorities().contains(new SimpleGrantedAuthority(role)));
 	}
 
 }
