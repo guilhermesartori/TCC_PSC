@@ -181,7 +181,6 @@ public class TestKeyPairController {
 		assertEquals(responseBody.getError(), exception.getMessage());
 	}
 
-	// fix check things better
 	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
 	@Test
 	public void sign_success() throws Exception {
