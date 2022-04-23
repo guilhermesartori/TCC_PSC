@@ -1,5 +1,6 @@
 package br.ufsc.tsp.service;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -11,7 +12,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -23,15 +24,13 @@ public class ParameterEncryptor {
 
 	private static final Provider PROVIDER = new BouncyCastleProvider();
 	private static final String ACCESS_KEY_ALGORITHM = "AES";
-	private static final String CIPHER_TRANSFORMATION = "AES/ECB/PKCS5Padding";
+	private static final String CIPHER_TRANSFORMATION = "AES/CFB/PKCS5Padding";
 
 	private final Cipher cipher;
-	private SecretKey secretKey;
 
 	public ParameterEncryptor() {
 		try {
 			this.cipher = Cipher.getInstance(CIPHER_TRANSFORMATION, PROVIDER);
-			secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			throw new RuntimeException(e);
 		}
@@ -40,11 +39,13 @@ public class ParameterEncryptor {
 	public String encrypt(String dataToEncrypt, String encryptedAccessKey) {
 		try {
 			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
-			cipher.init(Cipher.ENCRYPT_MODE, accessKeySpec);
+			final var iv = new IvParameterSpec(SystemKey.getIv());
+			cipher.init(Cipher.ENCRYPT_MODE, accessKeySpec, iv);
 			final var encryptedData = cipher.doFinal(dataToEncrypt.getBytes());
 			final var base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
 			return base64EncodedEncryptedData;
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException
+				| InvalidAlgorithmParameterException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -52,12 +53,14 @@ public class ParameterEncryptor {
 	public String decrypt(String base64EncodedEncryptedData, String encryptedAccessKey) {
 		try {
 			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
-			cipher.init(Cipher.DECRYPT_MODE, accessKeySpec);
+			final var iv = new IvParameterSpec(SystemKey.getIv());
+			cipher.init(Cipher.DECRYPT_MODE, accessKeySpec, iv);
 			final var encryptedData = Base64.getDecoder().decode(base64EncodedEncryptedData);
 			final var decryptedDataBytes = cipher.doFinal(encryptedData);
 			final var decryptedString = new String(decryptedDataBytes);
 			return decryptedString;
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException
+				| InvalidAlgorithmParameterException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -85,23 +88,29 @@ public class ParameterEncryptor {
 
 	public String encryptKey(String key) {
 		try {
-			cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
+			final var secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
+			final var iv = new IvParameterSpec(SystemKey.getIv());
+			cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
 			final var encryptedBytes = cipher.doFinal(key.getBytes());
 			final var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
 			return base64Encryption;
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException
+				| InvalidAlgorithmParameterException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private String decryptKey(String encryptedKey) {
 		try {
-			cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
+			final var secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
+			final var iv = new IvParameterSpec(SystemKey.getIv());
+			cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
 			final var encryptedBytes = Base64.getDecoder().decode(encryptedKey);
 			final var decryptedBytes = cipher.doFinal(encryptedBytes);
 			final var decryptedKey = new String(decryptedBytes);
 			return decryptedKey;
-		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException
+				| InvalidAlgorithmParameterException e) {
 			throw new RuntimeException(e);
 		}
 	}
