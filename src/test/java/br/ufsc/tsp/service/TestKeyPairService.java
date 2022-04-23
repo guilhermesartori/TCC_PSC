@@ -50,7 +50,7 @@ public class TestKeyPairService {
 	private KeyPairRepository keyPairRepository;
 
 	@Autowired
-	private KNetCommunicationService keyManager;
+	private KNetCommunicationService kNetCommunicationService;
 
 	@Autowired
 	private SystemConfigurationService systemConfigurationService;
@@ -131,7 +131,7 @@ public class TestKeyPairService {
 		final var dataToSign = "test".getBytes();
 		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
-		final var publicKey = keyManager.getPublicKey(keyPair.getPublicKey(), algorithm);
+		final var publicKey = kNetCommunicationService.getPublicKey(keyPair.getPublicKey(), algorithm);
 		final var signature = Signature.getInstance("SHA256WithRSA", new BouncyCastleProvider());
 		signature.initVerify(publicKey);
 		signature.update(dataToSign);

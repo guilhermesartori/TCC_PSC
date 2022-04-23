@@ -30,7 +30,7 @@ public class KeyPairService {
 
 	private final AppUserRepository appUserRepository;
 	private final KeyPairRepository keyPairRepository;
-	private final KNetCommunicationService keyManager;
+	private final KNetCommunicationService kNetCommunicationService;
 	private final MessageDigest digest;
 	private final ParameterEncryptor parameterEncryptor;
 
@@ -41,11 +41,11 @@ public class KeyPairService {
 	 */
 	@Autowired
 	public KeyPairService(KeyPairRepository keyPairRepository, AppUserRepository appUserRepository,
-			KNetCommunicationService keyManager, ParameterEncryptor parameterEncryptor) {
+			KNetCommunicationService kNetCommunicationService, ParameterEncryptor parameterEncryptor) {
 		super();
 		this.keyPairRepository = keyPairRepository;
 		this.appUserRepository = appUserRepository;
-		this.keyManager = keyManager;
+		this.kNetCommunicationService = kNetCommunicationService;
 		this.parameterEncryptor = parameterEncryptor;
 		try {
 			this.digest = MessageDigest.getInstance("SHA-256", new BouncyCastleProvider());
@@ -64,7 +64,7 @@ public class KeyPairService {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 
-			final var identifiers = keyManager.createKeyPair(keyAlgorithm, keyParameter, keyName);
+			final var identifiers = kNetCommunicationService.createKeyPair(keyAlgorithm, keyParameter, keyName);
 
 			final var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
 			final var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
@@ -91,7 +91,7 @@ public class KeyPairService {
 		else {
 			final var keyPair = optionalKeyPair.get();
 			final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), encodingKey);
-			keyManager.deleteKeyPair(privateKeyIdentifier, keyPair.getPublicKey());
+			kNetCommunicationService.deleteKeyPair(privateKeyIdentifier, keyPair.getPublicKey());
 			keyPairRepository.deleteKeyPairByUniqueIdentifier(uniqueIdentifier);
 		}
 	}
@@ -111,7 +111,8 @@ public class KeyPairService {
 
 		final var keyPair = optionalKeyPair.get();
 		final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
-		final var signature = keyManager.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(), hashedData);
+		final var signature = kNetCommunicationService.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(),
+				hashedData);
 		final var base64Encoder = Base64.getEncoder();
 		final var base64Signature = base64Encoder.encodeToString(signature);
 
@@ -154,7 +155,7 @@ public class KeyPairService {
 		final var keyPair = optionalKeyPair.get();
 		final var algorithm = keyPair.getKeyAlgorithm();
 		final var publicKeyIdentifier = keyPair.getPublicKey();
-		final var publicKey = keyManager.getPublicKey(publicKeyIdentifier, algorithm);
+		final var publicKey = kNetCommunicationService.getPublicKey(publicKeyIdentifier, algorithm);
 
 		final var data = Base64.getDecoder().decode(base64EncodedData);
 		final var signature = Base64.getDecoder().decode(base64EncodedSignature);
@@ -167,7 +168,7 @@ public class KeyPairService {
 
 	public String getPublicKey(String keyIdentifier, String keyAlgorithm) throws KeyPairServiceException {
 		try {
-			final var publicKey = keyManager.getPublicKey(keyIdentifier, keyAlgorithm);
+			final var publicKey = kNetCommunicationService.getPublicKey(keyIdentifier, keyAlgorithm);
 			final var encodedPublicKey = publicKey.getEncoded();
 			final var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
 			return base64Encoding;
