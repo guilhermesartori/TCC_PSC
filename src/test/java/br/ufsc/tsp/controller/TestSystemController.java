@@ -151,7 +151,7 @@ public class TestSystemController {
 		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
 		final var mvcResult = mockMvc
-				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
+				.perform(put("/system/hsm-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
 		final var response = mvcResult.getResponse();
@@ -167,7 +167,7 @@ public class TestSystemController {
 		when(systemConfigurationService.setKnetConfiguration(any(), any())).thenReturn(null);
 
 		final var mvcResult = mockMvc
-				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
+				.perform(put("/system/hsm-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
 		final var response = mvcResult.getResponse();
@@ -184,7 +184,7 @@ public class TestSystemController {
 		doThrow(exception).when(systemConfigurationService).setKnetConfiguration(any(), any());
 
 		final var mvcResult = mockMvc
-				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
+				.perform(put("/system/hsm-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
 		final var response = mvcResult.getResponse();
@@ -204,7 +204,7 @@ public class TestSystemController {
 		doThrow(exception).when(systemConfigurationService).setKnetConfiguration(any(), any());
 
 		final var mvcResult = mockMvc
-				.perform(put("/system/knet-config").contentType(MediaType.APPLICATION_JSON).content(content))
+				.perform(put("/system/hsm-config").contentType(MediaType.APPLICATION_JSON).content(content))
 				.andReturn();
 
 		final var response = mvcResult.getResponse();
@@ -216,7 +216,7 @@ public class TestSystemController {
 	public void loadKnetConfiguration_success() throws Exception {
 		doNothing().when(systemConfigurationService).loadKnetConfiguration(any());
 
-		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/hsm-config/load")).andReturn();
 
 		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.OK.value());
@@ -227,7 +227,7 @@ public class TestSystemController {
 	public void loadKnetConfiguration_fail_403() throws Exception {
 		doNothing().when(systemConfigurationService).loadKnetConfiguration(any());
 
-		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/hsm-config/load")).andReturn();
 
 		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.FORBIDDEN.value());
@@ -240,7 +240,7 @@ public class TestSystemController {
 		final var exception = new SystemServiceException();
 		doThrow(exception).when(systemConfigurationService).loadKnetConfiguration(any());
 
-		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/hsm-config/load")).andReturn();
 
 		final var response = mvcResult.getResponse();
 		final var responseBodyAsString = response.getContentAsString();
@@ -255,7 +255,7 @@ public class TestSystemController {
 		final var exception = new RuntimeException();
 		doThrow(exception).when(systemConfigurationService).loadKnetConfiguration(any());
 
-		final var mvcResult = mockMvc.perform(post("/system/knet-config/load")).andReturn();
+		final var mvcResult = mockMvc.perform(post("/system/hsm-config/load")).andReturn();
 
 		final var response = mvcResult.getResponse();
 		assertEquals(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
