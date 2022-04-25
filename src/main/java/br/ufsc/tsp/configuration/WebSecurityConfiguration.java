@@ -64,9 +64,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.USER.toString());
 
 		// /system
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/knet-config/**")
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/hsm-config/**")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.PUT, "/system/knet-config/**")
+		http.authorizeRequests().antMatchers(HttpMethod.PUT, "/system/hsm-config/**")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/refresh-key")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
