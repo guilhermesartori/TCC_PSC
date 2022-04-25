@@ -47,7 +47,7 @@ public class SystemConfigurationController {
 		}
 	}
 
-	@PutMapping("knet-config")
+	@PutMapping("hsm-config")
 	public ResponseEntity<Object> setKnetConfiguration(@RequestBody KNetConfigurationRequest request) {
 		try {
 			final var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -61,7 +61,7 @@ public class SystemConfigurationController {
 		}
 	}
 
-	@PostMapping("knet-config/load")
+	@PostMapping("hsm-config/load")
 	public ResponseEntity<Object> loadKnetConfiguration() {
 		try {
 			final var encryptedAccessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
