@@ -87,7 +87,7 @@ public class KeyPairService {
 	private String generateHsmKeyName(String username, String keyName) {
 		try {
 			final var secureRandom = SecureRandom.getInstanceStrong();
-			final var concatenation = username+keyName+secureRandom.nextLong();
+			final var concatenation = username + keyName + secureRandom.nextLong();
 			final var digestedName = MessageDigest.getInstance("SHA256").digest(concatenation.getBytes());
 			final var base64DigestedName = Base64.getEncoder().encodeToString(digestedName);
 			return base64DigestedName;
@@ -154,6 +154,13 @@ public class KeyPairService {
 	public KeyPair getKeyPair(String username, String keyUniqueIdentifier) throws KeyPairServiceException {
 		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
 				keyUniqueIdentifier);
+		if (optionalKeyPair.isEmpty())
+			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
+		return optionalKeyPair.get();
+	}
+
+	public KeyPair getKeyPairByKeyName(String username, String keyName) throws KeyPairServiceException {
+		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndKeyName(username, keyName);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		return optionalKeyPair.get();

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -40,6 +41,25 @@ public class KeyPairController {
 		this.keyPairService = keyPairService;
 	}
 
+	@GetMapping
+	public ResponseEntity<Object> getKeyByKeyName(@RequestParam("keyName") String keyName) {
+		try {
+			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
+			final var keyPair = keyPairService.getKeyPairByKeyName(username, keyName);
+			final var keyAlgorithm = keyPair.getKeyAlgorithm();
+			final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm);
+			final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
+			return ResponseEntity.ok().body(body);
+		} catch (KeyPairServiceException e) {
+			final var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.badRequest().body(body);
+		} catch (Throwable e) {
+			final var body = new ErrorMessageResponse(e.getMessage());
+			return ResponseEntity.internalServerError().body(body);
+		}
+	}
+	
 	@PostMapping
 	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {

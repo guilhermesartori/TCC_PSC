@@ -19,6 +19,9 @@ public interface KeyPairRepository extends JpaRepository<KeyPair, Long> {
 	@Query("select k from KeyPair k join k.owner u where u.username = :username and k.uniqueIdentifier = :uniqueIdentifier")
 	public Optional<KeyPair> findKeyPairByOwnerUsernameAndUniqueIdentifier(String username, String uniqueIdentifier);
 
+	@Query("select k from KeyPair k join k.owner u where u.username = :username and k.keyName = :keyName")
+	public Optional<KeyPair> findKeyPairByOwnerUsernameAndKeyName(String username, String keyName);
+
 	public void deleteKeyPairByOwnerAndUniqueIdentifier(AppUser owner, String uniqueIdentifier);
 
 	public void deleteKeyPairByUniqueIdentifier(String uniqueIdentifier);
