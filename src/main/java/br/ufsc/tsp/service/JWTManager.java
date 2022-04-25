@@ -21,7 +21,7 @@ public class JWTManager {
 	private ParameterEncryptor parameterEncryptor;
 
 	private static final Algorithm ALGORITHM = Algorithm.HMAC256(SystemKey.getKey());
-	private static final long ACCESS_TOKEN_VALIDITY_MS = 10 * 60 * 1000;
+	private static final long ACCESS_TOKEN_VALIDITY_MS = 8 * 60 * 60 * 1000;
 	private static final String SALT = "PSC";
 	public static final String ROLES_CLAIM = "roles";
 	public static final String ACCESS_KEY_CLAIM = "accessKey";
