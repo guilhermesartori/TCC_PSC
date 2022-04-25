@@ -48,7 +48,8 @@ public class KeyPairController {
 			final var keyPair = keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(),
 					request.getKeyParameter(), request.getKeyName());
 			final var pathToCreatedKey = String.format("/key/%d", keyPair.getUniqueIdentifier());
-			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey).toUriString();
+			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey)
+					.toUriString();
 			final var uri = URI.create(uriString);
 			return ResponseEntity.created(uri).build();
 		} catch (KeyPairServiceException e) {
@@ -60,18 +61,19 @@ public class KeyPairController {
 		}
 	}
 
-	@PostMapping(path = "sign")
-	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request) {
+	@PostMapping(path = "{keyUniqueIdentifier}/sign")
+	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request,
+			@PathParam("keyUniqueIdentifier") String uniqueIdentifier) {
 		try {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			final var signature = keyPairService.sign(username, accessKey, request.getBase64EncodedData(),
-					request.getKeyUniqueIdentifier(), request.getHashingAlgorithm());
+					uniqueIdentifier, request.getHashingAlgorithm());
 
-			final var keyPair = keyPairService.getKeyPair(username, request.getKeyUniqueIdentifier());
+			final var keyPair = keyPairService.getKeyPair(username, uniqueIdentifier);
 			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyPair.getKeyAlgorithm());
 
-			final var body = new SignatureResponse(signature, keyPair.getUniqueIdentifier(), publicKey);
+			final var body = new SignatureResponse(signature, uniqueIdentifier, publicKey);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
 			final var body = new ErrorMessageResponse(e.getMessage());
@@ -121,8 +123,9 @@ public class KeyPairController {
 	public ResponseEntity<Object> verify(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier,
 			@RequestBody SignatureVerificationRequest request) {
 		try {
-			final var validSignature = keyPairService.verifySignature(keyUniqueIdentifier, request.getBase64EncodedData(),
-					request.getBase64EncodedSignature(), request.getSignatureAlgorithm());
+			final var validSignature = keyPairService.verifySignature(keyUniqueIdentifier,
+					request.getBase64EncodedData(), request.getBase64EncodedSignature(),
+					request.getSignatureAlgorithm());
 			final var body = new SignatureVerificationResponse(validSignature);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {

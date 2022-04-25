@@ -59,9 +59,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		// /key
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.USER.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/**/sign").hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key/**").hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/key/**").hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/sign").hasAnyAuthority(Authority.USER.toString());
 
 		// /system
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/hsm-config/**")

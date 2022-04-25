@@ -185,7 +185,7 @@ public class TestKeyPairController {
 	@Test
 	public void sign_success() throws Exception {
 		final var objectMapper = new ObjectMapper();
-		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var requestBody = new SignatureRequest("SHA512", "test");
 		final var content = objectMapper.writeValueAsString(requestBody);
 		final var signature = new String("test");
 		final var keyPair = new KeyPair(null, null, null, "test", null, null);
@@ -193,8 +193,8 @@ public class TestKeyPairController {
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
 		when(keyPairService.getPublicKey(any(), any())).thenReturn("test");
 
-		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+		final var mvcResult = mockMvc
+				.perform(post("/key/test/sign").contentType(MediaType.APPLICATION_JSON).content(content)).andReturn();
 
 		final var response = mvcResult.getResponse();
 		final var responseBodyAsString = response.getContentAsString();
@@ -207,13 +207,13 @@ public class TestKeyPairController {
 	@Test
 	public void sign_fail_403() throws Exception {
 		final var objectMapper = new ObjectMapper();
-		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var requestBody = new SignatureRequest("SHA512", "test");
 		final var content = objectMapper.writeValueAsString(requestBody);
 		final var signature = "test";
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenReturn(signature);
 
-		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+		final var mvcResult = mockMvc
+				.perform(post("/key/test/sign").contentType(MediaType.APPLICATION_JSON).content(content)).andReturn();
 
 		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
@@ -223,13 +223,13 @@ public class TestKeyPairController {
 	@Test
 	public void sign_fail_400() throws Exception {
 		final var objectMapper = new ObjectMapper();
-		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var requestBody = new SignatureRequest("SHA512", "test");
 		final var content = objectMapper.writeValueAsString(requestBody);
 		final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+		final var mvcResult = mockMvc
+				.perform(post("/key/test/sign").contentType(MediaType.APPLICATION_JSON).content(content)).andReturn();
 
 		final var response = mvcResult.getResponse();
 		final var responseBodyAsString = response.getContentAsString();
@@ -242,13 +242,13 @@ public class TestKeyPairController {
 	@Test
 	public void sign_fail_500() throws Exception {
 		final var objectMapper = new ObjectMapper();
-		final var requestBody = new SignatureRequest("test", "SHA512", "test");
+		final var requestBody = new SignatureRequest("SHA512", "test");
 		final var content = objectMapper.writeValueAsString(requestBody);
 		final var exception = new RuntimeException("test");
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenThrow(exception);
 
-		final var mvcResult = mockMvc.perform(post("/key/sign").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+		final var mvcResult = mockMvc
+				.perform(post("/key/test/sign").contentType(MediaType.APPLICATION_JSON).content(content)).andReturn();
 
 		final var response = mvcResult.getResponse();
 		final var responseBodyAsString = response.getContentAsString();
