@@ -62,7 +62,7 @@ public class KeyPairService {
 	public KeyPair createKeyPair(String username, String accessKey, String keyAlgorithm, String keyParameter,
 			String keyName) throws KeyPairServiceException, KNetCommunicationServiceException {
 		try {
-			if (keyPairRepository.existsKeyPairByKeyName(keyName))
+			if (keyPairRepository.findKeyPairByOwnerUsernameAndKeyName(username, keyName).isPresent())
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 
 			final var hsmKeyName = generateHsmKeyName(username, keyName);

@@ -3,6 +3,7 @@ package br.ufsc.tsp.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -323,6 +324,77 @@ public class TestKeyPairController {
 		when(keyPairService.getPublicKey(any(), any())).thenThrow(exception);
 
 		final var mvcResult = mockMvc.perform(get("/key/uniqueIdentifier")).andReturn();
+
+		final var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
+	@Test
+	public void getKeyByKeyName_success() throws Exception {
+		final var keyAlgorithm = "keyAlgorithm";
+		final var uniqueIdentifier = "uniqueIdentifier";
+		final var publicKey = "publicKey";
+		final var objectMapper = new ObjectMapper();
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
+				null);
+		when(keyPairService.getKeyPairByKeyName(anyString(), anyString())).thenReturn(keyPair);
+		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+
+		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
+
+		final var response = mvcResult.getResponse();
+		final var responseBodyAsString = response.getContentAsString();
+		final var responseBody = objectMapper.readValue(responseBodyAsString, KeyResponse.class);
+		assertEquals(HttpStatus.OK.value(), response.getStatus());
+		assertEquals(keyAlgorithm, responseBody.getKeyAlgorithm());
+		assertEquals(uniqueIdentifier, responseBody.getKeyPairUniqueIdentifier());
+		assertEquals(publicKey, responseBody.getPublicKey());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = {})
+	@Test
+	public void getKeyByKeyName_fail_403() throws Exception {
+		final var keyAlgorithm = "keyAlgorithm";
+		final var uniqueIdentifier = "uniqueIdentifier";
+		final var publicKey = "publicKey";
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
+				null);
+		when(keyPairService.getKeyPairByKeyName(anyString(), anyString())).thenReturn(keyPair);
+		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+
+		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
+
+		final var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
+	@Test
+	public void getKeyByKeyName_fail_400() throws Exception {
+		final var publicKey = "publicKey";
+		final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
+		when(keyPairService.getKeyPairByKeyName(any(), any())).thenThrow(exception);
+		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+
+		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
+
+		final var response = mvcResult.getResponse();
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+	}
+
+	@WithMockUser(username = "test", password = "test", authorities = { "USER" })
+	@Test
+	public void getKeyByKeyName_fail_500() throws Exception {
+		final var keyAlgorithm = "keyAlgorithm";
+		final var uniqueIdentifier = "uniqueIdentifier";
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
+				null);
+		final var exception = new RuntimeException();
+		when(keyPairService.getKeyPairByKeyName(any(), any())).thenReturn(keyPair);
+		when(keyPairService.getPublicKey(any(), any())).thenThrow(exception);
+
+		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
 
 		final var response = mvcResult.getResponse();
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());

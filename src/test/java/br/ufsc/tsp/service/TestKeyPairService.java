@@ -198,7 +198,27 @@ public class TestKeyPairService {
 		assertThrows(KeyPairServiceException.class, () -> {
 			keyPairService.getKeyPair(USER_USERNAME, "test");
 		});
+	}
 
+	@Test
+	public void getKeyPairByKeyName() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		final var algorithm = "RSA";
+		final var parameter = "2048";
+		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+
+		final var gotKeyPair = keyPairService.getKeyPairByKeyName(USER_USERNAME, keyPair.getKeyName());
+
+		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+
+		assertEquals(keyPair.getId(), gotKeyPair.getId());
+	}
+
+	@Test
+	public void getKeyPairByKeyName_keyDoesntExist()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+		assertThrows(KeyPairServiceException.class, () -> {
+			keyPairService.getKeyPairByKeyName(USER_USERNAME, "test");
+		});
 	}
 
 	@Test

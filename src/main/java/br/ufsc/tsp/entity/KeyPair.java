@@ -34,7 +34,7 @@ public class KeyPair {
 	private String keyAlgorithm;
 	@Column(nullable = false, unique = true)
 	private String uniqueIdentifier;
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String keyName;
 	@PrimaryKeyJoinColumn
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
