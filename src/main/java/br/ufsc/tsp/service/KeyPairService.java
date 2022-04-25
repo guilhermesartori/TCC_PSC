@@ -3,6 +3,7 @@ package br.ufsc.tsp.service;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -64,7 +65,8 @@ public class KeyPairService {
 			if (keyPairRepository.existsKeyPairByKeyName(keyName))
 				throw new KeyPairServiceException(ExceptionType.KEY_NAME_IN_USE);
 
-			final var identifiers = kNetCommunicationService.createKeyPair(keyAlgorithm, keyParameter, keyName);
+			final var hsmKeyName = generateHsmKeyName(username, keyName);
+			final var identifiers = kNetCommunicationService.createKeyPair(keyAlgorithm, keyParameter, hsmKeyName);
 
 			final var privateKeyIdentifier = identifiers.getPrivateKeyIdentifier();
 			final var publicKeyIdentifier = identifiers.getPublicKeyIdentifier();
@@ -79,6 +81,18 @@ public class KeyPairService {
 			return keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException | IllegalArgumentException e) {
 			throw new KeyPairServiceException();
+		}
+	}
+
+	private String generateHsmKeyName(String username, String keyName) {
+		try {
+			final var secureRandom = SecureRandom.getInstanceStrong();
+			final var concatenation = username+keyName+secureRandom.nextLong();
+			final var digestedName = MessageDigest.getInstance("SHA256").digest(concatenation.getBytes());
+			final var base64DigestedName = Base64.getEncoder().encodeToString(digestedName);
+			return base64DigestedName;
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
