@@ -26,13 +26,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
-import br.ufsc.tsp.controller.request.SignatureRequest;
-import br.ufsc.tsp.controller.request.SignatureVerificationRequest;
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
-import br.ufsc.tsp.controller.response.KeyResponse;
-import br.ufsc.tsp.controller.response.SignatureResponse;
-import br.ufsc.tsp.controller.response.SignatureVerificationResponse;
+import br.ufsc.tsp.data.request.KeyPairGenerationRequest;
+import br.ufsc.tsp.data.request.SignatureRequest;
+import br.ufsc.tsp.data.request.SignatureVerificationRequest;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.KeyResponse;
+import br.ufsc.tsp.data.response.SignatureResponse;
+import br.ufsc.tsp.data.response.SignatureVerificationResponse;
 import br.ufsc.tsp.entity.KeyPair;
 import br.ufsc.tsp.service.AppUserService;
 import br.ufsc.tsp.service.KeyPairService;

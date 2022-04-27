@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.JWTManager;
 
 public class AppUserAuthorizationFilter extends OncePerRequestFilter {

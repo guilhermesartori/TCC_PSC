@@ -1,4 +1,4 @@
-package br.ufsc.tsp.controller.response;
+package br.ufsc.tsp.data.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

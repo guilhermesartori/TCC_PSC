@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.ufsc.tsp.controller.request.KNetConfigurationRequest;
-import br.ufsc.tsp.controller.request.RegisterUserRequest;
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
-import br.ufsc.tsp.controller.response.UserResponse;
+import br.ufsc.tsp.data.request.KNetConfigurationRequest;
+import br.ufsc.tsp.data.request.RegisterUserRequest;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.UserResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 import br.ufsc.tsp.service.exception.SystemServiceException;
 

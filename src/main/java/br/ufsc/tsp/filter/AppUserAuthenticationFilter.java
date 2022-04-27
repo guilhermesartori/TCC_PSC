@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.ufsc.tsp.controller.response.AuthenticationResponse;
+import br.ufsc.tsp.data.response.AuthenticationResponse;
 import br.ufsc.tsp.service.JWTManager;
 
 public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {

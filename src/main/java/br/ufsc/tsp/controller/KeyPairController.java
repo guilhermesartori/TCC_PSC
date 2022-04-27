@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.ufsc.tsp.controller.request.KeyPairGenerationRequest;
-import br.ufsc.tsp.controller.request.SignatureRequest;
-import br.ufsc.tsp.controller.request.SignatureVerificationRequest;
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
-import br.ufsc.tsp.controller.response.KeyResponse;
-import br.ufsc.tsp.controller.response.SignatureResponse;
-import br.ufsc.tsp.controller.response.SignatureVerificationResponse;
+import br.ufsc.tsp.data.request.KeyPairGenerationRequest;
+import br.ufsc.tsp.data.request.SignatureRequest;
+import br.ufsc.tsp.data.request.SignatureVerificationRequest;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.KeyResponse;
+import br.ufsc.tsp.data.response.SignatureResponse;
+import br.ufsc.tsp.data.response.SignatureVerificationResponse;
 import br.ufsc.tsp.service.KeyPairService;
 import br.ufsc.tsp.service.exception.KeyPairServiceException;
 

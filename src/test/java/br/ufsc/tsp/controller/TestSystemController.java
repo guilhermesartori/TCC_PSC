@@ -27,10 +27,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.ufsc.tsp.controller.request.KNetConfigurationRequest;
-import br.ufsc.tsp.controller.request.RegisterUserRequest;
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
-import br.ufsc.tsp.controller.response.UserResponse;
+import br.ufsc.tsp.data.request.KNetConfigurationRequest;
+import br.ufsc.tsp.data.request.RegisterUserRequest;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.UserResponse;
 import br.ufsc.tsp.entity.AppUser;
 import br.ufsc.tsp.entity.enums.Authority;
 import br.ufsc.tsp.repository.AppUserRepository;

@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
-import br.ufsc.tsp.controller.response.ErrorMessageResponse;
+import br.ufsc.tsp.data.response.ErrorMessageResponse;
 import br.ufsc.tsp.service.SystemConfigurationService;
 
 @Component
