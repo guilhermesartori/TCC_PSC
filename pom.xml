@@ -9,10 +9,10 @@
 		<version>2.5.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.ufsc</groupId>
-	<artifactId>tsp</artifactId>
+	<groupId>br.ufsc.labsec</groupId>
+	<artifactId>openpsc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>tsp</name>
+	<name>openpsc</name>
 	<description>Trusted Service Provider server software</description>
 	<properties>
 		<java.version>11</java.version>
