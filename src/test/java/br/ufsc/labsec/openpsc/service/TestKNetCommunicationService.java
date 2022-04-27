@@ -16,9 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import br.ufsc.labsec.openpsc.service.KNetCommunicationService;
-import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
-import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;

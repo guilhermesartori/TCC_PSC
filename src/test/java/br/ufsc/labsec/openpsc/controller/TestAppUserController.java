@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import br.ufsc.labsec.openpsc.controller.AppUserController;
 import br.ufsc.labsec.openpsc.data.request.RegisterUserRequest;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
@@ -35,8 +36,6 @@ import br.ufsc.labsec.openpsc.service.AppUserService;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException.ExceptionType;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {

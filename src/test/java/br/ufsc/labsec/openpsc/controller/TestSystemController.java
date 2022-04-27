@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import br.ufsc.labsec.openpsc.controller.SystemConfigurationController;
 import br.ufsc.labsec.openpsc.data.request.KNetConfigurationRequest;
 import br.ufsc.labsec.openpsc.data.request.RegisterUserRequest;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
@@ -39,8 +40,6 @@ import br.ufsc.labsec.openpsc.service.KNetCommunicationService;
 import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(SystemConfigurationController.class)
 public class TestSystemController {

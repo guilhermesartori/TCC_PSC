@@ -24,11 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import br.ufsc.labsec.openpsc.entity.enums.Authority;
 import br.ufsc.labsec.openpsc.repository.KeyPairRepository;
-import br.ufsc.labsec.openpsc.service.AppUserService;
-import br.ufsc.labsec.openpsc.service.KNetCommunicationService;
-import br.ufsc.labsec.openpsc.service.KeyPairService;
-import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
-import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
