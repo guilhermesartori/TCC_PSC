@@ -10,8 +10,11 @@ import br.ufsc.labsec.openpsc.repository.KnetConfigurationRepository;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.valueobject.crypto.KNetRequester;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
+import br.ufsc.labsec.valueobject.crypto.keys.KeyManagerException;
+import br.ufsc.labsec.valueobject.crypto.keys.knet.KNetKeyTranslator;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 import br.ufsc.labsec.valueobject.kmip.KkmipClientBuilder;
+import br.ufsc.labsec.valueobject.util.KeyType;
 
 @Service
 public class KNetCommunicationService {
@@ -33,8 +36,8 @@ public class KNetCommunicationService {
 			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var keyIdentifierPair = kNetRequester.generateKeyPair(keyAlgorithm, keyParameter, keyName + "-private",
-				keyName + "-public");
+		final var keyIdentifierPair = kNetRequester.generateKeyPair(KeyType.valueOf(keyAlgorithm), keyParameter,
+				keyName + "-private", keyName + "-public");
 		return keyIdentifierPair;
 	}
 
@@ -42,7 +45,7 @@ public class KNetCommunicationService {
 			throws KNetException, KNetCommunicationServiceException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, algorithm, data);
+		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.valueOf(algorithm), data);
 		return signature;
 	}
 
@@ -54,10 +57,11 @@ public class KNetCommunicationService {
 	}
 
 	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm)
-			throws KNetException, KNetCommunicationServiceException {
+			throws KNetException, KNetCommunicationServiceException, KeyManagerException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		return kNetRequester.getPublicKey(keyIdentifier, keyAlgorithm);
+		final var publicKey = kNetRequester.getPublicKey(keyIdentifier, KeyType.valueOf(keyAlgorithm));
+		return new KNetKeyTranslator().buildJavaPublicKey(publicKey, KeyType.valueOf(keyAlgorithm));
 	}
 
 	public void setKnetConfiguration(Map<String, String> parameters) throws KNetException {
@@ -70,7 +74,8 @@ public class KNetCommunicationService {
 		if (knetConfigurationList.size() > 0) {
 			final var knetConfiguration = knetConfigurationList.get(0);
 			final var encryptedParameters = knetConfiguration.getEncryptedParameters();
-			final var decryptedParameters = this.parameterEncryptor.decryptKnetParameters(encryptedParameters, accessKey);
+			final var decryptedParameters = this.parameterEncryptor.decryptKnetParameters(encryptedParameters,
+					accessKey);
 			setKnetConfiguration(decryptedParameters);
 		} else
 			throw new KNetCommunicationServiceException();

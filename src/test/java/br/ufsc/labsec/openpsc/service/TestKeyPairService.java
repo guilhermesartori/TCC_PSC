@@ -28,6 +28,7 @@ import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
+import br.ufsc.labsec.valueobject.crypto.keys.KeyManagerException;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 
 @SpringBootTest
@@ -69,6 +70,7 @@ public class TestKeyPairService {
 		parameters.put("USERNAME", "test_user");
 		parameters.put("PW", "2m;z#MkD-tcc-guilherme");
 		parameters.put("MAX_CONNECTIONS", "1");
+		parameters.put("TLV_PORT", "60055");
 		systemConfigurationService.setKnetConfiguration(parameters, accessKey);
 	}
 
@@ -123,8 +125,9 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void sign_RSA_2048_SHA256() throws KeyPairServiceException, KNetException, InvalidKeyException,
-			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
+	public void sign_RSA_2048_SHA256()
+			throws KeyPairServiceException, KNetException, InvalidKeyException, NoSuchAlgorithmException,
+			InvalidKeySpecException, SignatureException, KNetCommunicationServiceException, KeyManagerException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var hashingAlgorithm = "SHA256";
@@ -222,7 +225,8 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void getPublicKey() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void getPublicKey()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException, KeyManagerException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
@@ -247,8 +251,9 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void verifySignature() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException,
-			InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
+	public void verifySignature()
+			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException, InvalidKeyException,
+			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KeyManagerException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var hashingAlgorithm = "SHA256";

@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
 import br.ufsc.labsec.valueobject.crypto.KeyIdentifierPair;
+import br.ufsc.labsec.valueobject.crypto.keys.KeyManagerException;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 
 @SpringBootTest
@@ -42,6 +43,7 @@ public class TestKNetCommunicationService {
 		knetParameters.put("USERNAME", "test_user");
 		knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
 		knetParameters.put("MAX_CONNECTIONS", "1");
+		knetParameters.put("TLV_PORT", "60055");
 	}
 
 	private void createKnetConfiguration() throws KNetException {
@@ -131,7 +133,7 @@ public class TestKNetCommunicationService {
 	}
 
 	@Test
-	public void getPublicKey_success() throws KNetException, KNetCommunicationServiceException {
+	public void getPublicKey_success() throws KNetException, KNetCommunicationServiceException, KeyManagerException {
 		createKnetConfiguration();
 		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 

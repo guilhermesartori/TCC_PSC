@@ -23,6 +23,7 @@ import br.ufsc.labsec.openpsc.repository.KeyPairRepository;
 import br.ufsc.labsec.openpsc.service.exception.KNetCommunicationServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException.ExceptionType;
+import br.ufsc.labsec.valueobject.crypto.keys.KeyManagerException;
 import br.ufsc.labsec.valueobject.exception.KNetException;
 
 @Service
@@ -168,7 +169,7 @@ public class KeyPairService {
 
 	public boolean verifySignature(String keyUniqueIdentifier, String base64EncodedData, String base64EncodedSignature,
 			String signatureAlgorithm) throws KeyPairServiceException, KNetException, KNetCommunicationServiceException,
-			InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+			InvalidKeyException, NoSuchAlgorithmException, SignatureException, KeyManagerException {
 		final var optionalKeyPair = keyPairRepository.findKeyPairByUniqueIdentifier(keyUniqueIdentifier);
 		if (optionalKeyPair.isEmpty())
 			throw new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
@@ -187,7 +188,8 @@ public class KeyPairService {
 		return signatureVerifier.verify(signature);
 	}
 
-	public String getPublicKey(String keyIdentifier, String keyAlgorithm) throws KeyPairServiceException {
+	public String getPublicKey(String keyIdentifier, String keyAlgorithm)
+			throws KeyPairServiceException, KeyManagerException {
 		try {
 			final var publicKey = kNetCommunicationService.getPublicKey(keyIdentifier, keyAlgorithm);
 			final var encodedPublicKey = publicKey.getEncoded();
