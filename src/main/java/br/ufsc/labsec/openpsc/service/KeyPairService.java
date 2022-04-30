@@ -98,7 +98,7 @@ public class KeyPairService {
 	}
 
 	public void deleteKeyPair(String username, String encodingKey, String uniqueIdentifier)
-			throws KNetException, KeyPairServiceException, KNetCommunicationServiceException {
+			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
 		final var optionalKeyPair = keyPairRepository.findKeyPairByOwnerUsernameAndUniqueIdentifier(username,
 				uniqueIdentifier);
 		if (optionalKeyPair.isEmpty())

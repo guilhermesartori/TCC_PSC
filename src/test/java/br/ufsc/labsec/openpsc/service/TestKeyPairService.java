@@ -59,7 +59,7 @@ public class TestKeyPairService {
 	private String accessKey;
 
 	@BeforeEach
-	public void runBeforeEach() throws KNetException, SystemServiceException, AppUserServiceException {
+	public void runBeforeEach() throws SystemServiceException, AppUserServiceException {
 		final var authorities = new ArrayList<Authority>();
 		authorities.add(Authority.USER);
 		appUserService.registerNewUser(USER_USERNAME, USER_PASSWORD);
@@ -81,7 +81,7 @@ public class TestKeyPairService {
 
 	@Test
 	public void createKeyPair_RSA_2048()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 
@@ -115,7 +115,7 @@ public class TestKeyPairService {
 
 	@Test
 	public void createKeyPair_RSA_2048_noSuchAlgorithm()
-			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
+			throws KeyPairServiceException, KNetCommunicationServiceException {
 		final var algorithm = "DASPDAPJI";
 		final var parameter = "2048";
 
@@ -126,8 +126,8 @@ public class TestKeyPairService {
 
 	@Test
 	public void sign_RSA_2048_SHA256()
-			throws KeyPairServiceException, KNetException, InvalidKeyException, NoSuchAlgorithmException,
-			InvalidKeySpecException, SignatureException, KNetCommunicationServiceException, KeyManagerException {
+			throws KeyPairServiceException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
+			SignatureException, KNetCommunicationServiceException, KNetException, KeyManagerException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var hashingAlgorithm = "SHA256";
@@ -148,8 +148,8 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void sign_keyDoesntExist() throws KeyPairServiceException, KNetException, InvalidKeyException,
-			NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
+	public void sign_keyDoesntExist() throws KeyPairServiceException, InvalidKeyException, NoSuchAlgorithmException,
+			InvalidKeySpecException, SignatureException, KNetCommunicationServiceException {
 		final var hashingAlgorithm = "SHA256";
 		final var dataToSign = "test".getBytes();
 		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
@@ -162,7 +162,7 @@ public class TestKeyPairService {
 
 	@Test
 	public void deleteKeyPair_RSA_2048()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+			throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
@@ -174,8 +174,7 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void deleteKeyPair_keyDoesntExist()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void deleteKeyPair_keyDoesntExist() throws KeyPairServiceException, KNetCommunicationServiceException {
 		assertThrows(KeyPairServiceException.class, () -> {
 			keyPairService.deleteKeyPair(USER_USERNAME, accessKey, "test");
 		});
@@ -183,7 +182,7 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void getKeyPair() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void getKeyPair() throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
@@ -196,15 +195,14 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void getKeyPair_keyDoesntExist()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void getKeyPair_keyDoesntExist() throws KeyPairServiceException, KNetCommunicationServiceException {
 		assertThrows(KeyPairServiceException.class, () -> {
 			keyPairService.getKeyPair(USER_USERNAME, "test");
 		});
 	}
 
 	@Test
-	public void getKeyPairByKeyName() throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void getKeyPairByKeyName() throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
@@ -217,8 +215,7 @@ public class TestKeyPairService {
 	}
 
 	@Test
-	public void getKeyPairByKeyName_keyDoesntExist()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
+	public void getKeyPairByKeyName_keyDoesntExist() throws KeyPairServiceException, KNetCommunicationServiceException {
 		assertThrows(KeyPairServiceException.class, () -> {
 			keyPairService.getKeyPairByKeyName(USER_USERNAME, "test");
 		});
@@ -226,7 +223,7 @@ public class TestKeyPairService {
 
 	@Test
 	public void getPublicKey()
-			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException, KeyManagerException {
+			throws KeyPairServiceException, KNetCommunicationServiceException, KeyManagerException, KNetException {
 		final var algorithm = "RSA";
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);

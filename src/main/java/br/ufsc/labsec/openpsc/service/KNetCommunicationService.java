@@ -33,7 +33,7 @@ public class KNetCommunicationService {
 	}
 
 	public KeyIdentifierPair createKeyPair(String keyAlgorithm, String keyParameter, String keyName)
-			throws KNetException, KNetCommunicationServiceException {
+			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
 		final var keyIdentifierPair = kNetRequester.generateKeyPair(KeyType.valueOf(keyAlgorithm), keyParameter,
@@ -42,7 +42,7 @@ public class KNetCommunicationService {
 	}
 
 	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data)
-			throws KNetException, KNetCommunicationServiceException {
+			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
 		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.valueOf(algorithm), data);
@@ -50,14 +50,14 @@ public class KNetCommunicationService {
 	}
 
 	public void deleteKeyPair(String privateKey, String publicKey)
-			throws KNetException, KNetCommunicationServiceException {
+			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
 		kNetRequester.revokeAndDestroy(new String[] { privateKey, publicKey });
 	}
 
 	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm)
-			throws KNetException, KNetCommunicationServiceException, KeyManagerException {
+			throws KNetCommunicationServiceException, KeyManagerException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
 		final var publicKey = kNetRequester.getPublicKey(keyIdentifier, KeyType.valueOf(keyAlgorithm));
@@ -69,7 +69,7 @@ public class KNetCommunicationService {
 				parameters.get("USERNAME"), parameters.get("PW"));
 	}
 
-	public void loadKnetConfiguration(String accessKey) throws KNetException, KNetCommunicationServiceException {
+	public void loadKnetConfiguration(String accessKey) throws KNetCommunicationServiceException, KNetException {
 		final var knetConfigurationList = knetConfigurationRepository.findAll();
 		if (knetConfigurationList.size() > 0) {
 			final var knetConfiguration = knetConfigurationList.get(0);
