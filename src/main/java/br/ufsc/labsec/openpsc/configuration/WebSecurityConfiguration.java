@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import br.ufsc.labsec.openpsc.entity.enums.Authority;
 import br.ufsc.labsec.openpsc.filter.AppUserAuthenticationFilter;
 import br.ufsc.labsec.openpsc.filter.AppUserAuthorizationFilter;
+import br.ufsc.labsec.openpsc.service.JWTManager;
 
 @Configuration
 @EnableWebSecurity
@@ -24,16 +25,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final UserDetailsService userDetailsService;
 	private final PasswordEncoder passwordEncoder;
+	private final JWTManager jwtManager;
 
 	/**
 	 * @param userDetailsService
 	 * @param passwordEncoder
 	 */
 	@Autowired
-	public WebSecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	public WebSecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
+			JWTManager jwtManager) {
 		super();
 		this.userDetailsService = userDetailsService;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtManager = jwtManager;
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		final var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean());
+		final var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean(), jwtManager);
 		authenticationFilter.setFilterProcessesUrl("/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -60,7 +64,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// /key
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/key").hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/**/sign").hasAnyAuthority(Authority.USER.toString());
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/**/sign")
+				.hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key/**").hasAnyAuthority(Authority.USER.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/key/**").hasAnyAuthority(Authority.USER.toString());
 
@@ -78,7 +83,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		// filters
 		http.addFilter(authenticationFilter);
-		http.addFilterBefore(new AppUserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(new AppUserAuthorizationFilter(jwtManager), UsernamePasswordAuthenticationFilter.class);
 	}
 
 	@Bean

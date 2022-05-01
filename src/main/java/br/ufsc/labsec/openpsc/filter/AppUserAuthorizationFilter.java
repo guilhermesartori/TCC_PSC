@@ -7,7 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,14 +19,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.service.JWTManager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class AppUserAuthorizationFilter extends OncePerRequestFilter {
 
-	@Autowired
-	private JWTManager jwtManager;
-
 	private static final String AUTH_HEADER_START = "Bearer ";
+
+	private final JWTManager jwtManager;
+
+	public AppUserAuthorizationFilter(JWTManager jwtManager) {
+		this.jwtManager = jwtManager;
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
