@@ -32,6 +32,8 @@ public class KeyPair {
 	private String privateKey;
 	@Column(nullable = false)
 	private String keyAlgorithm;
+	@Column(nullable = false)
+	private String keyParameter;
 	@Column(nullable = false, unique = true)
 	private String uniqueIdentifier;
 	@Column(nullable = false)
@@ -48,12 +50,13 @@ public class KeyPair {
 	 * @param keyName
 	 * @param owner
 	 */
-	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String uniqueIdentifier, String keyName,
+	public KeyPair(String publicKey, String privateKey, String keyAlgorithm, String keyParameter, String uniqueIdentifier, String keyName,
 			AppUser owner) {
 		super();
 		this.publicKey = publicKey;
 		this.privateKey = privateKey;
 		this.keyAlgorithm = keyAlgorithm;
+		this.keyParameter = keyParameter;
 		this.uniqueIdentifier = uniqueIdentifier;
 		this.keyName = keyName;
 		this.owner = owner;

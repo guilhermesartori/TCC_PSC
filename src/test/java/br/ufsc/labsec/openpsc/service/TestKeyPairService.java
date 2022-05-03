@@ -134,7 +134,7 @@ public class TestKeyPairService {
 		final var dataToSign = "test".getBytes();
 		final var base64EncodedDataToSign = Base64.getEncoder().encodeToString(dataToSign);
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
-		final var publicKey = kNetCommunicationService.getPublicKey(keyPair.getPublicKey(), algorithm);
+		final var publicKey = kNetCommunicationService.getPublicKey(keyPair.getPublicKey(), algorithm, parameter);
 		final var signature = Signature.getInstance("SHA256WithRSA", new BouncyCastleProvider());
 		signature.initVerify(publicKey);
 		signature.update(dataToSign);
@@ -228,7 +228,7 @@ public class TestKeyPairService {
 		final var parameter = "2048";
 		final var keyPair = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
 
-		final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), algorithm);
+		final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), algorithm, parameter);
 
 		keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
 
@@ -240,9 +240,10 @@ public class TestKeyPairService {
 	public void getPublicKey_keyDoesntExist()
 			throws KeyPairServiceException, KNetException, KNetCommunicationServiceException {
 		final var algorithm = "RSA";
+		final var parameter = "2048";
 
 		assertThrows(KeyPairServiceException.class, () -> {
-			keyPairService.getPublicKey("test", algorithm);
+			keyPairService.getPublicKey("test", algorithm, parameter);
 		});
 
 	}

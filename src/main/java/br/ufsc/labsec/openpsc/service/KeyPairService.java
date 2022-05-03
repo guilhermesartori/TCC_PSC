@@ -77,7 +77,7 @@ public class KeyPairService {
 			final var encryptedPrivateKeyIdentifier = parameterEncryptor.encrypt(privateKeyIdentifier, accessKey);
 
 			final var keyPairEntity = new KeyPair(publicKeyIdentifier, encryptedPrivateKeyIdentifier, keyAlgorithm,
-					uniqueIdentifier, keyName, keyOwner);
+					keyParameter, uniqueIdentifier, keyName, keyOwner);
 
 			return keyPairRepository.save(keyPairEntity);
 		} catch (NoSuchAlgorithmException | KNetException | IllegalArgumentException e) {
@@ -146,7 +146,7 @@ public class KeyPairService {
 
 		final var publicAndPrivateKeyConcatenation = base64EncodedPublicKey + base64EncodedPrivateKey;
 		final var digested = digest.digest(publicAndPrivateKeyConcatenation.getBytes());
-		final var uniqueIdentifierBytes = Arrays.copyOf(digested, 64);
+		final var uniqueIdentifierBytes = Arrays.copyOf(digested, 32);
 		final var uniqueIdentifier = base64Encoder.encodeToString(uniqueIdentifierBytes);
 
 		return uniqueIdentifier;
@@ -176,8 +176,9 @@ public class KeyPairService {
 
 		final var keyPair = optionalKeyPair.get();
 		final var algorithm = keyPair.getKeyAlgorithm();
+		final var parameter = keyPair.getKeyParameter();
 		final var publicKeyIdentifier = keyPair.getPublicKey();
-		final var publicKey = kNetCommunicationService.getPublicKey(publicKeyIdentifier, algorithm);
+		final var publicKey = kNetCommunicationService.getPublicKey(publicKeyIdentifier, algorithm, parameter);
 
 		final var data = Base64.getDecoder().decode(base64EncodedData);
 		final var signature = Base64.getDecoder().decode(base64EncodedSignature);
@@ -188,10 +189,10 @@ public class KeyPairService {
 		return signatureVerifier.verify(signature);
 	}
 
-	public String getPublicKey(String keyIdentifier, String keyAlgorithm)
+	public String getPublicKey(String keyIdentifier, String keyAlgorithm, String keyParameter)
 			throws KeyPairServiceException, KeyManagerException {
 		try {
-			final var publicKey = kNetCommunicationService.getPublicKey(keyIdentifier, keyAlgorithm);
+			final var publicKey = kNetCommunicationService.getPublicKey(keyIdentifier, keyAlgorithm, keyParameter);
 			final var encodedPublicKey = publicKey.getEncoded();
 			final var base64Encoding = Base64.getEncoder().encodeToString(encodedPublicKey);
 			return base64Encoding;

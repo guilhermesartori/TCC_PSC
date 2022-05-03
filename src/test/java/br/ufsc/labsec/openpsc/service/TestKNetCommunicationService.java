@@ -137,7 +137,8 @@ public class TestKNetCommunicationService {
 		createKnetConfiguration();
 		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-		final var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA");
+		final var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA",
+				"2048");
 
 		assertNotNull(publicKey);
 
@@ -150,7 +151,7 @@ public class TestKNetCommunicationService {
 		knetCommunicationService.setkNetRequester(null);
 
 		assertThrows(KNetCommunicationServiceException.class, () -> {
-			knetCommunicationService.getPublicKey("test", "RSA");
+			knetCommunicationService.getPublicKey("test", "RSA", "2048");
 		});
 	}
 

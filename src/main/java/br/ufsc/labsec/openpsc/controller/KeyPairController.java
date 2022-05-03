@@ -47,8 +47,9 @@ public class KeyPairController {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var keyPair = keyPairService.getKeyPairByKeyName(username, keyName);
 			final var keyAlgorithm = keyPair.getKeyAlgorithm();
+			final var keyParameter = keyPair.getKeyParameter();
 			final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
-			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm);
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
 			final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {
@@ -59,7 +60,7 @@ public class KeyPairController {
 			return ResponseEntity.internalServerError().body(body);
 		}
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {
@@ -67,7 +68,7 @@ public class KeyPairController {
 			final var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
 			final var keyPair = keyPairService.createKeyPair(username, encodingKey, request.getKeyAlgorithm(),
 					request.getKeyParameter(), request.getKeyName());
-			final var pathToCreatedKey = String.format("/key/%d", keyPair.getUniqueIdentifier());
+			final var pathToCreatedKey = String.format("/key/%s", keyPair.getUniqueIdentifier());
 			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedKey)
 					.toUriString();
 			final var uri = URI.create(uriString);
@@ -91,7 +92,8 @@ public class KeyPairController {
 					uniqueIdentifier, request.getHashingAlgorithm());
 
 			final var keyPair = keyPairService.getKeyPair(username, uniqueIdentifier);
-			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyPair.getKeyAlgorithm());
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyPair.getKeyAlgorithm(),
+					keyPair.getKeyParameter());
 
 			final var body = new SignatureResponse(signature, uniqueIdentifier, publicKey);
 			return ResponseEntity.ok().body(body);
@@ -126,8 +128,9 @@ public class KeyPairController {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var keyPair = keyPairService.getKeyPair(username, keyUniqueIdentifier);
 			final var keyAlgorithm = keyPair.getKeyAlgorithm();
+			final var keyParameter = keyPair.getKeyParameter();
 			final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
-			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm);
+			final var publicKey = keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
 			final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
 			return ResponseEntity.ok().body(body);
 		} catch (KeyPairServiceException e) {

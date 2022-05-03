@@ -74,7 +74,7 @@ public class TestKeyPairController {
 		public ParameterEncryptor parameterEncryptorBean() {
 			return new ParameterEncryptor();
 		}
-	
+
 	}
 
 	@BeforeEach
@@ -203,10 +203,10 @@ public class TestKeyPairController {
 		final var requestBody = new SignatureRequest("SHA512", "test");
 		final var content = objectMapper.writeValueAsString(requestBody);
 		final var signature = new String("test");
-		final var keyPair = new KeyPair(null, null, null, "test", null, null);
+		final var keyPair = new KeyPair(null, null, null, null, "test", null, null);
 		when(keyPairService.sign(any(), any(), any(), any(), any())).thenReturn(signature);
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn("test");
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn("test");
 
 		final var mvcResult = mockMvc
 				.perform(post("/key/test/sign").contentType(MediaType.APPLICATION_JSON).content(content)).andReturn();
@@ -276,13 +276,14 @@ public class TestKeyPairController {
 	@Test
 	public void getKey_success() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
 		final var publicKey = "publicKey";
 		final var objectMapper = new ObjectMapper();
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key/uniqueIdentifier")).andReturn();
 
@@ -299,12 +300,13 @@ public class TestKeyPairController {
 	@Test
 	public void getKey_fail_403() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
 		final var publicKey = "publicKey";
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key/uniqueIdentifier")).andReturn();
 
@@ -318,7 +320,7 @@ public class TestKeyPairController {
 		final var publicKey = "publicKey";
 		final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		when(keyPairService.getKeyPair(any(), any())).thenThrow(exception);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key/uniqueIdentifier")).andReturn();
 
@@ -330,12 +332,13 @@ public class TestKeyPairController {
 	@Test
 	public void getKey_fail_500() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		final var exception = new RuntimeException();
 		when(keyPairService.getKeyPair(any(), any())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenThrow(exception);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenThrow(exception);
 
 		final var mvcResult = mockMvc.perform(get("/key/uniqueIdentifier")).andReturn();
 
@@ -347,13 +350,14 @@ public class TestKeyPairController {
 	@Test
 	public void getKeyByKeyName_success() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
 		final var publicKey = "publicKey";
 		final var objectMapper = new ObjectMapper();
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		when(keyPairService.getKeyPairByKeyName(anyString(), anyString())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
 
@@ -370,12 +374,13 @@ public class TestKeyPairController {
 	@Test
 	public void getKeyByKeyName_fail_403() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
 		final var publicKey = "publicKey";
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		when(keyPairService.getKeyPairByKeyName(anyString(), anyString())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
 
@@ -389,7 +394,7 @@ public class TestKeyPairController {
 		final var publicKey = "publicKey";
 		final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
 		when(keyPairService.getKeyPairByKeyName(any(), any())).thenThrow(exception);
-		when(keyPairService.getPublicKey(any(), any())).thenReturn(publicKey);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
 
 		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
 
@@ -401,12 +406,13 @@ public class TestKeyPairController {
 	@Test
 	public void getKeyByKeyName_fail_500() throws Exception {
 		final var keyAlgorithm = "keyAlgorithm";
+		final var keyParameter = "keyParameter";
 		final var uniqueIdentifier = "uniqueIdentifier";
-		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, uniqueIdentifier, "keyName",
-				null);
+		final var keyPair = new KeyPair("publicKeyIdentifier", "privateKey", keyAlgorithm, keyParameter,
+				uniqueIdentifier, "keyName", null);
 		final var exception = new RuntimeException();
 		when(keyPairService.getKeyPairByKeyName(any(), any())).thenReturn(keyPair);
-		when(keyPairService.getPublicKey(any(), any())).thenThrow(exception);
+		when(keyPairService.getPublicKey(any(), any(), any())).thenThrow(exception);
 
 		final var mvcResult = mockMvc.perform(get("/key").param("keyName", "keyName")).andReturn();
 

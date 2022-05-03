@@ -36,8 +36,8 @@ public class KNetCommunicationService {
 			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var keyIdentifierPair = kNetRequester.generateKeyPair(KeyType.valueOf(keyAlgorithm), keyParameter,
-				keyName + "-private", keyName + "-public");
+		final var keyIdentifierPair = kNetRequester.generateKeyPair(KeyType.build(keyAlgorithm, keyParameter),
+				keyParameter, keyName + "-private", keyName + "-public");
 		return keyIdentifierPair;
 	}
 
@@ -45,7 +45,7 @@ public class KNetCommunicationService {
 			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.valueOf(algorithm), data);
+		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.build(algorithm), data);
 		return signature;
 	}
 
@@ -56,12 +56,12 @@ public class KNetCommunicationService {
 		kNetRequester.revokeAndDestroy(new String[] { privateKey, publicKey });
 	}
 
-	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm)
+	public PublicKey getPublicKey(String keyIdentifier, String keyAlgorithm, String keyParameter)
 			throws KNetCommunicationServiceException, KeyManagerException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var publicKey = kNetRequester.getPublicKey(keyIdentifier, KeyType.valueOf(keyAlgorithm));
-		return new KNetKeyTranslator().buildJavaPublicKey(publicKey, KeyType.valueOf(keyAlgorithm));
+		final var publicKey = kNetRequester.getPublicKey(keyIdentifier, KeyType.build(keyAlgorithm, keyParameter));
+		return new KNetKeyTranslator().buildJavaPublicKey(publicKey, KeyType.build(keyAlgorithm, keyParameter));
 	}
 
 	public void setKnetConfiguration(Map<String, String> parameters) throws KNetException {
