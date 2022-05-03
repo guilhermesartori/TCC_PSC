@@ -33,6 +33,8 @@ import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.entity.AppUser;
 import br.ufsc.labsec.openpsc.entity.enums.Authority;
 import br.ufsc.labsec.openpsc.service.AppUserService;
+import br.ufsc.labsec.openpsc.service.JWTManager;
+import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException.ExceptionType;
@@ -57,10 +59,22 @@ public class TestAppUserController {
 
 	@TestConfiguration
 	static class TestConfig {
+		
 		@Bean
 		public PasswordEncoder passwordEncoderBean() {
 			return new BCryptPasswordEncoder();
 		}
+
+		@Bean
+		public JWTManager jwtManagerBean() {
+			return new JWTManager();
+		}
+		
+		@Bean
+		public ParameterEncryptor parameterEncryptorBean() {
+			return new ParameterEncryptor();
+		}
+		
 	}
 
 	@BeforeEach

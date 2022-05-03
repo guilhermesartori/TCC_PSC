@@ -36,6 +36,7 @@ import br.ufsc.labsec.openpsc.entity.enums.Authority;
 import br.ufsc.labsec.openpsc.repository.AppUserRepository;
 import br.ufsc.labsec.openpsc.repository.KnetConfigurationRepository;
 import br.ufsc.labsec.openpsc.service.AppUserService;
+import br.ufsc.labsec.openpsc.service.JWTManager;
 import br.ufsc.labsec.openpsc.service.KNetCommunicationService;
 import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
@@ -71,10 +72,22 @@ public class TestSystemController {
 
 	@TestConfiguration
 	static class TestConfig {
+
 		@Bean
 		public PasswordEncoder passwordEncoderBean() {
 			return new BCryptPasswordEncoder();
 		}
+
+		@Bean
+		public JWTManager jwtManagerBean() {
+			return new JWTManager();
+		}
+
+		@Bean
+		public ParameterEncryptor parameterEncryptorBean() {
+			return new ParameterEncryptor();
+		}
+	
 	}
 
 	@BeforeEach

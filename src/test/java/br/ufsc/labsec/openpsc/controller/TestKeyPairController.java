@@ -35,7 +35,9 @@ import br.ufsc.labsec.openpsc.data.response.SignatureResponse;
 import br.ufsc.labsec.openpsc.data.response.SignatureVerificationResponse;
 import br.ufsc.labsec.openpsc.entity.KeyPair;
 import br.ufsc.labsec.openpsc.service.AppUserService;
+import br.ufsc.labsec.openpsc.service.JWTManager;
 import br.ufsc.labsec.openpsc.service.KeyPairService;
+import br.ufsc.labsec.openpsc.service.ParameterEncryptor;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException.ExceptionType;
@@ -57,10 +59,22 @@ public class TestKeyPairController {
 
 	@TestConfiguration
 	static class TestConfig {
+
 		@Bean
 		public PasswordEncoder passwordEncoderBean() {
 			return new BCryptPasswordEncoder();
 		}
+
+		@Bean
+		public JWTManager jwtManagerBean() {
+			return new JWTManager();
+		}
+
+		@Bean
+		public ParameterEncryptor parameterEncryptorBean() {
+			return new ParameterEncryptor();
+		}
+	
 	}
 
 	@BeforeEach
