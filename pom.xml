@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>br.ufsc.labsec</groupId>
 			<artifactId>objects-authority-core</artifactId>
-			<version>1.6.0</version>
+			<version>1.7.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>
