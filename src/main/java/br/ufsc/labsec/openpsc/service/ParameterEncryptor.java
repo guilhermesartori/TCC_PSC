@@ -39,7 +39,7 @@ public class ParameterEncryptor {
 	public String encrypt(String dataToEncrypt, String encryptedAccessKey) {
 		try {
 			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
-			final var iv = new IvParameterSpec(SystemKey.getIv());
+			final var iv = ivFromSecretKeySpec(accessKeySpec);
 			cipher.init(Cipher.ENCRYPT_MODE, accessKeySpec, iv);
 			final var encryptedData = cipher.doFinal(dataToEncrypt.getBytes());
 			final var base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
@@ -53,7 +53,7 @@ public class ParameterEncryptor {
 	public String decrypt(String base64EncodedEncryptedData, String encryptedAccessKey) {
 		try {
 			final var accessKeySpec = encryptedAccessKeyToSecretKeySpec(encryptedAccessKey);
-			final var iv = new IvParameterSpec(SystemKey.getIv());
+			final var iv = ivFromSecretKeySpec(accessKeySpec);
 			cipher.init(Cipher.DECRYPT_MODE, accessKeySpec, iv);
 			final var encryptedData = Base64.getDecoder().decode(base64EncodedEncryptedData);
 			final var decryptedDataBytes = cipher.doFinal(encryptedData);
@@ -70,6 +70,10 @@ public class ParameterEncryptor {
 		final var adjustedAccessKey = adjustKeySize(accessKey);
 		final var accessKeySpec = new SecretKeySpec(adjustedAccessKey, ACCESS_KEY_ALGORITHM);
 		return accessKeySpec;
+	}
+
+	private IvParameterSpec ivFromSecretKeySpec(SecretKeySpec keySpec) {
+		return new IvParameterSpec(Arrays.copyOf(keySpec.getEncoded(), 16));
 	}
 
 	private byte[] adjustKeySize(String decryptedKey) {
@@ -89,7 +93,7 @@ public class ParameterEncryptor {
 	public String encryptKey(String key) {
 		try {
 			final var secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
-			final var iv = new IvParameterSpec(SystemKey.getIv());
+			final var iv = ivFromSecretKeySpec(secretKey);
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
 			final var encryptedBytes = cipher.doFinal(key.getBytes());
 			final var base64Encryption = Base64.getEncoder().encodeToString(encryptedBytes);
@@ -103,7 +107,7 @@ public class ParameterEncryptor {
 	private String decryptKey(String encryptedKey) {
 		try {
 			final var secretKey = new SecretKeySpec(SystemKey.getKey(), SystemKey.SYSTEM_KEY_ALGORITHM);
-			final var iv = new IvParameterSpec(SystemKey.getIv());
+			final var iv = ivFromSecretKeySpec(secretKey);
 			cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
 			final var encryptedBytes = Base64.getDecoder().decode(encryptedKey);
 			final var decryptedBytes = cipher.doFinal(encryptedBytes);
