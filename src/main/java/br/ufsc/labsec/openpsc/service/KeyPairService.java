@@ -122,7 +122,13 @@ public class KeyPairService {
 		final var base64Decoder = Base64.getDecoder();
 		final var data = base64Decoder.decode(base64EncodedData);
 
-		final var hashedData = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider()).digest(data);
+		byte[] hashedData;
+		try {
+			final var messageDigest = MessageDigest.getInstance(hashingAlgorithm, new BouncyCastleProvider());
+			hashedData = messageDigest.digest(data);
+		} catch (NoSuchAlgorithmException e) {
+			hashedData = data;
+		}
 
 		final var keyPair = optionalKeyPair.get();
 		final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
