@@ -2,13 +2,12 @@ package br.ufsc.labsec.openpsc.controller;
 
 import java.net.URI;
 
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,7 +83,7 @@ public class KeyPairController {
 
 	@PostMapping(path = "{keyUniqueIdentifier}/sign")
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request,
-			@PathParam("keyUniqueIdentifier") String uniqueIdentifier) {
+			@PathVariable("keyUniqueIdentifier") String uniqueIdentifier) {
 		try {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var accessKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -107,7 +106,7 @@ public class KeyPairController {
 	}
 
 	@DeleteMapping(path = "{keyUniqueIdentifier}")
-	public ResponseEntity<Object> deleteKeyPair(@PathParam("keyUniqueIdentifier") String uniqueIdentifier) {
+	public ResponseEntity<Object> deleteKeyPair(@PathVariable("keyUniqueIdentifier") String uniqueIdentifier) {
 		try {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var encodingKey = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -123,7 +122,7 @@ public class KeyPairController {
 	}
 
 	@GetMapping(path = "{keyUniqueIdentifier}")
-	public ResponseEntity<Object> getKey(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier) {
+	public ResponseEntity<Object> getKey(@PathVariable("keyUniqueIdentifier") String keyUniqueIdentifier) {
 		try {
 			final var username = SecurityContextHolder.getContext().getAuthentication().getName();
 			final var keyPair = keyPairService.getKeyPair(username, keyUniqueIdentifier);
@@ -143,7 +142,7 @@ public class KeyPairController {
 	}
 
 	@PostMapping(path = "{keyUniqueIdentifier}/verify-signature")
-	public ResponseEntity<Object> verify(@PathParam("keyUniqueIdentifier") String keyUniqueIdentifier,
+	public ResponseEntity<Object> verify(@PathVariable("keyUniqueIdentifier") String keyUniqueIdentifier,
 			@RequestBody SignatureVerificationRequest request) {
 		try {
 			final var validSignature = keyPairService.verifySignature(keyUniqueIdentifier,

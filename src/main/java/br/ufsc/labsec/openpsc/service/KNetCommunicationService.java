@@ -41,11 +41,11 @@ public class KNetCommunicationService {
 		return keyIdentifierPair;
 	}
 
-	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, byte[] data)
+	public byte[] sign(String privateKeyUniqueIdentifier, String algorithm, String parameter, byte[] data)
 			throws KNetCommunicationServiceException, KNetException {
 		if (kNetRequester == null)
 			throw new KNetCommunicationServiceException();
-		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.build(algorithm), data);
+		final var signature = kNetRequester.sign(privateKeyUniqueIdentifier, KeyType.build(algorithm, parameter), data);
 		return signature;
 	}
 

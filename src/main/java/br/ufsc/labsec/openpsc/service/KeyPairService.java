@@ -127,7 +127,7 @@ public class KeyPairService {
 		final var keyPair = optionalKeyPair.get();
 		final var privateKeyIdentifier = parameterEncryptor.decrypt(keyPair.getPrivateKey(), accessKey);
 		final var signature = kNetCommunicationService.sign(privateKeyIdentifier, keyPair.getKeyAlgorithm(),
-				hashedData);
+				keyPair.getKeyParameter(), hashedData);
 		final var base64Encoder = Base64.getEncoder();
 		final var base64Signature = base64Encoder.encodeToString(signature);
 
@@ -136,7 +136,7 @@ public class KeyPairService {
 
 	private String generateUniqueIdentifier(String privateKeyIdentifier, String publicKeyIdentifier)
 			throws NoSuchAlgorithmException {
-		final var base64Encoder = Base64.getEncoder();
+		final var base64Encoder = Base64.getUrlEncoder();
 
 		final var encodedPrivateKey = privateKeyIdentifier.getBytes();
 		final var encodedPublicKey = publicKeyIdentifier.getBytes();
