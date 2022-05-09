@@ -17,6 +17,9 @@ import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.service.AppUserService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping(path = "user")
@@ -33,11 +36,13 @@ public class AppUserController {
 		this.appUserService = appUserService;
 	}
 
+	@SecurityRequirement(name = "administrator")
 	@GetMapping
 	public ResponseEntity<Object> getUsers() {
 		return ResponseEntity.ok().body(appUserService.getUsers());
 	}
 
+	@Operation(responses = @ApiResponse(responseCode = "400"))
 	@PostMapping
 	public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
 		final var username = registerUserRequest.getUsername();
@@ -49,7 +54,8 @@ public class AppUserController {
 			userResponseBody.setAuthority(createdUser.getAuthority().name());
 			final var createdUserId = createdUser.getId();
 			final var pathToCreatedUser = String.format("/user/%d", createdUserId);
-			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser).toUriString();
+			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser)
+					.toUriString();
 			final var uri = URI.create(uriString);
 			return ResponseEntity.created(uri).body(userResponseBody);
 		} catch (AppUserServiceException e) {
@@ -59,6 +65,7 @@ public class AppUserController {
 		}
 	}
 
+	@SecurityRequirement(name = "administrator")
 	@GetMapping(path = "{username}")
 	public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
 		try {

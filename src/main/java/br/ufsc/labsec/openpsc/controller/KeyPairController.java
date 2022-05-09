@@ -24,6 +24,7 @@ import br.ufsc.labsec.openpsc.data.response.SignatureResponse;
 import br.ufsc.labsec.openpsc.data.response.SignatureVerificationResponse;
 import br.ufsc.labsec.openpsc.service.KeyPairService;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping(path = "key")
@@ -40,6 +41,7 @@ public class KeyPairController {
 		this.keyPairService = keyPairService;
 	}
 
+	@SecurityRequirement(name = "user")
 	@GetMapping
 	public ResponseEntity<Object> getKeyByKeyName(@RequestParam("keyName") String keyName) {
 		try {
@@ -60,6 +62,7 @@ public class KeyPairController {
 		}
 	}
 
+	@SecurityRequirement(name = "user")
 	@PostMapping
 	public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
 		try {
@@ -81,6 +84,7 @@ public class KeyPairController {
 		}
 	}
 
+	@SecurityRequirement(name = "user")
 	@PostMapping(path = "{keyUniqueIdentifier}/sign")
 	public ResponseEntity<Object> sign(@RequestBody SignatureRequest request,
 			@PathVariable("keyUniqueIdentifier") String uniqueIdentifier) {
@@ -105,6 +109,7 @@ public class KeyPairController {
 		}
 	}
 
+	@SecurityRequirement(name = "user")
 	@DeleteMapping(path = "{keyUniqueIdentifier}")
 	public ResponseEntity<Object> deleteKeyPair(@PathVariable("keyUniqueIdentifier") String uniqueIdentifier) {
 		try {
@@ -121,6 +126,7 @@ public class KeyPairController {
 		}
 	}
 
+	@SecurityRequirement(name = "user")
 	@GetMapping(path = "{keyUniqueIdentifier}")
 	public ResponseEntity<Object> getKey(@PathVariable("keyUniqueIdentifier") String keyUniqueIdentifier) {
 		try {

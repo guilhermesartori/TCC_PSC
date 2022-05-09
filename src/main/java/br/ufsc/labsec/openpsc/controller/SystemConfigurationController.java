@@ -18,6 +18,7 @@ import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping(path = "system")
@@ -47,6 +48,7 @@ public class SystemConfigurationController {
 		}
 	}
 
+	@SecurityRequirement(name = "administrator")
 	@PutMapping("hsm-config")
 	public ResponseEntity<Object> setKnetConfiguration(@RequestBody KNetConfigurationRequest request) {
 		try {
@@ -61,6 +63,7 @@ public class SystemConfigurationController {
 		}
 	}
 
+	@SecurityRequirement(name = "administrator")
 	@PostMapping("hsm-config/load")
 	public ResponseEntity<Object> loadKnetConfiguration() {
 		try {
@@ -75,6 +78,7 @@ public class SystemConfigurationController {
 		}
 	}
 
+	@SecurityRequirement(name = "administrator")
 	@PostMapping("refresh-key")
 	public ResponseEntity<Object> refreshSystemKey() {
 		try {

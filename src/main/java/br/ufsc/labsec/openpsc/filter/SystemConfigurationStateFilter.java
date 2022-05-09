@@ -25,7 +25,8 @@ public class SystemConfigurationStateFilter extends OncePerRequestFilter {
 
 	private static final String ERROR_MESSAGE = "System not configured.";
 
-	private static final String SYSTEM_PATH = "/system";
+	private static final String USER_PATH = "/user";
+	private static final String KEY_PATH = "/key";
 
 	@Autowired
 	private SystemConfigurationService systemConfigurationService;
@@ -34,7 +35,8 @@ public class SystemConfigurationStateFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		final var requestURI = request.getRequestURI();
-		if (requestURI.startsWith(SYSTEM_PATH) || systemConfigurationService.isSystemConfigured())
+		if ((!requestURI.startsWith(USER_PATH) && !requestURI.startsWith(KEY_PATH))
+				|| systemConfigurationService.isSystemConfigured())
 			filterChain.doFilter(request, response);
 		else {
 			response.setStatus(Status.BAD_REQUEST.getStatusCode());
