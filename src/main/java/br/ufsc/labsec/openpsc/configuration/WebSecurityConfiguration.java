@@ -48,12 +48,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		final var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean(), jwtManager);
-		authenticationFilter.setFilterProcessesUrl("/login");
+
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-		// login
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/user").permitAll();
 
 		// /user
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user")
@@ -77,9 +74,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/refresh-key")
 				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
-
-		//
-		http.authorizeRequests().anyRequest().authenticated();
 
 		// filters
 		http.addFilter(authenticationFilter);

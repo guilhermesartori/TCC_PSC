@@ -18,6 +18,9 @@ import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.service.AppUserService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
@@ -42,7 +45,10 @@ public class AppUserController {
 		return ResponseEntity.ok().body(appUserService.getUsers());
 	}
 
-	@Operation(responses = @ApiResponse(responseCode = "400"))
+	@Operation(responses = {
+			@ApiResponse(responseCode = "201", headers = @Header(name = "Location", description = "URI to the user created", schema = @Schema(type = "string")), content = @Content()),
+			@ApiResponse(responseCode = "400", content = @Content(schema = @Schema(allOf = ErrorMessageResponse.class))),
+			@ApiResponse(responseCode = "500") })
 	@PostMapping
 	public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
 		final var username = registerUserRequest.getUsername();
