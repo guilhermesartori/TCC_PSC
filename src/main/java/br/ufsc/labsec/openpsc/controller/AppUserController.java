@@ -1,8 +1,8 @@
 package br.ufsc.labsec.openpsc.controller;
 
 import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import br.ufsc.labsec.openpsc.data.request.RegisterUserRequest;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
@@ -49,10 +48,14 @@ public class AppUserController {
       @ApiResponse(responseCode = "201",
           headers = @Header(name = "Location", description = "URI to the user created",
               schema = @Schema(type = "string")),
-          content = @Content()),
+          content = @Content(schema = @Schema(implementation = UserResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
       @ApiResponse(responseCode = "400",
-          content = @Content(schema = @Schema(allOf = ErrorMessageResponse.class))),
-      @ApiResponse(responseCode = "500")})
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @PostMapping
   public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
     final var username = registerUserRequest.getUsername();
