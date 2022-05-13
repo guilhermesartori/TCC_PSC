@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Schema(name = "ErrorMessageResponse")
 public class ErrorMessageResponse {
 
-	public static final String DEFAULT_ERROR = "Internal error.";
-	
-	private String error = DEFAULT_ERROR;
+  public static final String DEFAULT_ERROR = "Internal error.";
+
+  private String error = DEFAULT_ERROR;
 
 }

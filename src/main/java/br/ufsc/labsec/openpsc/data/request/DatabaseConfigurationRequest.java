@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DatabaseConfigurationRequest {
 
-	private String url;
-	private String username;
-	private String password;
-	private String systemPassword;
+  private String url;
+  private String username;
+  private String password;
+  private String systemPassword;
 }

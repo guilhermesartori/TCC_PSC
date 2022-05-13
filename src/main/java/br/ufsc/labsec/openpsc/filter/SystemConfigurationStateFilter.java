@@ -23,28 +23,28 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Order(1)
 public class SystemConfigurationStateFilter extends OncePerRequestFilter {
 
-	private static final String ERROR_MESSAGE = "System not configured.";
+  private static final String ERROR_MESSAGE = "System not configured.";
 
-	private static final String USER_PATH = "/user";
-	private static final String KEY_PATH = "/key";
+  private static final String USER_PATH = "/user";
+  private static final String KEY_PATH = "/key";
 
-	@Autowired
-	private SystemConfigurationService systemConfigurationService;
+  @Autowired
+  private SystemConfigurationService systemConfigurationService;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		final var requestURI = request.getRequestURI();
-		if ((!requestURI.startsWith(USER_PATH) && !requestURI.startsWith(KEY_PATH))
-				|| systemConfigurationService.isSystemConfigured())
-			filterChain.doFilter(request, response);
-		else {
-			response.setStatus(Status.BAD_REQUEST.getStatusCode());
-			final var responseBody = new ErrorMessageResponse();
-			responseBody.setError(ERROR_MESSAGE);
-			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			new ObjectMapper().writeValue(response.getOutputStream(), responseBody);
-		}
-	}
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
+    final var requestURI = request.getRequestURI();
+    if ((!requestURI.startsWith(USER_PATH) && !requestURI.startsWith(KEY_PATH))
+        || systemConfigurationService.isSystemConfigured())
+      filterChain.doFilter(request, response);
+    else {
+      response.setStatus(Status.BAD_REQUEST.getStatusCode());
+      final var responseBody = new ErrorMessageResponse();
+      responseBody.setError(ERROR_MESSAGE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      new ObjectMapper().writeValue(response.getOutputStream(), responseBody);
+    }
+  }
 
 }

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserResponse {
 
-	private String username;
-	private String authority;
+  private String username;
+  private String authority;
 }

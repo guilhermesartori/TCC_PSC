@@ -36,212 +36,218 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 @SpringBootTest
 public class TestSystemService {
 
-	private static final String USER_USERNAME = "test";
-	private static final String USER_PASSWORD = "test";
-	private static final String EXCEPTION_MESSAGE = "test";
+  private static final String USER_USERNAME = "test";
+  private static final String USER_PASSWORD = "test";
+  private static final String EXCEPTION_MESSAGE = "test";
 
-	@Autowired
-	private SystemConfigurationService systemConfigurationService;
+  @Autowired
+  private SystemConfigurationService systemConfigurationService;
 
-	@Autowired
-	private AppUserService appUserService;
+  @Autowired
+  private AppUserService appUserService;
 
-	@Autowired
-	private ParameterEncryptor parameterEncryptor;
+  @Autowired
+  private ParameterEncryptor parameterEncryptor;
 
-	@MockBean
-	private KNetCommunicationService kNetCommunicationService;
+  @MockBean
+  private KNetCommunicationService kNetCommunicationService;
 
-	private static Map<String, String> knetParameters;
+  private static Map<String, String> knetParameters;
 
-	static {
-		knetParameters = new HashMap<String, String>();
-		knetParameters.put("ADDRESS_CONN", "192.168.66.20");
-		knetParameters.put("PORT_CONN", "60055");
-		knetParameters.put("USERNAME", "test_user");
-		knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
-		knetParameters.put("MAX_CONNECTIONS", "1");
-	}
+  static {
+    knetParameters = new HashMap<String, String>();
+    knetParameters.put("ADDRESS_CONN", "192.168.66.20");
+    knetParameters.put("PORT_CONN", "60055");
+    knetParameters.put("USERNAME", "test_user");
+    knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
+    knetParameters.put("MAX_CONNECTIONS", "1");
+  }
 
-	@Test
-	public void createAdministratorUser_success() throws SystemServiceException, AppUserServiceException {
-		AppUser savedUser = null;
-		try {
-			savedUser = systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
+  @Test
+  public void createAdministratorUser_success()
+      throws SystemServiceException, AppUserServiceException {
+    AppUser savedUser = null;
+    try {
+      savedUser = systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
 
-			assertEquals(USER_USERNAME, savedUser.getUsername());
-			assertNotNull(savedUser.getPassword());
-			assertEquals(Authority.ADMINISTRATOR, savedUser.getAuthority());
+      assertEquals(USER_USERNAME, savedUser.getUsername());
+      assertNotNull(savedUser.getPassword());
+      assertEquals(Authority.ADMINISTRATOR, savedUser.getAuthority());
 
-		} finally {
-			if (savedUser != null)
-				appUserService.deleteUserByUsername(USER_USERNAME);
-		}
-	}
+    } finally {
+      if (savedUser != null)
+        appUserService.deleteUserByUsername(USER_USERNAME);
+    }
+  }
 
-	@Test
-	public void createAdministratorUser_fail() throws SystemServiceException, AppUserServiceException {
-		AppUser savedUser = null;
-		try {
-			savedUser = systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
+  @Test
+  public void createAdministratorUser_fail()
+      throws SystemServiceException, AppUserServiceException {
+    AppUser savedUser = null;
+    try {
+      savedUser = systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
 
-			assertThrows(SystemServiceException.class, () -> {
-				systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
-			});
-		} finally {
-			if (savedUser != null)
-				appUserService.deleteUserByUsername(USER_USERNAME);
-		}
-	}
+      assertThrows(SystemServiceException.class, () -> {
+        systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
+      });
+    } finally {
+      if (savedUser != null)
+        appUserService.deleteUserByUsername(USER_USERNAME);
+    }
+  }
 
-	@Test
-	public void loadKnetConfiguration_success()
-			throws SystemServiceException, KNetException, KNetCommunicationServiceException {
-		final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
-		doNothing().when(kNetCommunicationService).loadKnetConfiguration(any());
+  @Test
+  public void loadKnetConfiguration_success()
+      throws SystemServiceException, KNetException, KNetCommunicationServiceException {
+    final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
+    final var savedKnetConfiguration =
+        systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+    doNothing().when(kNetCommunicationService).loadKnetConfiguration(any());
 
-		assertDoesNotThrow(() -> {
-			systemConfigurationService.loadKnetConfiguration(accessKey);
+    assertDoesNotThrow(() -> {
+      systemConfigurationService.loadKnetConfiguration(accessKey);
 
-		});
+    });
 
-		systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
-	}
+    systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+  }
 
-	@Test
-	public void loadKnetConfiguration_fail_KNetException()
-			throws SystemServiceException, KNetException, KNetCommunicationServiceException {
-		final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
-		final var exception = new KNetException(EXCEPTION_MESSAGE, new Exception());
-		doThrow(exception).when(kNetCommunicationService).loadKnetConfiguration(any());
+  @Test
+  public void loadKnetConfiguration_fail_KNetException()
+      throws SystemServiceException, KNetException, KNetCommunicationServiceException {
+    final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
+    final var savedKnetConfiguration =
+        systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+    final var exception = new KNetException(EXCEPTION_MESSAGE, new Exception());
+    doThrow(exception).when(kNetCommunicationService).loadKnetConfiguration(any());
 
-		final var thrownException = assertThrows(SystemServiceException.class, () -> {
-			systemConfigurationService.loadKnetConfiguration(accessKey);
+    final var thrownException = assertThrows(SystemServiceException.class, () -> {
+      systemConfigurationService.loadKnetConfiguration(accessKey);
 
-			systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
-		});
+      systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+    });
 
-		systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+    systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
 
-		final var expectedException = new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
-		assertEquals(expectedException.getMessage(), thrownException.getMessage());
-	}
+    final var expectedException = new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
+    assertEquals(expectedException.getMessage(), thrownException.getMessage());
+  }
 
-	@Test
-	public void loadKnetConfiguration_fail_KNetCommunicationServiceException()
-			throws SystemServiceException, KNetException, KNetCommunicationServiceException {
-		final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
-		final var exception = new KNetCommunicationServiceException();
-		doThrow(exception).when(kNetCommunicationService).loadKnetConfiguration(any());
+  @Test
+  public void loadKnetConfiguration_fail_KNetCommunicationServiceException()
+      throws SystemServiceException, KNetException, KNetCommunicationServiceException {
+    final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
+    final var savedKnetConfiguration =
+        systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+    final var exception = new KNetCommunicationServiceException();
+    doThrow(exception).when(kNetCommunicationService).loadKnetConfiguration(any());
 
-		final var thrownException = assertThrows(SystemServiceException.class, () -> {
-			systemConfigurationService.loadKnetConfiguration(accessKey);
+    final var thrownException = assertThrows(SystemServiceException.class, () -> {
+      systemConfigurationService.loadKnetConfiguration(accessKey);
 
-			systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
-		});
+      systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+    });
 
-		systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+    systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
 
-		final var expectedException = new SystemServiceException(exception.getMessage());
-		assertEquals(expectedException.getMessage(), thrownException.getMessage());
+    final var expectedException = new SystemServiceException(exception.getMessage());
+    assertEquals(expectedException.getMessage(), thrownException.getMessage());
 
-	}
+  }
 
-	@Test
-	public void setKnetConfiguration_success()
-			throws SystemServiceException, KNetException, KNetCommunicationServiceException {
-		final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		doNothing().when(kNetCommunicationService).setKnetConfiguration(any());
+  @Test
+  public void setKnetConfiguration_success()
+      throws SystemServiceException, KNetException, KNetCommunicationServiceException {
+    final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
+    doNothing().when(kNetCommunicationService).setKnetConfiguration(any());
 
-		assertDoesNotThrow(() -> {
-			final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+    assertDoesNotThrow(() -> {
+      final var savedKnetConfiguration =
+          systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
 
-			systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
-		});
+      systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+    });
 
-	}
+  }
 
-	@Test
-	public void setKnetConfiguration_fail()
-			throws SystemServiceException, KNetException, KNetCommunicationServiceException {
-		final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
-		final var exception = new KNetException(EXCEPTION_MESSAGE, new Exception());
-		doThrow(exception).when(kNetCommunicationService).setKnetConfiguration(any());
+  @Test
+  public void setKnetConfiguration_fail()
+      throws SystemServiceException, KNetException, KNetCommunicationServiceException {
+    final var accessKey = parameterEncryptor.encryptKey(USER_PASSWORD);
+    final var exception = new KNetException(EXCEPTION_MESSAGE, new Exception());
+    doThrow(exception).when(kNetCommunicationService).setKnetConfiguration(any());
 
-		final var thrownException = assertThrows(SystemServiceException.class, () -> {
-			systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
-		});
+    final var thrownException = assertThrows(SystemServiceException.class, () -> {
+      systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+    });
 
-		final var expectedException = new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
-		assertEquals(expectedException.getMessage(), thrownException.getMessage());
+    final var expectedException = new SystemServiceException(ExceptionType.INVALID_KNET_CONFIG);
+    assertEquals(expectedException.getMessage(), thrownException.getMessage());
 
-	}
+  }
 
-	@Test
-	public void refreshSystemKey() {
-		final var systemKey = SystemKey.getKey();
+  @Test
+  public void refreshSystemKey() {
+    final var systemKey = SystemKey.getKey();
 
-		systemConfigurationService.refreshSystemKey();
+    systemConfigurationService.refreshSystemKey();
 
-		final var newSystemKey = SystemKey.getKey();
-		assertFalse(Arrays.equals(systemKey, newSystemKey));
-	}
+    final var newSystemKey = SystemKey.getKey();
+    assertFalse(Arrays.equals(systemKey, newSystemKey));
+  }
 
-	@Test
-	public void updateSystemConfiguredState_notConfigured() {
-		final var isConfigured = systemConfigurationService.isSystemConfigured();
-		when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(false);
+  @Test
+  public void updateSystemConfiguredState_notConfigured() {
+    final var isConfigured = systemConfigurationService.isSystemConfigured();
+    when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(false);
 
-		systemConfigurationService.updateSystemConfiguredState();
+    systemConfigurationService.updateSystemConfiguredState();
 
-		final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
-		assertFalse(isConfigured);
-		assertEquals(isConfigured, isConfiguredUpdated);
-	}
+    final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
+    assertFalse(isConfigured);
+    assertEquals(isConfigured, isConfiguredUpdated);
+  }
 
-	@Test
-	public void updateSystemConfiguredState_onlyKnetConfigured() {
-		final var isConfigured = systemConfigurationService.isSystemConfigured();
-		when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(true);
+  @Test
+  public void updateSystemConfiguredState_onlyKnetConfigured() {
+    final var isConfigured = systemConfigurationService.isSystemConfigured();
+    when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(true);
 
-		systemConfigurationService.updateSystemConfiguredState();
+    systemConfigurationService.updateSystemConfiguredState();
 
-		final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
-		assertFalse(isConfigured);
-		assertEquals(isConfigured, isConfiguredUpdated);
-	}
+    final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
+    assertFalse(isConfigured);
+    assertEquals(isConfigured, isConfiguredUpdated);
+  }
 
-	@Test
-	public void updateSystemConfiguredState_onlyAdminConfigured()
-			throws AppUserServiceException, SystemServiceException {
-		final var isConfigured = systemConfigurationService.isSystemConfigured();
-		when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(false);
-		systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
+  @Test
+  public void updateSystemConfiguredState_onlyAdminConfigured()
+      throws AppUserServiceException, SystemServiceException {
+    final var isConfigured = systemConfigurationService.isSystemConfigured();
+    when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(false);
+    systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
 
-		systemConfigurationService.updateSystemConfiguredState();
+    systemConfigurationService.updateSystemConfiguredState();
 
-		final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
-		appUserService.deleteUserByUsername(USER_USERNAME);
-		assertFalse(isConfigured);
-		assertEquals(isConfigured, isConfiguredUpdated);
-	}
-	
-	@Test
-	public void updateSystemConfiguredState_allConfiguration()
-			throws AppUserServiceException, SystemServiceException {
-		final var isConfigured = systemConfigurationService.isSystemConfigured();
-		when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(true);
-		systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
+    final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
+    appUserService.deleteUserByUsername(USER_USERNAME);
+    assertFalse(isConfigured);
+    assertEquals(isConfigured, isConfiguredUpdated);
+  }
 
-		systemConfigurationService.updateSystemConfiguredState();
+  @Test
+  public void updateSystemConfiguredState_allConfiguration()
+      throws AppUserServiceException, SystemServiceException {
+    final var isConfigured = systemConfigurationService.isSystemConfigured();
+    when(kNetCommunicationService.isKnetConfigurationLoaded()).thenReturn(true);
+    systemConfigurationService.createAdministratorUser(USER_USERNAME, USER_PASSWORD);
 
-		final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
-		appUserService.deleteUserByUsername(USER_USERNAME);
-		assertFalse(isConfigured);
-		assertNotEquals(isConfigured, isConfiguredUpdated);
-	}
+    systemConfigurationService.updateSystemConfiguredState();
+
+    final var isConfiguredUpdated = systemConfigurationService.isSystemConfigured();
+    appUserService.deleteUserByUsername(USER_USERNAME);
+    assertFalse(isConfigured);
+    assertNotEquals(isConfigured, isConfiguredUpdated);
+  }
 
 }

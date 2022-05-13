@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignatureResponse {
 
-	private String base64EncodedSignature;
-	private String keyPairUniqueIdentifier;
-	private String base64EncodedPublicKey;
+  private String base64EncodedSignature;
+  private String keyPairUniqueIdentifier;
+  private String base64EncodedPublicKey;
 
 }

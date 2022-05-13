@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignatureVerificationRequest {
 
-	private String base64EncodedData;
-	private String base64EncodedSignature;
-	private String signatureAlgorithm;
+  private String base64EncodedData;
+  private String base64EncodedSignature;
+  private String signatureAlgorithm;
 
 }

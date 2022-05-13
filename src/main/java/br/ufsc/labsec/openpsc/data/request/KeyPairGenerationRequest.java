@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KeyPairGenerationRequest {
 
-	private String keyAlgorithm;
-	private String keyParameter;
-	private String keyName;
+  private String keyAlgorithm;
+  private String keyParameter;
+  private String keyName;
 
 }

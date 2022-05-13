@@ -23,67 +23,73 @@ import br.ufsc.labsec.openpsc.service.JWTManager;
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	private final UserDetailsService userDetailsService;
-	private final PasswordEncoder passwordEncoder;
-	private final JWTManager jwtManager;
+  private final UserDetailsService userDetailsService;
+  private final PasswordEncoder passwordEncoder;
+  private final JWTManager jwtManager;
 
-	/**
-	 * @param userDetailsService
-	 * @param passwordEncoder
-	 */
-	@Autowired
-	public WebSecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
-			JWTManager jwtManager) {
-		super();
-		this.userDetailsService = userDetailsService;
-		this.passwordEncoder = passwordEncoder;
-		this.jwtManager = jwtManager;
-	}
+  /**
+   * @param userDetailsService
+   * @param passwordEncoder
+   */
+  @Autowired
+  public WebSecurityConfiguration(UserDetailsService userDetailsService,
+      PasswordEncoder passwordEncoder, JWTManager jwtManager) {
+    super();
+    this.userDetailsService = userDetailsService;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtManager = jwtManager;
+  }
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-	}
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+  }
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		final var authenticationFilter = new AppUserAuthenticationFilter(authenticationManagerBean(), jwtManager);
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    final var authenticationFilter =
+        new AppUserAuthenticationFilter(authenticationManagerBean(), jwtManager);
 
-		http.csrf().disable();
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.csrf().disable();
+    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-		// /user
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/user/**")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+    // /user
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/user")
+        .hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/user/**")
+        .hasAnyAuthority(Authority.ADMINISTRATOR.toString());
 
-		// /key
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key").hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/key").hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/**/sign")
-				.hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key/**").hasAnyAuthority(Authority.USER.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/key/**").hasAnyAuthority(Authority.USER.toString());
+    // /key
+    http.authorizeRequests().antMatchers(HttpMethod.POST, "/key")
+        .hasAnyAuthority(Authority.USER.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/key")
+        .hasAnyAuthority(Authority.USER.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.POST, "/key/**/sign")
+        .hasAnyAuthority(Authority.USER.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/key/**")
+        .hasAnyAuthority(Authority.USER.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/key/**")
+        .hasAnyAuthority(Authority.USER.toString());
 
-		// /system
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/hsm-config/**")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.PUT, "/system/hsm-config/**")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/refresh-key")
-				.hasAnyAuthority(Authority.ADMINISTRATOR.toString());
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
+    // /system
+    http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/hsm-config/**")
+        .hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.PUT, "/system/hsm-config/**")
+        .hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/refresh-key")
+        .hasAnyAuthority(Authority.ADMINISTRATOR.toString());
+    http.authorizeRequests().antMatchers(HttpMethod.POST, "/system/admin-user").permitAll();
 
-		// filters
-		http.addFilter(authenticationFilter);
-		http.addFilterBefore(new AppUserAuthorizationFilter(jwtManager), UsernamePasswordAuthenticationFilter.class);
-	}
+    // filters
+    http.addFilter(authenticationFilter);
+    http.addFilterBefore(new AppUserAuthorizationFilter(jwtManager),
+        UsernamePasswordAuthenticationFilter.class);
+  }
 
-	@Bean
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
 
 }

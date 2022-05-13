@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignatureRequest {
 
-	private String hashingAlgorithm;
-	private String base64EncodedData;
+  private String hashingAlgorithm;
+  private String base64EncodedData;
 
 }

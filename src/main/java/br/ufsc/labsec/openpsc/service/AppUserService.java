@@ -25,62 +25,62 @@ import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException.Exceptio
 @Transactional
 public class AppUserService implements UserDetailsService {
 
-	private final AppUserRepository appUserRepository;
-	private final PasswordEncoder passwordEncoder;
+  private final AppUserRepository appUserRepository;
+  private final PasswordEncoder passwordEncoder;
 
-	@Autowired
-	public AppUserService(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
-		super();
-		this.appUserRepository = appUserRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+  @Autowired
+  public AppUserService(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
+    super();
+    this.appUserRepository = appUserRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		final var optionalUser = appUserRepository.findAppUserByUsername(username);
-		if (optionalUser.isEmpty())
-			throw new UsernameNotFoundException(String.format("User %s not found", username));
-		final var appUser = optionalUser.get();
-		final var authorities = new ArrayList<SimpleGrantedAuthority>();
-		authorities.add(new SimpleGrantedAuthority(appUser.getAuthority().toString()));
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    final var optionalUser = appUserRepository.findAppUserByUsername(username);
+    if (optionalUser.isEmpty())
+      throw new UsernameNotFoundException(String.format("User %s not found", username));
+    final var appUser = optionalUser.get();
+    final var authorities = new ArrayList<SimpleGrantedAuthority>();
+    authorities.add(new SimpleGrantedAuthority(appUser.getAuthority().toString()));
 
-		return new User(appUser.getUsername(), appUser.getPassword(), authorities);
-	}
+    return new User(appUser.getUsername(), appUser.getPassword(), authorities);
+  }
 
-	public AppUser registerNewUser(String username, String password) throws AppUserServiceException {
-		final var optionalUser = appUserRepository.findAppUserByUsername(username);
-		if (optionalUser.isPresent())
-			throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
-		final var user = new AppUser(null, username, password, Authority.USER);
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return appUserRepository.save(user);
-	}
+  public AppUser registerNewUser(String username, String password) throws AppUserServiceException {
+    final var optionalUser = appUserRepository.findAppUserByUsername(username);
+    if (optionalUser.isPresent())
+      throw new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
+    final var user = new AppUser(null, username, password, Authority.USER);
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    return appUserRepository.save(user);
+  }
 
-	public AppUser saveAppUser(AppUser user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return appUserRepository.save(user);
-	}
+  public AppUser saveAppUser(AppUser user) {
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    return appUserRepository.save(user);
+  }
 
-	public AppUser getUser(String username) throws AppUserServiceException {
-		final var optionalUser = appUserRepository.findAppUserByUsername(username);
-		if (optionalUser.isPresent())
-			return optionalUser.get();
-		else
-			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
-	}
+  public AppUser getUser(String username) throws AppUserServiceException {
+    final var optionalUser = appUserRepository.findAppUserByUsername(username);
+    if (optionalUser.isPresent())
+      return optionalUser.get();
+    else
+      throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
+  }
 
-	public Collection<AppUser> getUsers() {
-		return appUserRepository.findAll();
-	}
+  public Collection<AppUser> getUsers() {
+    return appUserRepository.findAll();
+  }
 
-	public void deleteUserByUsername(String username) throws AppUserServiceException {
-		final var success = appUserRepository.deleteAppUserByUsername(username);
-		if (success == 0)
-			throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
-	}
+  public void deleteUserByUsername(String username) throws AppUserServiceException {
+    final var success = appUserRepository.deleteAppUserByUsername(username);
+    if (success == 0)
+      throw new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
+  }
 
-	public Optional<AppUser> getAdministrator() {
-		return appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR);
-	}
+  public Optional<AppUser> getAdministrator() {
+    return appUserRepository.findAppUserByAuthority(Authority.ADMINISTRATOR);
+  }
 
 }

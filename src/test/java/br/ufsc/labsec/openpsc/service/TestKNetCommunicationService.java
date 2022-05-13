@@ -25,217 +25,228 @@ import br.ufsc.labsec.valueobject.exception.KNetException;
 @SpringBootTest
 public class TestKNetCommunicationService {
 
-	@Autowired
-	private KNetCommunicationService knetCommunicationService;
+  @Autowired
+  private KNetCommunicationService knetCommunicationService;
 
-	@Autowired
-	private SystemConfigurationService systemConfigurationService;
+  @Autowired
+  private SystemConfigurationService systemConfigurationService;
 
-	@Autowired
-	private ParameterEncryptor parameterEncryptor;
+  @Autowired
+  private ParameterEncryptor parameterEncryptor;
 
-	private static Map<String, String> knetParameters;
+  private static Map<String, String> knetParameters;
 
-	static {
-		knetParameters = new HashMap<String, String>();
-		knetParameters.put("ADDRESS_CONN", "192.168.66.20");
-		knetParameters.put("PORT_CONN", "60055");
-		knetParameters.put("USERNAME", "test_user");
-		knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
-		knetParameters.put("MAX_CONNECTIONS", "1");
-		knetParameters.put("TLV_PORT", "60055");
-	}
+  static {
+    knetParameters = new HashMap<String, String>();
+    knetParameters.put("ADDRESS_CONN", "192.168.66.20");
+    knetParameters.put("PORT_CONN", "60055");
+    knetParameters.put("USERNAME", "test_user");
+    knetParameters.put("PW", "2m;z#MkD-tcc-guilherme");
+    knetParameters.put("MAX_CONNECTIONS", "1");
+    knetParameters.put("TLV_PORT", "60055");
+  }
 
-	private void createKnetConfiguration() throws KNetException {
-		knetCommunicationService.setKnetConfiguration(knetParameters);
-	}
+  private void createKnetConfiguration() throws KNetException {
+    knetCommunicationService.setKnetConfiguration(knetParameters);
+  }
 
-	@Test
-	public void createKeyPair_success() throws KNetException, KNetCommunicationServiceException {
-		createKnetConfiguration();
+  @Test
+  public void createKeyPair_success() throws KNetException, KNetCommunicationServiceException {
+    createKnetConfiguration();
 
-		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+    final var identifiers =
+        knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-				identifiers.getPublicKeyIdentifier());
-		assertNotNull(identifiers.getPrivateKeyIdentifier());
-		assertNotNull(identifiers.getPublicKeyIdentifier());
+    knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+        identifiers.getPublicKeyIdentifier());
+    assertNotNull(identifiers.getPrivateKeyIdentifier());
+    assertNotNull(identifiers.getPublicKeyIdentifier());
 
-	}
+  }
 
-	@Test
-	public void createKeyPair_fail() throws KNetException, KNetCommunicationServiceException {
-		knetCommunicationService.setkNetRequester(null);
+  @Test
+  public void createKeyPair_fail() throws KNetException, KNetCommunicationServiceException {
+    knetCommunicationService.setkNetRequester(null);
 
-		assertThrows(KNetCommunicationServiceException.class, () -> {
-			final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+    assertThrows(KNetCommunicationServiceException.class, () -> {
+      final var identifiers =
+          knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-					identifiers.getPublicKeyIdentifier());
-		});
-	}
+      knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+          identifiers.getPublicKeyIdentifier());
+    });
+  }
 
-	@Test
-	public void sign_success_RSA1024()
-			throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
-		createKnetConfiguration();
+  @Test
+  public void sign_success_RSA1024()
+      throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
+    createKnetConfiguration();
 
-		KeyIdentifierPair identifiers = null;
-		try {
-			identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_sign");
-			final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
+    KeyIdentifierPair identifiers = null;
+    try {
+      identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_sign");
+      final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
-			final var signature = knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(), "RSA", "1024",
-					data);
-			assertNotNull(signature);
-		} catch (Exception e) {
-			fail();
-		} finally {
-			if (identifiers != null)
-				knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-						identifiers.getPublicKeyIdentifier());
-		}
-	}
+      final var signature =
+          knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(), "RSA", "1024", data);
+      assertNotNull(signature);
+    } catch (Exception e) {
+      fail();
+    } finally {
+      if (identifiers != null)
+        knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+            identifiers.getPublicKeyIdentifier());
+    }
+  }
 
-	@Test
-	public void sign_success_Ed448() throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
-		createKnetConfiguration();
+  @Test
+  public void sign_success_Ed448()
+      throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
+    createKnetConfiguration();
 
-		KeyIdentifierPair identifiers = null;
-		try {
-			identifiers = knetCommunicationService.createKeyPair("EdDSA", "Ed448", "test_sign2");
-			final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
+    KeyIdentifierPair identifiers = null;
+    try {
+      identifiers = knetCommunicationService.createKeyPair("EdDSA", "Ed448", "test_sign2");
+      final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
-			final var signature = knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(), "EdDSA", "Ed448",
-					data);
-			assertNotNull(signature);
-		} catch (Exception e) {
-			fail();
-		} finally {
-			if (identifiers != null)
-				knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-						identifiers.getPublicKeyIdentifier());
-		}
-	}
+      final var signature = knetCommunicationService.sign(identifiers.getPrivateKeyIdentifier(),
+          "EdDSA", "Ed448", data);
+      assertNotNull(signature);
+    } catch (Exception e) {
+      fail();
+    } finally {
+      if (identifiers != null)
+        knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+            identifiers.getPublicKeyIdentifier());
+    }
+  }
 
-	@Test
-	public void sign_fail() throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
-		knetCommunicationService.setkNetRequester(null);
-		final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
+  @Test
+  public void sign_fail()
+      throws KNetException, NoSuchAlgorithmException, KNetCommunicationServiceException {
+    knetCommunicationService.setkNetRequester(null);
+    final var data = MessageDigest.getInstance("SHA256").digest("test".getBytes());
 
-		assertThrows(KNetCommunicationServiceException.class, () -> {
-			knetCommunicationService.sign("test", "RSA", "2048", data);
-		});
-	}
+    assertThrows(KNetCommunicationServiceException.class, () -> {
+      knetCommunicationService.sign("test", "RSA", "2048", data);
+    });
+  }
 
-	@Test
-	public void deleteKeyPair_success() throws KNetException, KNetCommunicationServiceException {
-		createKnetConfiguration();
-		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+  @Test
+  public void deleteKeyPair_success() throws KNetException, KNetCommunicationServiceException {
+    createKnetConfiguration();
+    final var identifiers =
+        knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-		assertDoesNotThrow(() -> {
-			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-					identifiers.getPublicKeyIdentifier());
-		});
-	}
+    assertDoesNotThrow(() -> {
+      knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+          identifiers.getPublicKeyIdentifier());
+    });
+  }
 
-	@Test
-	public void deleteKeyPair_fail() throws KNetException, KNetCommunicationServiceException {
-		createKnetConfiguration();
-		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
-		knetCommunicationService.setkNetRequester(null);
+  @Test
+  public void deleteKeyPair_fail() throws KNetException, KNetCommunicationServiceException {
+    createKnetConfiguration();
+    final var identifiers =
+        knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+    knetCommunicationService.setkNetRequester(null);
 
-		assertThrows(KNetCommunicationServiceException.class, () -> {
-			knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-					identifiers.getPublicKeyIdentifier());
-		});
+    assertThrows(KNetCommunicationServiceException.class, () -> {
+      knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+          identifiers.getPublicKeyIdentifier());
+    });
 
-		createKnetConfiguration();
-		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-				identifiers.getPublicKeyIdentifier());
-	}
+    createKnetConfiguration();
+    knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+        identifiers.getPublicKeyIdentifier());
+  }
 
-	@Test
-	public void getPublicKey_success_RSA1024()
-			throws KNetException, KNetCommunicationServiceException, KeyManagerException {
-		createKnetConfiguration();
-		final var identifiers = knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
+  @Test
+  public void getPublicKey_success_RSA1024()
+      throws KNetException, KNetCommunicationServiceException, KeyManagerException {
+    createKnetConfiguration();
+    final var identifiers =
+        knetCommunicationService.createKeyPair("RSA", "1024", "test_createKeyPair");
 
-		final var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA",
-				"1024");
+    final var publicKey =
+        knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "RSA", "1024");
 
-		assertNotNull(publicKey);
+    assertNotNull(publicKey);
 
-		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-				identifiers.getPublicKeyIdentifier());
-	}
+    knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+        identifiers.getPublicKeyIdentifier());
+  }
 
-	@Test
-	public void getPublicKey_success_Ed448()
-			throws KNetException, KNetCommunicationServiceException, KeyManagerException {
-		createKnetConfiguration();
-		final var identifiers = knetCommunicationService.createKeyPair("EDDSA", "Ed448", "test_createKeyPair2");
+  @Test
+  public void getPublicKey_success_Ed448()
+      throws KNetException, KNetCommunicationServiceException, KeyManagerException {
+    createKnetConfiguration();
+    final var identifiers =
+        knetCommunicationService.createKeyPair("EDDSA", "Ed448", "test_createKeyPair2");
 
-		final var publicKey = knetCommunicationService.getPublicKey(identifiers.getPublicKeyIdentifier(), "EDDSA",
-				"Ed448");
+    final var publicKey = knetCommunicationService
+        .getPublicKey(identifiers.getPublicKeyIdentifier(), "EDDSA", "Ed448");
 
-		assertNotNull(publicKey);
+    assertNotNull(publicKey);
 
-		knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
-				identifiers.getPublicKeyIdentifier());
-	}
+    knetCommunicationService.deleteKeyPair(identifiers.getPrivateKeyIdentifier(),
+        identifiers.getPublicKeyIdentifier());
+  }
 
-	@Test
-	public void getPublicKey_fail() throws KNetException, KNetCommunicationServiceException {
-		knetCommunicationService.setkNetRequester(null);
+  @Test
+  public void getPublicKey_fail() throws KNetException, KNetCommunicationServiceException {
+    knetCommunicationService.setkNetRequester(null);
 
-		assertThrows(KNetCommunicationServiceException.class, () -> {
-			knetCommunicationService.getPublicKey("test", "RSA", "2048");
-		});
-	}
+    assertThrows(KNetCommunicationServiceException.class, () -> {
+      knetCommunicationService.getPublicKey("test", "RSA", "2048");
+    });
+  }
 
-	@Test
-	public void isKnetConfigurationLoaded_true() throws KNetException, KNetCommunicationServiceException {
-		createKnetConfiguration();
+  @Test
+  public void isKnetConfigurationLoaded_true()
+      throws KNetException, KNetCommunicationServiceException {
+    createKnetConfiguration();
 
-		final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+    final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
 
-		assertTrue(isLoaded);
-	}
+    assertTrue(isLoaded);
+  }
 
-	@Test
-	public void isKnetConfigurationLoaded_false() throws KNetException, KNetCommunicationServiceException {
-		knetCommunicationService.setkNetRequester(null);
+  @Test
+  public void isKnetConfigurationLoaded_false()
+      throws KNetException, KNetCommunicationServiceException {
+    knetCommunicationService.setkNetRequester(null);
 
-		final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
+    final var isLoaded = knetCommunicationService.isKnetConfigurationLoaded();
 
-		assertFalse(isLoaded);
+    assertFalse(isLoaded);
 
-	}
+  }
 
-	@Test
-	public void loadKnetConfiguration_success()
-			throws KNetException, KNetCommunicationServiceException, SystemServiceException {
-		final var accessKey = parameterEncryptor.encryptKey("test");
-		final var savedKnetConfiguration = systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
+  @Test
+  public void loadKnetConfiguration_success()
+      throws KNetException, KNetCommunicationServiceException, SystemServiceException {
+    final var accessKey = parameterEncryptor.encryptKey("test");
+    final var savedKnetConfiguration =
+        systemConfigurationService.setKnetConfiguration(knetParameters, accessKey);
 
-		assertDoesNotThrow(() -> {
-			knetCommunicationService.loadKnetConfiguration(accessKey);
+    assertDoesNotThrow(() -> {
+      knetCommunicationService.loadKnetConfiguration(accessKey);
 
-		});
+    });
 
-		systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
-	}
+    systemConfigurationService.deleteKnetConfiguration(savedKnetConfiguration);
+  }
 
-	@Test
-	public void loadKnetConfiguration_fail_noConfiguration() throws KNetException {
-		final var accessKey = parameterEncryptor.encryptKey("test");
+  @Test
+  public void loadKnetConfiguration_fail_noConfiguration() throws KNetException {
+    final var accessKey = parameterEncryptor.encryptKey("test");
 
-		assertThrows(KNetCommunicationServiceException.class, () -> {
-			knetCommunicationService.loadKnetConfiguration(accessKey);
+    assertThrows(KNetCommunicationServiceException.class, () -> {
+      knetCommunicationService.loadKnetConfiguration(accessKey);
 
-		});
+    });
 
-	}
+  }
 
 }

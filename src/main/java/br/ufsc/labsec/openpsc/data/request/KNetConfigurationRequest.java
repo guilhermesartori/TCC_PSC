@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KNetConfigurationRequest {
 
-	private Map<String, String> parameters;
+  private Map<String, String> parameters;
 
 }

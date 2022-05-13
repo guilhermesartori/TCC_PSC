@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignatureVerificationResponse {
 
-	private boolean validSignature;
+  private boolean validSignature;
 
 }

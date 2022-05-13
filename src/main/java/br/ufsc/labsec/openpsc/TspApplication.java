@@ -11,12 +11,16 @@ import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 
 @SpringBootApplication
 @SecuritySchemes(value = {
-		@SecurityScheme(type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT", name = "administrator", description = "Schema referring to a JWT obtained by an administrator user."),
-		@SecurityScheme(type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT", name = "user", description = "Schema referring to a JWT obtained by a non-administrator user.") })
+    @SecurityScheme(type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT",
+        name = "administrator",
+        description = "Schema referring to a JWT obtained by an administrator user."),
+    @SecurityScheme(type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT",
+        name = "user",
+        description = "Schema referring to a JWT obtained by a non-administrator user.")})
 public class TspApplication {
 
-	public static void main(String[] args) throws IOException {
-		SpringApplication.run(TspApplication.class, args);
-	}
+  public static void main(String[] args) throws IOException {
+    SpringApplication.run(TspApplication.class, args);
+  }
 
 }

@@ -28,63 +28,67 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 @RequestMapping(path = "user")
 public class AppUserController {
 
-	private final AppUserService appUserService;
+  private final AppUserService appUserService;
 
-	/**
-	 * @param appUserService
-	 */
-	@Autowired
-	public AppUserController(AppUserService appUserService) {
-		super();
-		this.appUserService = appUserService;
-	}
+  /**
+   * @param appUserService
+   */
+  @Autowired
+  public AppUserController(AppUserService appUserService) {
+    super();
+    this.appUserService = appUserService;
+  }
 
-	@SecurityRequirement(name = "administrator")
-	@GetMapping
-	public ResponseEntity<Object> getUsers() {
-		return ResponseEntity.ok().body(appUserService.getUsers());
-	}
+  @SecurityRequirement(name = "administrator")
+  @GetMapping
+  public ResponseEntity<Object> getUsers() {
+    return ResponseEntity.ok().body(appUserService.getUsers());
+  }
 
-	@Operation(responses = {
-			@ApiResponse(responseCode = "201", headers = @Header(name = "Location", description = "URI to the user created", schema = @Schema(type = "string")), content = @Content()),
-			@ApiResponse(responseCode = "400", content = @Content(schema = @Schema(allOf = ErrorMessageResponse.class))),
-			@ApiResponse(responseCode = "500") })
-	@PostMapping
-	public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
-		final var username = registerUserRequest.getUsername();
-		final var password = registerUserRequest.getPassword();
-		try {
-			final var createdUser = appUserService.registerNewUser(username, password);
-			final var userResponseBody = new UserResponse();
-			userResponseBody.setUsername(createdUser.getUsername());
-			userResponseBody.setAuthority(createdUser.getAuthority().name());
-			final var createdUserId = createdUser.getId();
-			final var pathToCreatedUser = String.format("/user/%d", createdUserId);
-			final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath().path(pathToCreatedUser)
-					.toUriString();
-			final var uri = URI.create(uriString);
-			return ResponseEntity.created(uri).body(userResponseBody);
-		} catch (AppUserServiceException e) {
-			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-		} catch (Throwable e) {
-			return ResponseEntity.internalServerError().body(new ErrorMessageResponse());
-		}
-	}
+  @Operation(responses = {
+      @ApiResponse(responseCode = "201",
+          headers = @Header(name = "Location", description = "URI to the user created",
+              schema = @Schema(type = "string")),
+          content = @Content()),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(allOf = ErrorMessageResponse.class))),
+      @ApiResponse(responseCode = "500")})
+  @PostMapping
+  public ResponseEntity<Object> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
+    final var username = registerUserRequest.getUsername();
+    final var password = registerUserRequest.getPassword();
+    try {
+      final var createdUser = appUserService.registerNewUser(username, password);
+      final var userResponseBody = new UserResponse();
+      userResponseBody.setUsername(createdUser.getUsername());
+      userResponseBody.setAuthority(createdUser.getAuthority().name());
+      final var createdUserId = createdUser.getId();
+      final var pathToCreatedUser = String.format("/user/%d", createdUserId);
+      final var uriString = ServletUriComponentsBuilder.fromCurrentContextPath()
+          .path(pathToCreatedUser).toUriString();
+      final var uri = URI.create(uriString);
+      return ResponseEntity.created(uri).body(userResponseBody);
+    } catch (AppUserServiceException e) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+    } catch (Throwable e) {
+      return ResponseEntity.internalServerError().body(new ErrorMessageResponse());
+    }
+  }
 
-	@SecurityRequirement(name = "administrator")
-	@GetMapping(path = "{username}")
-	public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
-		try {
-			final var user = appUserService.getUser(username);
-			final var userResponseBody = new UserResponse();
-			userResponseBody.setUsername(user.getUsername());
-			userResponseBody.setAuthority(user.getAuthority().name());
-			return ResponseEntity.ok().body(userResponseBody);
-		} catch (AppUserServiceException e) {
-			return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-		} catch (Throwable e) {
-			return ResponseEntity.internalServerError().body(new ErrorMessageResponse());
-		}
-	}
+  @SecurityRequirement(name = "administrator")
+  @GetMapping(path = "{username}")
+  public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
+    try {
+      final var user = appUserService.getUser(username);
+      final var userResponseBody = new UserResponse();
+      userResponseBody.setUsername(user.getUsername());
+      userResponseBody.setAuthority(user.getAuthority().name());
+      return ResponseEntity.ok().body(userResponseBody);
+    } catch (AppUserServiceException e) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+    } catch (Throwable e) {
+      return ResponseEntity.internalServerError().body(new ErrorMessageResponse());
+    }
+  }
 
 }

@@ -24,13 +24,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KnetConfiguration {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	@ElementCollection(fetch = FetchType.EAGER)
-	@MapKeyColumn(name = "name")
-	@Column(name = "value")
-	@CollectionTable
-	private Map<String, String> encryptedParameters;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+  @ElementCollection(fetch = FetchType.EAGER)
+  @MapKeyColumn(name = "name")
+  @Column(name = "value")
+  @CollectionTable
+  private Map<String, String> encryptedParameters;
 
 }

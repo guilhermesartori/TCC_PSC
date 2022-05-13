@@ -19,33 +19,34 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AppUser {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	@Column(nullable = false, unique = true)
-	private String username;
-	@Column(nullable = false)
-	private String password;
-	@Column(nullable = false)
-	private Authority authority;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+  @Column(nullable = false, unique = true)
+  private String username;
+  @Column(nullable = false)
+  private String password;
+  @Column(nullable = false)
+  private Authority authority;
 
-	public AppUser(String username, String password, Authority authority) {
-		this.username = username;
-		this.password = password;
-		this.authority = authority;
-	}
+  public AppUser(String username, String password, Authority authority) {
+    this.username = username;
+    this.password = password;
+    this.authority = authority;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof AppUser))
-			return false;
-		final var other = (AppUser) obj;
-		return other.username.equals(username) && other.password.equals(password) && other.authority == authority;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof AppUser))
+      return false;
+    final var other = (AppUser) obj;
+    return other.username.equals(username) && other.password.equals(password)
+        && other.authority == authority;
+  }
 
-	@Override
-	public int hashCode() {
-		return (int) username.hashCode() * password.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return (int) username.hashCode() * password.hashCode();
+  }
 
 }

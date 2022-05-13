@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KeyResponse {
 
-	private String keyPairUniqueIdentifier;
-	private String keyAlgorithm;
-	private String publicKey;
-	
+  private String keyPairUniqueIdentifier;
+  private String keyAlgorithm;
+  private String publicKey;
+
 }

@@ -42,205 +42,212 @@ import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException.Exceptio
 @WebMvcTest(AppUserController.class)
 public class TestAppUserController {
 
-	private static final String USER_USERNAME_1 = "test";
-	private static final String USER_USERNAME_2 = "test";
-	private static final String USER_PASSWORD_1 = "test";
-	private static final String USER_PASSWORD_2 = "test";
-	private static final Authority AUTHORITY = Authority.USER;
+  private static final String USER_USERNAME_1 = "test";
+  private static final String USER_USERNAME_2 = "test";
+  private static final String USER_PASSWORD_1 = "test";
+  private static final String USER_PASSWORD_2 = "test";
+  private static final Authority AUTHORITY = Authority.USER;
 
-	@Autowired
-	private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-	@MockBean
-	private AppUserService appUserService;
+  @MockBean
+  private AppUserService appUserService;
 
-	@MockBean
-	private SystemConfigurationService systemConfigurationService;
+  @MockBean
+  private SystemConfigurationService systemConfigurationService;
 
-	@TestConfiguration
-	static class TestConfig {
-		
-		@Bean
-		public PasswordEncoder passwordEncoderBean() {
-			return new BCryptPasswordEncoder();
-		}
+  @TestConfiguration
+  static class TestConfig {
 
-		@Bean
-		public JWTManager jwtManagerBean() {
-			return new JWTManager();
-		}
-		
-		@Bean
-		public ParameterEncryptor parameterEncryptorBean() {
-			return new ParameterEncryptor();
-		}
-		
-	}
+    @Bean
+    public PasswordEncoder passwordEncoderBean() {
+      return new BCryptPasswordEncoder();
+    }
 
-	@BeforeEach
-	public void setupConfiguration() {
-		when(systemConfigurationService.isSystemConfigured()).thenReturn(true);
-	}
+    @Bean
+    public JWTManager jwtManagerBean() {
+      return new JWTManager();
+    }
 
-	@Test
-	public void registerUser_success() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		final var content = objectMapper.writeValueAsString(user);
-		final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		savedUser.setId(1L);
-		when(appUserService.registerNewUser(any(), any())).thenReturn(savedUser);
+    @Bean
+    public ParameterEncryptor parameterEncryptorBean() {
+      return new ParameterEncryptor();
+    }
 
-		final var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+  }
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
-		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-		assertEquals(savedUser.getUsername(), responseBody.getUsername());
-		assertEquals(savedUser.getAuthority().toString(), responseBody.getAuthority());
-		assertNotNull(response.getHeader("Location"));
-	}
+  @BeforeEach
+  public void setupConfiguration() {
+    when(systemConfigurationService.isSystemConfigured()).thenReturn(true);
+  }
 
-	@Test
-	public void registerUser_fail_usernameInUse() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		final var content = objectMapper.writeValueAsString(user);
-		final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		savedUser.setId(1L);
-		final var exception = new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
+  @Test
+  public void registerUser_success() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+    final var content = objectMapper.writeValueAsString(user);
+    final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    savedUser.setId(1L);
+    when(appUserService.registerNewUser(any(), any())).thenReturn(savedUser);
 
-		when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
+    final var mvcResult =
+        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+            .andReturn();
 
-		final var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
+    assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+    assertEquals(savedUser.getUsername(), responseBody.getUsername());
+    assertEquals(savedUser.getAuthority().toString(), responseBody.getAuthority());
+    assertNotNull(response.getHeader("Location"));
+  }
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+  @Test
+  public void registerUser_fail_usernameInUse() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+    final var content = objectMapper.writeValueAsString(user);
+    final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    savedUser.setId(1L);
+    final var exception = new AppUserServiceException(ExceptionType.USERNAME_IN_USE);
 
-		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
-		assertEquals(exception.getMessage(), responseBody.getError());
-	}
+    when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
 
-	@Test
-	public void registerUser_fail_internalError() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
-		final var content = objectMapper.writeValueAsString(user);
-		final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		savedUser.setId(1L);
-		final var exception = new RuntimeException();
+    final var mvcResult =
+        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+            .andReturn();
 
-		when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody =
+        objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 
-		final var mvcResult = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
-				.andReturn();
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals(exception.getMessage(), responseBody.getError());
+  }
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+  @Test
+  public void registerUser_fail_internalError() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var user = new RegisterUserRequest(USER_USERNAME_1, USER_PASSWORD_1);
+    final var content = objectMapper.writeValueAsString(user);
+    final var savedUser = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    savedUser.setId(1L);
+    final var exception = new RuntimeException();
 
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
-		assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
-	}
+    when(appUserService.registerNewUser(any(), any())).thenThrow(exception);
 
-	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
-	@Test
-	public void getUsers_success() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		final var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
-		Collection<AppUser> users = List.of(user1, user2);
-		when(appUserService.getUsers()).thenReturn(users);
+    final var mvcResult =
+        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+            .andReturn();
 
-		final var mvcResult = mockMvc.perform(get("/user")).andReturn();
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody =
+        objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, AppUser[].class);
-		final var appUserSet = List.of(responseBody);
-		assertEquals(HttpStatus.OK.value(), response.getStatus());
-		assertEquals(2, responseBody.length);
-		assertTrue(appUserSet.contains(user1));
-		assertTrue(appUserSet.contains(user1));
-	}
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+    assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
+  }
 
-	@WithMockUser(username = "test", password = "test", authorities = {})
-	@Test
-	public void getUsers_fail_403() throws Exception {
-		final var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		final var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
-		Collection<AppUser> users = List.of(user1, user2);
-		when(appUserService.getUsers()).thenReturn(users);
+  @WithMockUser(username = "test", password = "test", authorities = {"ADMINISTRATOR"})
+  @Test
+  public void getUsers_success() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    final var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
+    Collection<AppUser> users = List.of(user1, user2);
+    when(appUserService.getUsers()).thenReturn(users);
 
-		final var mvcResult = mockMvc.perform(get("/user")).andReturn();
+    final var mvcResult = mockMvc.perform(get("/user")).andReturn();
 
-		final var response = mvcResult.getResponse();
-		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
-	}
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody = objectMapper.readValue(responseBodyAsString, AppUser[].class);
+    final var appUserSet = List.of(responseBody);
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertEquals(2, responseBody.length);
+    assertTrue(appUserSet.contains(user1));
+    assertTrue(appUserSet.contains(user1));
+  }
 
-	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
-	@Test
-	public void getUser_success() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		when(appUserService.getUser(any())).thenReturn(user);
+  @WithMockUser(username = "test", password = "test", authorities = {})
+  @Test
+  public void getUsers_fail_403() throws Exception {
+    final var user1 = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    final var user2 = new AppUser(USER_USERNAME_2, USER_PASSWORD_2, AUTHORITY);
+    Collection<AppUser> users = List.of(user1, user2);
+    when(appUserService.getUsers()).thenReturn(users);
 
-		final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+    final var mvcResult = mockMvc.perform(get("/user")).andReturn();
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
-		assertEquals(HttpStatus.OK.value(), response.getStatus());
-		assertEquals(responseBody.getUsername(), user.getUsername());
-		assertEquals(responseBody.getAuthority(), user.getAuthority().name());
-	}
+    final var response = mvcResult.getResponse();
+    assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+  }
 
-	@WithMockUser(username = "test", password = "test", authorities = {})
-	@Test
-	public void getUser_fail_403() throws Exception {
-		final var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
-		when(appUserService.getUser(any())).thenReturn(user);
+  @WithMockUser(username = "test", password = "test", authorities = {"ADMINISTRATOR"})
+  @Test
+  public void getUser_success() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    when(appUserService.getUser(any())).thenReturn(user);
 
-		final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+    final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
 
-		final var response = mvcResult.getResponse();
-		assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
-	}
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody = objectMapper.readValue(responseBodyAsString, UserResponse.class);
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertEquals(responseBody.getUsername(), user.getUsername());
+    assertEquals(responseBody.getAuthority(), user.getAuthority().name());
+  }
 
-	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
-	@Test
-	public void getUser_fail_400() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var exception = new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
-		when(appUserService.getUser(any())).thenThrow(exception);
+  @WithMockUser(username = "test", password = "test", authorities = {})
+  @Test
+  public void getUser_fail_403() throws Exception {
+    final var user = new AppUser(USER_USERNAME_1, USER_PASSWORD_1, AUTHORITY);
+    when(appUserService.getUser(any())).thenReturn(user);
 
-		final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+    final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
-		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
-		assertEquals(exception.getMessage(), responseBody.getError());
-	}
+    final var response = mvcResult.getResponse();
+    assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+  }
 
-	@WithMockUser(username = "test", password = "test", authorities = { "ADMINISTRATOR" })
-	@Test
-	public void getUser_fail_500() throws Exception {
-		final var objectMapper = new ObjectMapper();
-		final var exception = new RuntimeException();
-		when(appUserService.getUser(any())).thenThrow(exception);
+  @WithMockUser(username = "test", password = "test", authorities = {"ADMINISTRATOR"})
+  @Test
+  public void getUser_fail_400() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var exception = new AppUserServiceException(ExceptionType.USERNAME_NOT_EXIST);
+    when(appUserService.getUser(any())).thenThrow(exception);
 
-		final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+    final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
 
-		final var response = mvcResult.getResponse();
-		final var responseBodyAsString = response.getContentAsString();
-		final var responseBody = objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
-		assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
-	}
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody =
+        objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals(exception.getMessage(), responseBody.getError());
+  }
+
+  @WithMockUser(username = "test", password = "test", authorities = {"ADMINISTRATOR"})
+  @Test
+  public void getUser_fail_500() throws Exception {
+    final var objectMapper = new ObjectMapper();
+    final var exception = new RuntimeException();
+    when(appUserService.getUser(any())).thenThrow(exception);
+
+    final var mvcResult = mockMvc.perform(get("/user/test")).andReturn();
+
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody =
+        objectMapper.readValue(responseBodyAsString, ErrorMessageResponse.class);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+    assertEquals(ErrorMessageResponse.DEFAULT_ERROR, responseBody.getError());
+  }
 
 }
