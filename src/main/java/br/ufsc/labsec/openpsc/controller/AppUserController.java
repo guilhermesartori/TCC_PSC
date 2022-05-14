@@ -18,6 +18,7 @@ import br.ufsc.labsec.openpsc.service.AppUserService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,6 +39,17 @@ public class AppUserController {
     this.appUserService = appUserService;
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(
+              array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "administrator")
   @GetMapping
   public ResponseEntity<Object> getUsers() {
@@ -78,6 +90,16 @@ public class AppUserController {
     }
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(schema = @Schema(implementation = UserResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "administrator")
   @GetMapping(path = "{username}")
   public ResponseEntity<Object> getUser(@PathVariable("username") String username) {

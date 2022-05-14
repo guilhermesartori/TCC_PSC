@@ -3,6 +3,7 @@ package br.ufsc.labsec.openpsc.controller;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,9 +16,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import br.ufsc.labsec.openpsc.data.request.KNetConfigurationRequest;
 import br.ufsc.labsec.openpsc.data.request.RegisterUserRequest;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
+import br.ufsc.labsec.openpsc.data.response.KeyResponse;
+import br.ufsc.labsec.openpsc.data.response.SignatureResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
@@ -27,6 +35,18 @@ public class SystemConfigurationController {
   @Autowired
   private SystemConfigurationService systemConfigurationService;
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "201",
+          headers = @Header(name = "Location", description = "URI to the user created",
+              schema = @Schema(type = "string")),
+          content = @Content(schema = @Schema(implementation = UserResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @PostMapping("admin-user")
   public ResponseEntity<Object> createSystemAdmin(
       @RequestBody RegisterUserRequest registerUserRequest) {
@@ -51,6 +71,13 @@ public class SystemConfigurationController {
     }
   }
 
+  @Operation(responses = {@ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "administrator")
   @PutMapping("hsm-config")
   public ResponseEntity<Object> setKnetConfiguration(
@@ -68,6 +95,13 @@ public class SystemConfigurationController {
     }
   }
 
+  @Operation(responses = {@ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "administrator")
   @PostMapping("hsm-config/load")
   public ResponseEntity<Object> loadKnetConfiguration() {
@@ -84,6 +118,7 @@ public class SystemConfigurationController {
     }
   }
 
+  @Operation(responses = {@ApiResponse(responseCode = "200"), @ApiResponse(responseCode = "500")})
   @SecurityRequirement(name = "administrator")
   @PostMapping("refresh-key")
   public ResponseEntity<Object> refreshSystemKey() {

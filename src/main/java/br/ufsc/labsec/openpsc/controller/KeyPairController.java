@@ -1,8 +1,8 @@
 package br.ufsc.labsec.openpsc.controller;
 
 import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import br.ufsc.labsec.openpsc.data.request.KeyPairGenerationRequest;
 import br.ufsc.labsec.openpsc.data.request.SignatureRequest;
 import br.ufsc.labsec.openpsc.data.request.SignatureVerificationRequest;
@@ -24,6 +23,11 @@ import br.ufsc.labsec.openpsc.data.response.SignatureResponse;
 import br.ufsc.labsec.openpsc.data.response.SignatureVerificationResponse;
 import br.ufsc.labsec.openpsc.service.KeyPairService;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
@@ -41,6 +45,16 @@ public class KeyPairController {
     this.keyPairService = keyPairService;
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(schema = @Schema(implementation = KeyResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @GetMapping
   public ResponseEntity<Object> getKeyByKeyName(@RequestParam("keyName") String keyName) {
@@ -63,6 +77,16 @@ public class KeyPairController {
     }
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "201",
+          headers = @Header(name = "Location", description = "URI to the key created",
+              schema = @Schema(type = "string"))),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @PostMapping
   public ResponseEntity<Object> createKeyPair(@RequestBody KeyPairGenerationRequest request) {
@@ -86,6 +110,16 @@ public class KeyPairController {
     }
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(schema = @Schema(implementation = SignatureResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @PostMapping(path = "{keyUniqueIdentifier}/sign")
   public ResponseEntity<Object> sign(@RequestBody SignatureRequest request,
@@ -112,6 +146,15 @@ public class KeyPairController {
     }
   }
 
+  @Operation(responses = {
+
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @DeleteMapping(path = "{keyUniqueIdentifier}")
   public ResponseEntity<Object> deleteKeyPair(
@@ -131,6 +174,16 @@ public class KeyPairController {
     }
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(schema = @Schema(implementation = KeyResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @GetMapping(path = "{keyUniqueIdentifier}")
   public ResponseEntity<Object> getKey(
@@ -154,6 +207,16 @@ public class KeyPairController {
     }
   }
 
+  @Operation(responses = {
+      @ApiResponse(responseCode = "200",
+          content = @Content(schema = @Schema(implementation = SignatureVerificationResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "400",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500",
+          content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
+              mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @PostMapping(path = "{keyUniqueIdentifier}/verify-signature")
   public ResponseEntity<Object> verify(
       @PathVariable("keyUniqueIdentifier") String keyUniqueIdentifier,
