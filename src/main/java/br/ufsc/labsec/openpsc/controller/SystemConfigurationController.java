@@ -1,7 +1,6 @@
 package br.ufsc.labsec.openpsc.controller;
 
 import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import br.ufsc.labsec.openpsc.data.request.KNetConfigurationRequest;
 import br.ufsc.labsec.openpsc.data.request.RegisterUserRequest;
 import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
-import br.ufsc.labsec.openpsc.data.response.KeyResponse;
-import br.ufsc.labsec.openpsc.data.response.SignatureResponse;
 import br.ufsc.labsec.openpsc.data.response.UserResponse;
 import br.ufsc.labsec.openpsc.service.SystemConfigurationService;
 import br.ufsc.labsec.openpsc.service.exception.SystemServiceException;

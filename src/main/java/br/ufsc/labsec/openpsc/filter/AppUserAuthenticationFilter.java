@@ -18,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import br.ufsc.labsec.openpsc.data.request.AuthenticationRequest;
 import br.ufsc.labsec.openpsc.data.response.AuthenticationResponse;
 import br.ufsc.labsec.openpsc.service.JWTManager;
 
@@ -40,10 +40,16 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
-    final var username = request.getParameter("username");
-    final var password = request.getParameter("password");
-    final var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-    return authenticationManager.authenticate(authenticationToken);
+    try {
+      final var authenticationRequest =
+          new ObjectMapper().readValue(request.getInputStream(), AuthenticationRequest.class);
+      final var username = authenticationRequest.getUsername();
+      final var password = authenticationRequest.getPassword();
+      final var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+      return authenticationManager.authenticate(authenticationToken);
+    } catch (IOException e) {
+      return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("", ""));
+    }
   }
 
   @Override
@@ -66,7 +72,6 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
       HttpServletResponse response, AuthenticationException failed)
       throws IOException, ServletException {
     super.unsuccessfulAuthentication(request, response, failed);
-    failed.printStackTrace();
   }
 
 }
