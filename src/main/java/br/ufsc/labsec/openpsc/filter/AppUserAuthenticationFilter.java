@@ -2,14 +2,12 @@ package br.ufsc.labsec.openpsc.filter;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,9 +18,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import br.ufsc.labsec.openpsc.data.request.AuthenticationRequest;
 import br.ufsc.labsec.openpsc.data.response.AuthenticationResponse;
+import br.ufsc.labsec.openpsc.data.response.ErrorMessageResponse;
 import br.ufsc.labsec.openpsc.service.JWTManager;
 
 public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+  private static final String BAD_CREDENTIALS = "Invalid username or password.";
 
   private final JWTManager jwtManager;
   private final AuthenticationManager authenticationManager;
@@ -71,7 +72,11 @@ public class AppUserAuthenticationFilter extends UsernamePasswordAuthenticationF
   protected void unsuccessfulAuthentication(HttpServletRequest request,
       HttpServletResponse response, AuthenticationException failed)
       throws IOException, ServletException {
-    super.unsuccessfulAuthentication(request, response, failed);
+    final var error = new ErrorMessageResponse();
+    error.setError(BAD_CREDENTIALS);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    new ObjectMapper().writeValue(response.getOutputStream(), BAD_CREDENTIALS);
   }
 
 }

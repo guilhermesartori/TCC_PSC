@@ -5,15 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import br.ufsc.labsec.openpsc.entity.AppUser;
 import br.ufsc.labsec.openpsc.entity.enums.Authority;
-import br.ufsc.labsec.openpsc.service.AppUserService;
 import br.ufsc.labsec.openpsc.service.exception.AppUserServiceException;
 
 @SpringBootTest
