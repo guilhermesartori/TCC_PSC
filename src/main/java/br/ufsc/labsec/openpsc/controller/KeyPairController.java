@@ -1,6 +1,7 @@
 package br.ufsc.labsec.openpsc.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import br.ufsc.labsec.openpsc.service.KeyPairService;
 import br.ufsc.labsec.openpsc.service.exception.KeyPairServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,7 +49,8 @@ public class KeyPairController {
 
   @Operation(responses = {
       @ApiResponse(responseCode = "200",
-          content = @Content(schema = @Schema(implementation = KeyResponse.class),
+          content = @Content(
+              array = @ArraySchema(schema = @Schema(implementation = KeyResponse.class)),
               mediaType = MediaType.APPLICATION_JSON_VALUE)),
       @ApiResponse(responseCode = "400",
           content = @Content(schema = @Schema(implementation = ErrorMessageResponse.class),
@@ -57,16 +60,36 @@ public class KeyPairController {
               mediaType = MediaType.APPLICATION_JSON_VALUE))})
   @SecurityRequirement(name = "user")
   @GetMapping
-  public ResponseEntity<Object> getKeyByKeyName(@RequestParam("keyName") String keyName) {
+  public ResponseEntity<Object> getKeys(
+      @RequestParam(required = false, name = "keyName") String keyName) {
     try {
       final var username = SecurityContextHolder.getContext().getAuthentication().getName();
-      final var keyPair = keyPairService.getKeyPairByKeyName(username, keyName);
-      final var keyAlgorithm = keyPair.getKeyAlgorithm();
-      final var keyParameter = keyPair.getKeyParameter();
-      final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
-      final var publicKey =
-          keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
-      final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
+      final var body = new ArrayList<KeyResponse>();
+      if (keyName != null && !keyName.isBlank()) {
+        final var keyPair = keyPairService.getKeyPairByKeyName(username, keyName);
+        final var keyAlgorithm = keyPair.getKeyAlgorithm();
+        final var keyParameter = keyPair.getKeyParameter();
+        final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
+        final var keyNameResponse = keyPair.getKeyName();
+        final var publicKey =
+            keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
+        final var keyResponse =
+            new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey, keyNameResponse);
+        body.add(keyResponse);
+      } else {
+        final var keyPairs = keyPairService.getKeyPairs(username);
+        for (final var keyPair : keyPairs) {
+          final var keyAlgorithm = keyPair.getKeyAlgorithm();
+          final var keyParameter = keyPair.getKeyParameter();
+          final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
+          final var keyNameResponse = keyPair.getKeyName();
+          final var publicKey =
+              keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
+          final var keyResponse =
+              new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey, keyNameResponse);
+          body.add(keyResponse);
+        }
+      }
       return ResponseEntity.ok().body(body);
     } catch (KeyPairServiceException e) {
       final var body = new ErrorMessageResponse(e.getMessage());
@@ -194,9 +217,10 @@ public class KeyPairController {
       final var keyAlgorithm = keyPair.getKeyAlgorithm();
       final var keyParameter = keyPair.getKeyParameter();
       final var keyPairUniqueIdentifier = keyPair.getUniqueIdentifier();
+      final var keyName = keyPair.getKeyName();
       final var publicKey =
           keyPairService.getPublicKey(keyPair.getPublicKey(), keyAlgorithm, keyParameter);
-      final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey);
+      final var body = new KeyResponse(keyPairUniqueIdentifier, keyAlgorithm, publicKey, keyName);
       return ResponseEntity.ok().body(body);
     } catch (KeyPairServiceException e) {
       final var body = new ErrorMessageResponse(e.getMessage());

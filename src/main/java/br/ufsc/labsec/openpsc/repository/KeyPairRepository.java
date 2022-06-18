@@ -1,11 +1,10 @@
 package br.ufsc.labsec.openpsc.repository;
 
+import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import br.ufsc.labsec.openpsc.entity.AppUser;
 import br.ufsc.labsec.openpsc.entity.KeyPair;
 
@@ -33,5 +32,8 @@ public interface KeyPairRepository extends JpaRepository<KeyPair, Long> {
   public boolean existsKeyPairByKeyName(String keyName);
 
   public boolean existsKeyPairByUniqueIdentifier(String uniqueIdentifier);
+
+  @Query("select k from KeyPair k join k.owner u where u.username = :username")
+  public List<KeyPair> findKeyPairByOwnerUsername(String username);
 
 }

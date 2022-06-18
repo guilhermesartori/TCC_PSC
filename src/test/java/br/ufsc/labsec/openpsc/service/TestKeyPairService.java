@@ -190,6 +190,26 @@ public class TestKeyPairService {
   }
 
   @Test
+  public void getKeyPairs()
+      throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
+    final var algorithm = "RSA";
+    final var parameter = "2048";
+    final var keyPair =
+        keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm, parameter, KEY_NAME);
+    final var keyPair2 = keyPairService.createKeyPair(USER_USERNAME, accessKey, algorithm,
+        parameter, KEY_NAME + "2");
+
+    final var keyPairList = keyPairService.getKeyPairs(USER_USERNAME);
+
+    keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair.getUniqueIdentifier());
+    keyPairService.deleteKeyPair(USER_USERNAME, accessKey, keyPair2.getUniqueIdentifier());
+
+    assertEquals(2, keyPairList.size());
+    assertEquals(keyPair.getId(), keyPairList.get(0).getId());
+    assertEquals(keyPair2.getId(), keyPairList.get(1).getId());
+  }
+
+  @Test
   public void getKeyPair()
       throws KeyPairServiceException, KNetCommunicationServiceException, KNetException {
     final var algorithm = "RSA";

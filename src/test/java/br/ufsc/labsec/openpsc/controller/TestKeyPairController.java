@@ -9,9 +9,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
+import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
 import br.ufsc.labsec.openpsc.data.request.KeyPairGenerationRequest;
 import br.ufsc.labsec.openpsc.data.request.SignatureRequest;
 import br.ufsc.labsec.openpsc.data.request.SignatureVerificationRequest;
@@ -358,7 +356,7 @@ public class TestKeyPairController {
 
   @WithMockUser(username = "test", password = "test", authorities = {"USER"})
   @Test
-  public void getKeyByKeyName_success() throws Exception {
+  public void getKeys_success() throws Exception {
     final var keyAlgorithm = "keyAlgorithm";
     final var keyParameter = "keyParameter";
     final var uniqueIdentifier = "uniqueIdentifier";
@@ -373,16 +371,18 @@ public class TestKeyPairController {
 
     final var response = mvcResult.getResponse();
     final var responseBodyAsString = response.getContentAsString();
-    final var responseBody = objectMapper.readValue(responseBodyAsString, KeyResponse.class);
+    final var responseBody = objectMapper.readValue(responseBodyAsString, KeyResponse[].class);
+    final var keyResponse = responseBody[0];
     assertEquals(HttpStatus.OK.value(), response.getStatus());
-    assertEquals(keyAlgorithm, responseBody.getKeyAlgorithm());
-    assertEquals(uniqueIdentifier, responseBody.getKeyPairUniqueIdentifier());
-    assertEquals(publicKey, responseBody.getPublicKey());
+    assertEquals(1, responseBody.length);
+    assertEquals(keyAlgorithm, keyResponse.getKeyAlgorithm());
+    assertEquals(uniqueIdentifier, keyResponse.getKeyPairUniqueIdentifier());
+    assertEquals(publicKey, keyResponse.getPublicKey());
   }
 
   @WithMockUser(username = "test", password = "test", authorities = {})
   @Test
-  public void getKeyByKeyName_fail_403() throws Exception {
+  public void getKeys_fail_403() throws Exception {
     final var keyAlgorithm = "keyAlgorithm";
     final var keyParameter = "keyParameter";
     final var uniqueIdentifier = "uniqueIdentifier";
@@ -400,7 +400,7 @@ public class TestKeyPairController {
 
   @WithMockUser(username = "test", password = "test", authorities = {"USER"})
   @Test
-  public void getKeyByKeyName_fail_400() throws Exception {
+  public void getKeys_fail_400() throws Exception {
     final var publicKey = "publicKey";
     final var exception = new KeyPairServiceException(ExceptionType.KEY_NOT_FOUND);
     when(keyPairService.getKeyPairByKeyName(any(), any())).thenThrow(exception);
@@ -414,7 +414,7 @@ public class TestKeyPairController {
 
   @WithMockUser(username = "test", password = "test", authorities = {"USER"})
   @Test
-  public void getKeyByKeyName_fail_500() throws Exception {
+  public void getKeys_fail_500() throws Exception {
     final var keyAlgorithm = "keyAlgorithm";
     final var keyParameter = "keyParameter";
     final var uniqueIdentifier = "uniqueIdentifier";
@@ -428,6 +428,43 @@ public class TestKeyPairController {
 
     final var response = mvcResult.getResponse();
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+  }
+
+  @WithMockUser(username = "test", password = "test", authorities = {"USER"})
+  @Test
+  public void getKeys_success_no_param() throws Exception {
+    final var keyAlgorithm = "keyAlgorithm";
+    final var keyParameter = "keyParameter";
+    final var uniqueIdentifier = "uniqueIdentifier";
+    final var publicKey = "publicKey";
+    final var keyName1 = "keyName1";
+    final var keyName2 = "keyName2";
+    final var objectMapper = new ObjectMapper();
+    final var keyPair1 = new KeyPair("publicKeyIdentifier1", "privateKey1", keyAlgorithm,
+        keyParameter, uniqueIdentifier, keyName1, null);
+    final var keyPair2 = new KeyPair("publicKeyIdentifier2", "privateKey2", keyAlgorithm,
+        keyParameter, uniqueIdentifier, keyName2, null);
+    final var keyPairList = new ArrayList<KeyPair>();
+    keyPairList.add(keyPair1);
+    keyPairList.add(keyPair2);
+    when(keyPairService.getKeyPairs(anyString())).thenReturn(keyPairList);
+    when(keyPairService.getPublicKey(any(), any(), any())).thenReturn(publicKey);
+
+    final var mvcResult = mockMvc.perform(get("/key")).andReturn();
+
+    final var response = mvcResult.getResponse();
+    final var responseBodyAsString = response.getContentAsString();
+    final var responseBody = objectMapper.readValue(responseBodyAsString, KeyResponse[].class);
+    final var keyResponse1 = responseBody[0];
+    final var keyResponse2 = responseBody[1];
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertEquals(2, responseBody.length);
+    assertEquals(keyAlgorithm, keyResponse1.getKeyAlgorithm());
+    assertEquals(uniqueIdentifier, keyResponse1.getKeyPairUniqueIdentifier());
+    assertEquals(publicKey, keyResponse1.getPublicKey());
+    assertEquals(keyAlgorithm, keyResponse2.getKeyAlgorithm());
+    assertEquals(uniqueIdentifier, keyResponse2.getKeyPairUniqueIdentifier());
+    assertEquals(publicKey, keyResponse2.getPublicKey());
   }
 
   @WithMockUser(username = "test", password = "test", authorities = {})

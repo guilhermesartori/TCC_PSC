@@ -9,14 +9,11 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
-
 import javax.transaction.Transactional;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import br.ufsc.labsec.openpsc.entity.KeyPair;
 import br.ufsc.labsec.openpsc.repository.AppUserRepository;
 import br.ufsc.labsec.openpsc.repository.KeyPairRepository;
@@ -56,8 +53,8 @@ public class KeyPairService {
     }
   }
 
-  public List<KeyPair> getKeyPairs() {
-    return keyPairRepository.findAll();
+  public List<KeyPair> getKeyPairs(String username) {
+    return keyPairRepository.findKeyPairByOwnerUsername(username);
   }
 
   public KeyPair createKeyPair(String username, String accessKey, String keyAlgorithm,
