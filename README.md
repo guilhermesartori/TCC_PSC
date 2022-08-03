@@ -27,8 +27,7 @@ a partir do diretório raiz do projeto é suficiente para produzir o Jar. Ele se
 
 O sistema é executado com o próprio Spring Boot. Para executá-lo, pode-se
 primeiramente exportar quaisquer variáveis de ambiente desejadas para alterar as
-configurações do servidor, como, por exemplo, as configurações de HTTPS descritas na seção
-4.4.2 ou a porta do servidor. Essas informações de configuração estão disponíveis na Spring
+configurações do servidor, como, por exemplo, as configurações para HTTPS ou a porta do servidor. Essas informações de configuração estão disponíveis na Spring
 Framework Documentation. 
 
 ```
